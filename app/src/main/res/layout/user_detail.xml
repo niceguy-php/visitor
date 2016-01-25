@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:padding="@dimen/activity_horizontal_margin"
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/user_id_block"
+        android:orientation="horizontal" android:gravity="center_vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="序      号: "
+            />
+        <TextView
+            android:id="@+id/user_detail_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="员工姓名: "
+            />
+
+        <EditText
+            android:id="@+id/user_detail_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="输入员工姓名"
+            android:background="@android:drawable/edit_text"
+            android:gravity="top"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="员工性别: "
+            />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <RadioButton
+                android:id="@+id/user_detail_sex_male"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:checked="true"
+                android:text="男"/>
+            <RadioButton
+                android:id="@+id/user_detail_sex_female"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="女"/>
+        </RadioGroup>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="员工编码: "
+            />
+
+        <EditText
+            android:id="@+id/user_detail_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="输入员工编码"
+            android:background="@android:drawable/edit_text"
+            android:gravity="top"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="所在部门: "
+            />
+
+        <Spinner
+            android:id="@+id/user_detail_dept"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"></Spinner>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="员工职位: "
+            />
+
+        <EditText
+            android:id="@+id/user_detail_position"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="输入员工职位"
+            android:background="@android:drawable/edit_text"
+
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="联系电话: "
+            />
+
+        <EditText
+            android:id="@+id/user_detail_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="输入联系电话"
+            android:background="@android:drawable/edit_text"
+            android:gravity="top"
+            />
+    </LinearLayout>
+
+
+</LinearLayout>
+

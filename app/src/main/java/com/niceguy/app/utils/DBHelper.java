@@ -42,7 +42,7 @@ public class DBHelper extends SQLiteOpenHelper {
         Log.d("YYX", "---------------------start db oncreate------------new");
         db.execSQL("CREATE TABLE IF NOT EXISTS user" +
                 "(_id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, sex INTEGER , code_num TEXT," +
-                " position TEXT, phone TEXT)");
+                " position TEXT, phone TEXT, user_type INTEGER DEFAULT 1 )");
         db.execSQL("CREATE TABLE IF NOT EXISTS visit_log" +
                 "(_id INTEGER PRIMARY KEY AUTOINCREMENT, visit_reason TEXT, reason_id INTEGER, visited_user_id INTEGER,"+
                 "visited_username TEXT,visited_dept_id INTEGER,visited_dept_name TEXT," +
@@ -54,10 +54,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 "duty_username TEXT,visit_time INTEGER,leave_time INTEGER,visit_status INTEGER,barcode TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS department" +
                 "(_id INTEGER PRIMARY KEY AUTOINCREMENT, dept_name TEXT, code_num TEXT, desc TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS duty_user" +
-                "(_id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, sex INTEGER , code_num TEXT, position TEXT, phone TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS user_department" +
-                "(_id INTEGER PRIMARY KEY AUTOINCREMENT, dept_id INTEGER, user_id INTEGER,duty_user_id INTEGER)");
+                "(_id INTEGER PRIMARY KEY AUTOINCREMENT, dept_id INTEGER, user_id INTEGER)");
         db.execSQL("CREATE TABLE IF NOT EXISTS visit_reason" +
                 "(_id INTEGER PRIMARY KEY AUTOINCREMENT, reason TEXT)");
 
@@ -100,10 +98,26 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
+    public Cursor fetchDepartmentByName(String name) throws SQLException{
+
+        Cursor c = db.rawQuery("SELECT * FROM department WHERE dept_name=?",new String[]{name});
+        if(c!=null){
+            c.moveToFirst();
+        }
+        return c;
+    }
+
+
     public Cursor fetchAll(String table,int offset,int limit){
 //        String[] fields = getTableFields(table);
         return db.rawQuery("SELECT * FROM " + table + " ORDER BY _id DESC LIMIT ?,?", new String[]{String.valueOf(offset),String.valueOf(limit)});
     }
+
+    public Cursor fetchAllUser(int type,int offset,int limit){
+//        String[] fields = getTableFields(table);
+        return db.rawQuery("SELECT u.*,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND user_type=? ORDER BY u._id DESC LIMIT ?,?", new String[]{String.valueOf(type),String.valueOf(offset),String.valueOf(limit)});
+    }
+
 
     public long getCount(String table) {
         String sql = "select count(*) from "+table;
@@ -142,4 +156,5 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return fields;
     }
+
 }

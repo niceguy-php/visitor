@@ -82,11 +82,12 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:textSize="16sp"
+                android:gravity="center"
                 android:text="部门名称"
-                android:gravity="center"/>
+                />
             <TextView
                 android:gravity="center"
-                android:layout_width="100dp"
+                android:layout_width="200dp"
                 android:layout_height="match_parent"
                 android:textSize="16sp"
                 android:text="部门编码"/>

@@ -184,6 +184,12 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
 
                             Toast.makeText(getActivity(), "添加成功", Toast.LENGTH_LONG).show();
                         }
+                    }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            detailDialog.dismiss();
+                        }
                     }).create();
             detailDialog.show();
         }else{

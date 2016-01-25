@@ -42,10 +42,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingActivity" android:theme="@style/AppTheme"/>
+        <activity android:name=".SettingActivity" android:theme="@style/AppTheme" android:launchMode="singleTask" android:screenOrientation="landscape"/>
         <activity android:name=".PreviewActivity" />
-        <activity android:name=".QrCodeActivity" android:theme="@style/AppTheme"/>
-        <activity android:name=".CaptureActivity" android:theme="@style/AppTheme"/>
+        <activity android:name=".QrCodeActivity" android:theme="@style/AppTheme" android:launchMode="singleTask" android:screenOrientation="landscape"/>
+        <activity android:name=".CaptureActivity" android:theme="@style/AppTheme" android:launchMode="singleTask" android:screenOrientation="landscape"/>
     </application>
 
 </manifest>

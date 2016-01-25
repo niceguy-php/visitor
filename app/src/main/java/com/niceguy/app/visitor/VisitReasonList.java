@@ -170,15 +170,21 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
                     .setPositiveButton("添加", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            EditText t = (EditText)view.findViewById(R.id.reason_detail_content);
+                            EditText t = (EditText) view.findViewById(R.id.reason_detail_content);
                             String reason = t.getText().toString();
 
                             ContentValues cv = new ContentValues();
-                            cv.put("reason",reason);
+                            cv.put("reason", reason);
                             helper.insert(TABLE, cv);
                             updateList(1);
 
                             Toast.makeText(getActivity(), "添加成功", Toast.LENGTH_LONG).show();
+                        }
+                    }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            detailDialog.dismiss();
                         }
                     }).create();
             detailDialog.show();
