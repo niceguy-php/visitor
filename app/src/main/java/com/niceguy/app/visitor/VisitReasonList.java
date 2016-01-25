@@ -52,8 +52,6 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
 
         initViews(view);
 
-
-
         updateList(curpage_num);
 
         //条目点击事件
@@ -110,7 +108,7 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         count = helper.getCount(TABLE);
-        total_page = (int) Math.ceil(count / pagesize);
+        total_page = getTotalPage();
         switch (v.getId()){
             case R.id.reason_first_page:
                 updateList(1);
@@ -145,8 +143,7 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
         curpage_num = page_num;
         count = helper.getCount(TABLE);
         total.setText(String.valueOf(count));
-        double d = (double) (count / pagesize);
-        total_page = (int) Math.ceil(d);
+        total_page = getTotalPage();
         page.setText(String.valueOf(total_page));
         page1.setText(String.valueOf(total_page));
         curpage.setText(String.valueOf(curpage_num));
@@ -218,5 +215,18 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
             detailDialog.show();
         }
 
+    }
+
+    private int getTotalPage(){
+        count = helper.getCount(TABLE);
+
+        if(count > 0 && count <pagesize){
+            total_page = 1;
+        }else{
+            double d = (double) (count / pagesize);
+            total_page = (int) Math.ceil(d);
+        }
+
+        return total_page;
     }
 }
