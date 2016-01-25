@@ -102,7 +102,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Cursor fetchAll(String table,int offset,int limit){
 //        String[] fields = getTableFields(table);
-        return db.rawQuery("SELECT * FROM " + table + " LIMIT ?,?", new String[]{String.valueOf(offset),String.valueOf(limit)});
+        return db.rawQuery("SELECT * FROM " + table + " ORDER BY _id DESC LIMIT ?,?", new String[]{String.valueOf(offset),String.valueOf(limit)});
     }
 
     public long getCount(String table) {
