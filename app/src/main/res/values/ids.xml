@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="auto_focus" />
+    <item type="id" name="decode" />
+    <item type="id" name="decode_failed" />
+    <item type="id" name="decode_succeeded" />
+    <item type="id" name="encode_failed" />
+    <item type="id" name="encode_succeeded" />
+    <item type="id" name="launch_product_query" />
+    <item type="id" name="quit" />
+    <item type="id" name="restart_preview" />
+    <item type="id" name="return_scan_result" />
+    <item type="id" name="search_book_contents_failed" />
+    <item type="id" name="search_book_contents_succeeded" />
+    <item type="id" name="GridViewId">false</item>
+    <item type="id" name="btnclean">false</item>
+    <item type="id" name="imageView1">false</item>
+    <item type="id" name="ImageItemId">false</item>
+    <item type="id" name="TextItemId">false</item>
+    <item type="id" name="btnprintoff">false</item>
+    <item type="id" name="btnprinton">false</item>
+    <item type="id" name="btnrfidoff">false</item>
+    <item type="id" name="btnrfidon">false</item>
+    <item type="id" name="btnwifioff">false</item>
+    <item type="id" name="btnwifion">false</item>
+    <item type="id" name="btnrj45off">false</item>
+    <item type="id" name="btnrj45on">false</item>
+    <item type="id" name="linearLayout9">false</item>
+    <item type="id" name="TextView01">false</item>
+    <item type="id" name="editText2">false</item>
+    <item type="id" name="textView1">false</item>
+    <item type="id" name="editText3">false</item>
+    <item type="id" name="linearLayout2">false</item>
+    <item type="id" name="btnOpen">false</item>
+    <item type="id" name="btnExit">false</item>
+    <item type="id" name="linearLayout3">false</item>
+    <item type="id" name="btnOpenPic">false</item>
+    <item type="id" name="btnWordToPic">false</item>
+    <item type="id" name="btnPrintPic">false</item>
+    <item type="id" name="linearLayout4">false</item>
+    <item type="id" name="btnQrCode">false</item>
+    <item type="id" name="btnBarCode">false</item>
+    <item type="id" name="editText1">false</item>
+    <item type="id" name="linearLayout5">false</item>
+    <item type="id" name="checkBoxTimer">false</item>
+    <item type="id" name="btnPrint">false</item>
+    <item type="id" name="linearLayout6">false</item>
+    <item type="id" name="iv_test">false</item>
+    <item type="id" name="linearLayout1">false</item>
+    <item type="id" name="radioGroup">false</item>
+    <item type="id" name="radioButton1">false</item>
+    <item type="id" name="radioButton2">false</item>
+    <item type="id" name="linearLayout13">false</item>
+    <item type="id" name="button2">false</item>
+    <item type="id" name="button3">false</item>
+    <item type="id" name="preview_view">false</item>
+    <item type="id" name="viewfinder_view">false</item>
+    <item type="id" name="txtResult">false</item>
+    <item type="id" name="editText4">false</item>
+    <item type="id" name="editText5">false</item>
+    <item type="id" name="tableRow1">false</item>
+    <item type="id" name="TextView05">false</item>
+    <item type="id" name="spinnerSectorNumber">false</item>
+    <item type="id" name="textView5">false</item>
+    <item type="id" name="spinnerBlockNumber">false</item>
+    <item type="id" name="textView2">false</item>
+    <item type="id" name="TextView03">false</item>
+    <item type="id" name="TextView02">false</item>
+    <item type="id" name="spinnerSerialPort">false</item>
+    <item type="id" name="spinnerBaudrate">false</item>
+    <item type="id" name="checkBoxReceive">false</item>
+    <item type="id" name="editTextReceive">false</item>
+    <item type="id" name="LinearLayout02">false</item>
+    <item type="id" name="CheckBoxAuto">false</item>
+    <item type="id" name="CheckBoxSend">false</item>
+    <item type="id" name="editTextSend">false</item>
+    <item type="id" name="btnSend">false</item>
+    <item type="id" name="menu_settings">false</item>
+    <item type="id" name="action_settings">false</item>
+</resources>

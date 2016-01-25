@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/menu_border_color"
+    >
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <RadioGroup
+            android:id="@+id/radio_group"
+            android:layout_width="420dp"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <RadioButton
+                android:id="@+id/dept_tab_btn"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:checked="true"
+                android:gravity="center"
+                android:textColor="@color/color_radio_btn"
+                android:background="@drawable/radio_selected"
+                android:text="部门管理"/>
+
+            <RadioButton
+                android:id="@+id/employee_tab_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:button="@null"
+                android:gravity="center"
+                android:textColor="@color/color_radio_btn"
+                android:background="@drawable/radio_selected"
+                android:text="部门成员"/>
+            <RadioButton
+                android:id="@+id/duty_user_tab_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:layout_height="match_parent"
+                android:button="@null"
+                android:textColor="@color/color_radio_btn"
+                android:background="@drawable/radio_selected"
+                android:text="值班人员"/>
+            <RadioButton
+                android:id="@+id/visit_reason_tab_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/color_radio_btn"
+                android:background="@drawable/radio_selected"
+                android:layout_height="match_parent"
+                android:button="@null"
+                android:text="来访事由"/>
+            <RadioButton
+                android:id="@+id/go_home"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:layout_height="match_parent"
+                android:button="@null"
+                android:layout_marginLeft="20dp"
+                android:drawableTop="@drawable/home"
+                android:background="@color/tabSelected"
+                android:textColor="@color/textWhite"
+                android:text="返回主页"/>
+        </RadioGroup>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:id="@+id/settings_fragment"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        </FrameLayout>
+    </LinearLayout>
+
+</LinearLayout>
