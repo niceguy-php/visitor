@@ -348,7 +348,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                                     e.printStackTrace();
                                 }
 
-                                helper.db.rawQuery("DELETE FROM "+TABLE_USER_DEPARTMENT+" WHERE user_id=? AND dept_id=?",new String[]{String.valueOf(user_id),String.valueOf(old_dept_id)});
+                                helper.db.execSQL("DELETE FROM "+TABLE_USER_DEPARTMENT+" WHERE user_id=? AND dept_id=?",new String[]{String.valueOf(user_id),String.valueOf(old_dept_id)});
 
 
                                 int dept_id = 0;
