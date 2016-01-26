@@ -38,8 +38,8 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
     private static final String TABLE_USER_DEPARTMENT = "user_department";
     private static final int ACTION_ADD = 1;
     private static final int ACTION_UPDATE = 2;
-    private static final int USER_TYPE_EMPLOYEE = 1;//员工
-    private static final int USER_TYPE_DUTY = 2;//值班用户
+    public static final int USER_TYPE_EMPLOYEE = 1;//员工
+    public static final int USER_TYPE_DUTY = 2;//值班用户
     private static final int SEX_MALE = 1;//值班用户
     private static final int SEX_FEMALE = 2;//值班用户
 
@@ -75,7 +75,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                 String dept_name = item.getString(item.getColumnIndex("dept_name"));
                 String user_position = item.getString(item.getColumnIndex("position"));
                 String phone = item.getString(item.getColumnIndex("phone"));
-                int sex = item.getInt(item.getColumnIndex("sex"));
+                String sex = item.getString(item.getColumnIndex("sex"));
                 int _id = item.getInt(item.getColumnIndex("_id"));
 
                 user_old_dept = dept_name;
@@ -104,7 +104,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
                 Spinner deptlist = (Spinner) detailView.findViewById(R.id.user_detail_dept);
 
-                final String[] deptNames = getDeptNames();
+                final String[] deptNames = helper.getDeptNames();
                 int selectedIndex = 0;
                 for(int i=0;i<deptNames.length;i++){
                     if(deptNames[i].equals(dept_name)){
@@ -130,7 +130,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                     }
                 });
 
-                if(sex == 1){
+                if("男".equals(sex)){
                     userSexMale.setChecked(true);
                     userSexFemale.setChecked(false);
                 }else{
@@ -202,7 +202,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
                 Spinner deptlist = (Spinner) detailView.findViewById(R.id.user_detail_dept);
 
-                final String[] deptNames = getDeptNames();
+                final String[] deptNames = helper.getDeptNames();
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, deptNames);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 deptlist.setAdapter(adapter);
@@ -265,6 +265,18 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                             cv.put("phone",phone.getText().toString());
                             cv.put("code_num", code.getText().toString());
                             cv.put("position", pos.getText().toString());
+
+                            if("".equals(cv.get("username").toString())){
+                                Toast.makeText(getActivity(), "请填写员工姓名", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
+                            }
+                            if("".equals(cv.get("phone").toString())){
+                                Toast.makeText(getActivity(), "请填写员工电话", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
+                            }
+
                             if(userSexFemale.isChecked()){
                                 cv.put("sex",SEX_FEMALE);
                             }else{
@@ -285,7 +297,8 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
                             if(dept_id == 0 || user_id == 0){
                                 Toast.makeText(getActivity(),"请选择员工所属部门",Toast.LENGTH_SHORT).show();
-                                detailDialog.dismiss();
+                                detailDialog.show();
+                                return;
                             }
 
 
@@ -330,6 +343,18 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                                 cv.put("sex",SEX_FEMALE);
                             }else{
                                 cv.put("sex", SEX_MALE);
+                            }
+
+
+                            if("".equals(cv.get("username").toString())){
+                                Toast.makeText(getActivity(), "请填写员工姓名", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
+                            }
+                            if("".equals(cv.get("phone").toString())){
+                                Toast.makeText(getActivity(), "请填写员工电话", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
                             }
 
 
@@ -403,17 +428,4 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
         return total_page;
     }
 
-    private String[] getDeptNames(){
-        Cursor cur = helper.fetchAll(helper.TABLE_DEPARTMENT, 0, 10000);
-        int len = cur.getCount();
-        String[] deptNames = new String[len];
-        if(cur!=null){
-            int i = 0;
-            while (cur.moveToNext()){
-                deptNames[i] = cur.getString(cur.getColumnIndex("dept_name"));
-                i++;
-            }
-        }
-        return deptNames;
-    }
 }

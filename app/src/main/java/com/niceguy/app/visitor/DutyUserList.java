@@ -75,7 +75,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                 String dept_name = item.getString(item.getColumnIndex("dept_name"));
                 String user_position = item.getString(item.getColumnIndex("position"));
                 String phone = item.getString(item.getColumnIndex("phone"));
-                int sex = item.getInt(item.getColumnIndex("sex"));
+                String sex = item.getString(item.getColumnIndex("sex"));
                 int _id = item.getInt(item.getColumnIndex("_id"));
 
                 user_old_dept = dept_name;
@@ -104,7 +104,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
 
                 Spinner deptlist = (Spinner) detailView.findViewById(R.id.user_detail_dept);
 
-                final String[] deptNames = getDeptNames();
+                final String[] deptNames = helper.getDeptNames();
                 int selectedIndex = 0;
                 for(int i=0;i<deptNames.length;i++){
                     if(deptNames[i].equals(dept_name)){
@@ -130,7 +130,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                     }
                 });
 
-                if(sex == 1){
+                if("男".equals(sex)){
                     userSexMale.setChecked(true);
                     userSexFemale.setChecked(false);
                 }else{
@@ -202,7 +202,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
 
                 Spinner deptlist = (Spinner) detailView.findViewById(R.id.user_detail_dept);
 
-                final String[] deptNames = getDeptNames();
+                final String[] deptNames = helper.getDeptNames();
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, deptNames);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 deptlist.setAdapter(adapter);
@@ -235,7 +235,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
             page_num = 0;
         }
         int offset = page_num*pagesize;
-        Cursor cur = helper.fetchAllUser(USER_TYPE_DUTY, offset, pagesize);
+        Cursor cur = helper.fetchAllUser(USER_TYPE_EMPLOYEE, offset, pagesize);
         if(cur != null){
             SimpleCursorAdapter adapter = new SimpleCursorAdapter(activity, R.layout.user_item, cur,
                     new String[]{"_id", "username","sex","code_num","dept_name","position","phone"}, new int[]{R.id.user_id, R.id.user_name,R.id.user_sex,R.id.user_code,R.id.user_dept,R.id.user_position,R.id.user_phone});
@@ -265,7 +265,18 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                             cv.put("phone",phone.getText().toString());
                             cv.put("code_num", code.getText().toString());
                             cv.put("position", pos.getText().toString());
-                            cv.put("user_type",String.valueOf(USER_TYPE_DUTY));
+
+                            if("".equals(cv.get("username").toString())){
+                                Toast.makeText(getActivity(), "请填写员工姓名", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
+                            }
+                            if("".equals(cv.get("phone").toString())){
+                                Toast.makeText(getActivity(), "请填写员工电话", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
+                            }
+
                             if(userSexFemale.isChecked()){
                                 cv.put("sex",SEX_FEMALE);
                             }else{
@@ -286,7 +297,8 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
 
                             if(dept_id == 0 || user_id == 0){
                                 Toast.makeText(getActivity(),"请选择员工所属部门",Toast.LENGTH_SHORT).show();
-                                detailDialog.dismiss();
+                                detailDialog.show();
+                                return;
                             }
 
 
@@ -331,6 +343,18 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                                 cv.put("sex",SEX_FEMALE);
                             }else{
                                 cv.put("sex", SEX_MALE);
+                            }
+
+
+                            if("".equals(cv.get("username").toString())){
+                                Toast.makeText(getActivity(), "请填写员工姓名", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
+                            }
+                            if("".equals(cv.get("phone").toString())){
+                                Toast.makeText(getActivity(), "请填写员工电话", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
                             }
 
 
@@ -404,17 +428,4 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
         return total_page;
     }
 
-    private String[] getDeptNames(){
-        Cursor cur = helper.fetchAll(helper.TABLE_DEPARTMENT, 0, 10000);
-        int len = cur.getCount();
-        String[] deptNames = new String[len];
-        if(cur!=null){
-            int i = 0;
-            while (cur.moveToNext()){
-                deptNames[i] = cur.getString(cur.getColumnIndex("dept_name"));
-                i++;
-            }
-        }
-        return deptNames;
-    }
 }

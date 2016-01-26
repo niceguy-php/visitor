@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -24,14 +25,18 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.niceguy.app.utils.DBHelper;
 import com.synjones.bluetooth.DecodeWlt;
 import com.synjones.sdt.IDCard;
 import com.synjones.sdt.SerialPort;
@@ -83,6 +88,10 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private EditText visitedPhone = null;
     private EditText visitedName = null;
     private EditText visitedPos = null;
+    private DBHelper helper = null;
+    private AutoCompleteTextView be_visited_name = null;
+
+    private RadioButton visitedMale,visitedFemale;
 
     public ProgressDialog progressDialog = null;
 
@@ -93,18 +102,20 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.visitor_register_tab, container, false);
 
+        helper = new DBHelper(getContext());
+
         initViews(view);
         initEvents();
 
         /**
          * 读卡
          */
-        try {
+        /*try {
             mSerialPort = getSerialPort();
         } catch (SecurityException se) {
         } catch (IOException ioe) {
         } catch (InvalidParameterException ipe) {
-        }
+        }*/
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
                 + STROE_IDCARD_AVATAR_PATH;// 配置文件文件夹
         File config = new File(companyFolder);
@@ -127,17 +138,19 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         capture = (Button) view.findViewById(R.id.btn_capture);
         mHolder.addCallback(this);
 
-        String[] visit_reasons = new String[]{"送货", "办事", "找人"};
+        String[] visit_reasons = helper.getVisitReasons();
         adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, visit_reasons);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         visit_reason.setAdapter(adapter);
 
-        String[] dept = new String[]{"财务部", "行政部", "领导办公室"};
+        String[] dept = helper.getDeptNames();
         adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, dept);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         be_visited_dept.setAdapter(adapter);
 
-        String[] duty_persons = new String[]{"张三", "李四", "王五"};
+
+
+        String[] duty_persons = helper.getUserNames(EmployeeList.USER_TYPE_DUTY);
         adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, duty_persons);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         duty_person.setAdapter(adapter);
@@ -163,6 +176,10 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         visitedPhone = (EditText) view.findViewById(R.id.be_visited_tel);
         visitedName = (EditText) view.findViewById(R.id.be_visited_name);
         visitedPos = (EditText) view.findViewById(R.id.be_visited_pos);
+        visitedFemale = (RadioButton) view.findViewById(R.id.visitedSexFemale);
+        visitedMale = (RadioButton) view.findViewById(R.id.visitedSexMale);
+
+        be_visited_name = (AutoCompleteTextView) view.findViewById(R.id.be_visited_name);
 
     }
 
@@ -172,6 +189,66 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         visitor_register.setOnClickListener(this);
         print_preview.setOnClickListener(this);
         clear_register.setOnClickListener(this);
+
+        visit_reason.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        be_visited_dept.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String name = be_visited_dept.getSelectedItem().toString();
+                String[] deptUsers = helper.getUserNamesByDeptName(EmployeeList.USER_TYPE_EMPLOYEE,name);
+                ArrayAdapter<String> av = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_dropdown_item_1line, deptUsers);
+                be_visited_name.setAdapter(av);
+                if(deptUsers.length > 0){
+                    be_visited_name.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            String n = (String) parent.getItemAtPosition(position);
+                            toast(n);
+                            int p = n.indexOf("-(");
+                            if( p != -1){
+                                String username = n.substring(0,p);
+                                String dept_name = n.substring(p+2,n.length()-1);
+                                Cursor c = helper.fetchUserByDeptNameAndUserName(username, dept_name);
+                                if(c.getCount()>0){
+                                    c.moveToFirst();
+                                    String sex = c.getString(c.getColumnIndex("sex"));
+                                    String phone = c.getString(c.getColumnIndex("phone"));
+                                    String pos = c.getString(c.getColumnIndex("position"));
+
+                                    visitedPos.setText(pos);
+                                    visitedPhone.setText(phone);
+                                    if("男".equals(sex)){
+                                        visitedMale.setChecked(true);
+                                        visitedFemale.setChecked(false);
+                                    }else{
+                                        visitedMale.setChecked(false);
+                                        visitedFemale.setChecked(true);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        be_visited_dept.setSelection(0,true);
     }
 
     @Override

@@ -47,12 +47,12 @@
             android:layout_height="wrap_content"
             android:text="姓名："/>-->
 
-        <EditText
+        <AutoCompleteTextView
             android:hint="被访人姓名"
-            android:textColorHint="@color/hint"
+            android:completionThreshold="1"
+            android:id="@+id/be_visited_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/be_visited_name"
             android:layout_weight="1"
             android:background="@android:drawable/edit_text"/>
 
@@ -80,11 +80,13 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
             <RadioButton
+                android:id="@+id/visitedSexMale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:text="男"/>
             <RadioButton
+                android:id="@+id/visitedSexFemale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="18dp"

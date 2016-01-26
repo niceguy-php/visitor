@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import com.niceguy.app.utils.DBHelper;
 
+import java.sql.SQLException;
+
 /**
  * Created by qiumeilin on 2016/1/9.
  */
@@ -38,6 +40,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
     private DBHelper helper = null;
     private int pagesize = 10,total_page = 0,curpage_num=1;
     private long count = 0;
+    private String old_dept_name;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -61,6 +64,8 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                 String code = item.getString(item.getColumnIndex("code_num"));
                 String name = item.getString(item.getColumnIndex("dept_name"));
                 int _id = item.getInt(item.getColumnIndex("_id"));
+
+                old_dept_name = name;
 
                 Toast.makeText(activity, "", Toast.LENGTH_SHORT).show();
                 LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -177,6 +182,20 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                             String code = t1.getText().toString();
 
                             ContentValues cv = new ContentValues();
+                            if("".equals(name.trim())){
+                                Toast.makeText(getActivity(), "请填写部门名称", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
+                            }
+                            try {
+                                Cursor c = helper.fetchDepartmentByName(name);
+                                if(c!=null){
+                                    Toast.makeText(getActivity(), "部门名称已经存在", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
                             cv.put("dept_name",name);
                             cv.put("code_num",code);
                             helper.insert(TABLE, cv);
@@ -207,6 +226,24 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                             String code = t1.getText().toString();
 
                             ContentValues cv = new ContentValues();
+                            if("".equals(name.trim())){
+                                Toast.makeText(getActivity(), "请填写部门名称", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
+                            }
+
+                            try {
+                                if(!name.equals(old_dept_name)){
+                                    Cursor c = helper.fetchDepartmentByName(name);
+                                    if(c!=null){
+                                        Toast.makeText(getActivity(), "部门名称已经存在", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                }
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+
                             cv.put("dept_name",name);
                             cv.put("code_num",code);
 

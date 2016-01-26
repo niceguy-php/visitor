@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.system.StructPollfd;
 import android.util.Log;
 
+import com.niceguy.app.visitor.EmployeeList;
+
 import java.sql.SQLException;
 
 /**
@@ -90,7 +92,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public Cursor fetch(String table,long id) throws SQLException{
 
         String[] fields = getTableFields(table);
-        Cursor c = db.query(true,table,fields,"_id="+id,null,null,null,null,null);
+        Cursor c = db.query(true, table, fields, "_id=" + id, null, null, null, null, null);
         if(c!=null){
             c.moveToFirst();
         }
@@ -100,7 +102,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Cursor fetchDepartmentByName(String name) throws SQLException{
 
-        Cursor c = db.rawQuery("SELECT * FROM department WHERE dept_name=?",new String[]{name});
+        Cursor c = db.rawQuery("SELECT * FROM department WHERE dept_name=?", new String[]{name});
         if(c!=null){
             c.moveToFirst();
         }
@@ -115,7 +117,31 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Cursor fetchAllUser(int type,int offset,int limit){
 //        String[] fields = getTableFields(table);
-        return db.rawQuery("SELECT u.*,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND user_type=? ORDER BY u._id DESC LIMIT ?,?", new String[]{String.valueOf(type),String.valueOf(offset),String.valueOf(limit)});
+        return db.rawQuery("SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND user_type=? ORDER BY u._id DESC LIMIT ?,?", new String[]{String.valueOf(type),String.valueOf(offset),String.valueOf(limit)});
+    }
+
+    public Cursor fetchAllUserByDeptName(int type,String dept_name){
+        return db.rawQuery("SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND user_type=? AND dept_name=? ORDER BY u._id DESC", new String[]{String.valueOf(type),String.valueOf(dept_name)});
+    }
+
+    public String[] getUserNamesByDeptName(int type,String dept_name){
+        Cursor cur = db.rawQuery("SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND user_type=? AND dept_name=? ORDER BY u._id DESC", new String[]{String.valueOf(type),String.valueOf(dept_name)});
+        int len = cur.getCount();
+        String[] data = new String[len];
+        if(cur!=null){
+            int i = 0;
+            while (cur.moveToNext()){
+                data[i] = cur.getString(cur.getColumnIndex("username"))+"-("+cur.getString(cur.getColumnIndex("dept_name"))+")";
+                i++;
+            }
+        }
+        return data;
+    }
+
+    public Cursor fetchUserByDeptNameAndUserName(String user_name,String dept_name){
+        Cursor c = db.rawQuery("SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND u.username=? AND d.dept_name=? ORDER BY u._id DESC", new String[]{String.valueOf(user_name),String.valueOf(dept_name)});
+        Log.v("YYY",c.getCount()+"------------------------"+"\"SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND u.username='"+user_name+"' AND d.dept_name='"+dept_name+"' ORDER BY u._id DESC");
+        return c;
     }
 
 
@@ -156,5 +182,51 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return fields;
     }
+
+    public String[] getDeptNames(){
+        Cursor cur = fetchAll(TABLE_DEPARTMENT, 0, 10000);
+        int len = cur.getCount();
+        String[] deptNames = new String[len];
+        if(cur!=null){
+            int i = 0;
+            while (cur.moveToNext()){
+                deptNames[i] = cur.getString(cur.getColumnIndex("dept_name"));
+                i++;
+            }
+        }
+        return deptNames;
+    }
+
+    public String[] getVisitReasons(){
+        Cursor cur = fetchAll(TABLE_VISIT_REASON, 0, 10000);
+        int len = cur.getCount();
+        String[] data = new String[len];
+        if(cur!=null){
+            int i = 0;
+            while (cur.moveToNext()){
+                data[i] = cur.getString(cur.getColumnIndex("reason"));
+                i++;
+            }
+        }
+        return data;
+    }
+
+
+    public String[] getUserNames(int type){
+        Cursor cur =  fetchAllUser(type,0,1000000);
+        int len = cur.getCount();
+        String[] data = new String[len];
+        if(cur!=null){
+            int i = 0;
+            while (cur.moveToNext()){
+                data[i] = cur.getString(cur.getColumnIndex("username"))+"("+cur.getString(cur.getColumnIndex("dept_name"))+")";
+                i++;
+            }
+        }
+
+        return data;
+
+    }
+
 
 }

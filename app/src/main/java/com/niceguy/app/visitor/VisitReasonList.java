@@ -174,6 +174,11 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
                             String reason = t.getText().toString();
 
                             ContentValues cv = new ContentValues();
+                            if("".equals(reason.trim())){
+                                Toast.makeText(getActivity(), "请填写来访原因", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
+                            }
                             cv.put("reason", reason);
                             helper.insert(TABLE, cv);
                             updateList(1);
@@ -200,6 +205,12 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
 
                             ContentValues cv = new ContentValues();
                             cv.put("reason",reason);
+
+                            if("".equals(reason.trim())){
+                                Toast.makeText(getActivity(), "请填写来访原因", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
+                            }
 
                             helper.update(TABLE, cv, Long.parseLong(v.getText().toString()));
                             updateList(1);
