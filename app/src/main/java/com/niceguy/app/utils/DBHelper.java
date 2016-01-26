@@ -121,6 +121,12 @@ public class DBHelper extends SQLiteOpenHelper {
                 " FROM "+TABLE_VISIT_LOG+" ORDER BY _id DESC LIMIT ?,?", new String[]{String.valueOf(offset),String.valueOf(limit)});
     }
 
+    public Cursor fetchAllVisitLog(String condition,int offset,int limit ){
+        return db.rawQuery("SELECT _id,visit_reason,visited_username,visited_dept_name,visitor_name," +
+                "datetime(visit_time/1000,'unixepoch', 'localtime') AS visit_time,(CASE leave_time WHEN 0 THEN '' ELSE datetime(leave_time/1000,'unixepoch', 'localtime') END) AS leave_time,(CASE visit_status WHEN 0 THEN '未离开' WHEN 1 THEN '已离开' END) AS visit_status" +
+                " FROM "+TABLE_VISIT_LOG+" WHERE "+condition+" ORDER BY _id DESC LIMIT ?,?", new String[]{String.valueOf(offset),String.valueOf(limit)});
+    }
+
     public Cursor fetchAllUser(int type,int offset,int limit){
 //        String[] fields = getTableFields(table);
         return db.rawQuery("SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND user_type=? ORDER BY u._id DESC LIMIT ?,?", new String[]{String.valueOf(type),String.valueOf(offset),String.valueOf(limit)});

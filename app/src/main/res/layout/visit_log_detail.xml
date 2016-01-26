@@ -3,48 +3,230 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="10dp"
-    android:layout_marginBottom="20dp"
+    android:layout_marginBottom="10dp"
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
     android:padding="@dimen/activity_horizontal_margin"
     android:orientation="vertical"
     >
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:id="@+id/reason_id_block"
-        android:orientation="horizontal" android:gravity="center_vertical">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="序      号: "
-            />
-        <TextView
-            android:id="@+id/reason_detail_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"/>
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:text="来访人信息"
+        android:textColor="@color/colorPrimaryDark"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="top">
-        <TextView
+        >
+
+        <GridLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="来访原因: "
-            />
+            android:columnCount="4"
+            android:rowCount="4"
+            android:layout_gravity="center_horizontal"
+            >
 
-        <EditText
-            android:id="@+id/reason_detail_content"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:inputType="textMultiLine"
-            android:hint="输入来访原因"
-            android:background="@android:drawable/edit_text"
-            android:gravity="top"
-            />
+            <TextView
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:text="身份证头像："/>
+            <ImageView android:layout_height="100dp" android:layout_width="110dp
+            "/>
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="拍照图片："/>
+            <ImageView android:layout_height="100dp" android:layout_width="110dp
+            "/>
+
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="姓名："/>
+            <TextView
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="张三"/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="性别："/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="男"/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="民族："/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="汉族"/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="生日："/>
+            <TextView
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="1988-09-08"/>
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="住址："/>
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="成都市"/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="身份证号："/>
+            <TextView
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:text="832923198809080718"/>
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="签证机关："/>
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="派出所"/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="有效期限："/>
+            <TextView
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:text="832923198809080718"/>
+
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="来访人数："/>
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="1"/>
+            <TextView
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:text="来访人电话："/>
+            <TextView
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:text="1234567897789"/>
+
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="来访时间："/>
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="2015"/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="离开时间："/>
+            <TextView
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:text="2015"/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="来访事由："/>
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="测试"/>
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="来访状态："/>
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="已离开"
+                android:textColor="@android:color/holo_red_dark"/>
+
+        </GridLayout>
+    </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="被访人信息"
+        android:textColor="@color/colorPrimaryDark"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        >
+
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:columnCount="4"
+            android:rowCount="4"
+            android:layout_gravity="center_horizontal"
+            >
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="被访人："/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="张三"/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="性别："/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="男"/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="所属部门："/>
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="技术部"/>
+            <TextView
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:text="被访人电话："/>
+            <TextView
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="1988-09-08"/>
+
+            <TextView
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:text="被访人职位："/>
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="副主任"/>
+
+        </GridLayout>
     </LinearLayout>
 
 
