@@ -2,6 +2,7 @@ package com.niceguy.app.visitor;
 
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -248,7 +249,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             }
         });
 
-        be_visited_dept.setSelection(0,true);
+        be_visited_dept.setSelection(0, true);
     }
 
     @Override
@@ -404,6 +405,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 this.capture();
                 break;
             case R.id.clear_register_btn:
+//                addVisitorLog();
                 this.clear();
                 break;
             case R.id.visitor_register_btn:
@@ -615,6 +617,14 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
     private void print() {
 
+        if(cameraTakeAvatarPath!= null && idCardAvatarPath!= null && barCodeString!=null){
+            if(!addVisitorLog()){
+                toast("登记失败，请重试！");
+                return;
+            }
+        }else{
+            toast("请给访客拍照并放入访客的身份证进行识别");
+        }
         initPrinter();
         if (printerClass != null) {
             toast(getPrintText());
@@ -772,6 +782,45 @@ this.toast("in loading");
         if(progressDialog !=null){
             progressDialog.hide();
         }
+    }
+
+    public boolean addVisitorLog(){
+
+        ContentValues cv = new ContentValues();
+        cv.put("barcode",barCodeString);
+        cv.put("visit_status",0);
+        cv.put("leave_time",0);
+        cv.put("visit_time",new Date().getTime());
+        cv.put("duty_username",duty_person.getSelectedItem().toString());
+        cv.put("duty_user_id",0);
+        cv.put("idcard_deadline",valid_date.getText().toString());
+        cv.put("idcard_police",police.getText().toString());
+        cv.put("visitor_count",visitorCount.getText().toString());
+        cv.put("visitor_idno",id_number.getText().toString());
+        cv.put("visitor_address", address.getText().toString());
+        cv.put("visitor_birthday", birthday.getText().toString());
+        cv.put("visitor_ethnic", ethnic.getText().toString());
+        cv.put("visitor_phone", visitorPhone.getText().toString());
+        cv.put("idcard_avatar", idCardAvatarPath);
+        cv.put("visitor_avatar",cameraTakeAvatarPath);
+        cv.put("visitor_sex", sex.getText().toString());
+        cv.put("visitor_name", name.getText().toString());
+        cv.put("visited_user_phone", visitedPhone.getText().toString());
+        cv.put("visited_user_position", visitedPos.getText().toString());
+        if(visitedFemale.isChecked()){
+            cv.put("visited_sex", 2);
+        }else{
+            cv.put("visited_sex",1);
+        }
+        cv.put("visited_dept_name", be_visited_dept.getSelectedItem().toString());
+        cv.put("visited_dept_id", 0);
+        cv.put("visited_username", be_visited_name.getText().toString());
+        cv.put("visited_user_id", 0);
+        cv.put("reason_id", 0);
+        cv.put("visit_reason", visit_reason.getSelectedItem().toString());
+
+        return helper.insert(helper.TABLE_VISIT_LOG,cv) > 0;
+
     }
 
 }

@@ -235,7 +235,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
             page_num = 0;
         }
         int offset = page_num*pagesize;
-        Cursor cur = helper.fetchAllUser(USER_TYPE_EMPLOYEE, offset, pagesize);
+        Cursor cur = helper.fetchAllUser(USER_TYPE_DUTY, offset, pagesize);
         if(cur != null){
             SimpleCursorAdapter adapter = new SimpleCursorAdapter(activity, R.layout.user_item, cur,
                     new String[]{"_id", "username","sex","code_num","dept_name","position","phone"}, new int[]{R.id.user_id, R.id.user_name,R.id.user_sex,R.id.user_code,R.id.user_dept,R.id.user_position,R.id.user_phone});

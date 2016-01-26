@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initEvent();
         setSelected(0);
 
-        visitLog();
+//        visitLog();
     }
 
     private void responseIntent(int status){
