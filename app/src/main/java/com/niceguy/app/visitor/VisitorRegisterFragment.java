@@ -32,7 +32,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,6 +97,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private RadioButton visitedMale,visitedFemale;
 
     public ProgressDialog progressDialog = null;
+
+    private ListView recent_visit_log_listview = null;
 
 
 
@@ -182,6 +186,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
         be_visited_name = (AutoCompleteTextView) view.findViewById(R.id.be_visited_name);
 
+        recent_visit_log_listview = (ListView) view.findViewById(R.id.recent_visit_log);
+
     }
 
     private void initEvents() {
@@ -250,6 +256,18 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         });
 
         be_visited_dept.setSelection(0, true);
+
+        recent_visit_log_listview.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
@@ -406,6 +424,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 break;
             case R.id.clear_register_btn:
 //                addVisitorLog();
+                showRecentVisitLog();
                 this.clear();
                 break;
             case R.id.visitor_register_btn:
@@ -821,6 +840,21 @@ this.toast("in loading");
 
         return helper.insert(helper.TABLE_VISIT_LOG,cv) > 0;
 
+    }
+
+    private void showRecentVisitLog(){
+        String idno = id_number.getText().toString();
+//        if(idno!=null && !"".equals(idno)){
+//            Cursor cur = helper.getRecentVisitLogByIdNumber(idno);
+            Cursor cur = helper.fetchAllVisitLog(0, 3);
+            if(cur != null){
+                SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.visit_log_item, cur,
+                        new String[]{"_id", "visitor_name","visit_reason","visited_dept_name","visited_username","visit_time","leave_time","visit_status"},
+                        new int[]{R.id.item_log_id,R.id.item_visitor_name, R.id.item_visit_reason,R.id.item_visited_dept,R.id.item_visited_name,R.id.item_visit_time,R.id.item_leave_time,R.id.item_visit_status});
+                //实现列表的显示
+                recent_visit_log_listview.setAdapter(adapter);
+            }
+//        }
     }
 
 }

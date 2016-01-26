@@ -115,6 +115,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM " + table + " ORDER BY _id DESC LIMIT ?,?", new String[]{String.valueOf(offset),String.valueOf(limit)});
     }
 
+    public Cursor fetchAllVisitLog(int offset,int limit){
+        return db.rawQuery("SELECT _id,visit_reason,visited_username,visited_dept_name,visitor_name," +
+                "datetime(visit_time/1000,'unixepoch', 'localtime') AS visit_time,(CASE leave_time WHEN 0 THEN '' ELSE datetime(leave_time/1000,'unixepoch', 'localtime') END) AS leave_time,(CASE visit_status WHEN 0 THEN '未离开' WHEN 1 THEN '已离开' END) AS visit_status" +
+                " FROM "+TABLE_VISIT_LOG+" ORDER BY _id DESC LIMIT ?,?", new String[]{String.valueOf(offset),String.valueOf(limit)});
+    }
+
     public Cursor fetchAllUser(int type,int offset,int limit){
 //        String[] fields = getTableFields(table);
         return db.rawQuery("SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND user_type=? ORDER BY u._id DESC LIMIT ?,?", new String[]{String.valueOf(type),String.valueOf(offset),String.valueOf(limit)});
@@ -139,8 +145,8 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchUserByDeptNameAndUserName(String user_name,String dept_name){
-        Cursor c = db.rawQuery("SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND u.username=? AND d.dept_name=? ORDER BY u._id DESC", new String[]{String.valueOf(user_name),String.valueOf(dept_name)});
-        Log.v("YYY",c.getCount()+"------------------------"+"\"SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND u.username='"+user_name+"' AND d.dept_name='"+dept_name+"' ORDER BY u._id DESC");
+        Cursor c = db.rawQuery("SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND u.username=? AND d.dept_name=? ORDER BY u._id DESC", new String[]{String.valueOf(user_name), String.valueOf(dept_name)});
+        Log.v("YYY", c.getCount() + "------------------------" + "SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND u.username='" + user_name + "' AND d.dept_name='" + dept_name + "' ORDER BY u._id DESC");
         return c;
     }
 
@@ -213,7 +219,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     public String[] getUserNames(int type){
-        Cursor cur =  fetchAllUser(type,0,1000000);
+        Cursor cur =  fetchAllUser(type, 0, 1000000);
         int len = cur.getCount();
         String[] data = new String[len];
         if(cur!=null){
@@ -227,6 +233,17 @@ public class DBHelper extends SQLiteOpenHelper {
         return data;
 
     }
+
+    public Cursor getRecentVisitLogByIdNumber(String id_number){
+        return db.rawQuery("SELECT * FROM "+TABLE_VISIT_LOG+" WHERE visitor_idno=? ORDER BY _id DESC LIMIT 0,3",new String[]{id_number});
+    }
+
+    public Cursor getVisitLogByBarcode(String barcode){
+        return db.rawQuery("SELECT * FROM "+TABLE_VISIT_LOG+" WHERE barcode=? ORDER BY _id DESC",new String[]{barcode});
+    }
+
+    /*public Cursor searchVisitLogByCondition(String a){
+    }*/
 
 
 }
