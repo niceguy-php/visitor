@@ -115,13 +115,13 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, deptNames);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 deptlist.setAdapter(adapter);
-                deptlist.setSelection(selectedIndex,true);
+                deptlist.setSelection(selectedIndex, true);
 
                 deptlist.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         user_dept = deptNames[position];
-                        Toast.makeText(getActivity(),user_dept+"---",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), user_dept + "---", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -139,6 +139,9 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                 }
 
                 showDetailDialog(detailView,ACTION_UPDATE);
+
+                item.close();
+                helper.closeDB();
             }
         });
 
@@ -243,6 +246,8 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
             listView.setAdapter(adapter);
         }
 
+        cur.close();
+        helper.closeDB();
     }
 
     private void showDetailDialog(final View view,int action) {
@@ -289,6 +294,8 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                                 cursor.moveToFirst();
                                 dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
                                 Log.v("YYX",user_dept+"------------------"+dept_id);
+                                cursor.close();
+                                helper.closeDB();
                             } catch (SQLException e) {
                                 e.printStackTrace();
                             }
@@ -369,6 +376,8 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                                     Cursor cursor = helper.fetchDepartmentByName(user_old_dept);
                                     cursor.moveToFirst();
                                     old_dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
+                                    cursor.close();
+                                    helper.closeDB();
                                 } catch (SQLException e) {
                                     e.printStackTrace();
                                 }
@@ -381,6 +390,8 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                                     Cursor cursor = helper.fetchDepartmentByName(user_dept);
                                     cursor.moveToFirst();
                                     dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
+                                    cursor.close();
+                                    helper.closeDB();
                                 } catch (SQLException e) {
                                     e.printStackTrace();
                                 }

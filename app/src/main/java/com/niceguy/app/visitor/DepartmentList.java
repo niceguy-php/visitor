@@ -78,7 +78,9 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                 EditText deptCode = (EditText) detailView.findViewById(R.id.dept_detail_code);
                 deptCode.setText(code);
 
-                showDetailDialog(detailView,ACTION_UPDATE);
+                showDetailDialog(detailView, ACTION_UPDATE);
+                item.close();
+                helper.closeDB();
             }
         });
 
@@ -164,6 +166,8 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
             //实现列表的显示
             listView.setAdapter(adapter);
         }
+        cur.close();
+        helper.closeDB();
 
     }
 
@@ -189,10 +193,12 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                             }
                             try {
                                 Cursor c = helper.fetchDepartmentByName(name);
-                                if(c!=null){
+                                if(c.getCount()>0){
                                     Toast.makeText(getActivity(), "部门名称已经存在", Toast.LENGTH_LONG).show();
                                     return;
                                 }
+                                c.close();
+                                helper.closeDB();
                             } catch (SQLException e) {
                                 e.printStackTrace();
                             }
@@ -235,10 +241,12 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                             try {
                                 if(!name.equals(old_dept_name)){
                                     Cursor c = helper.fetchDepartmentByName(name);
-                                    if(c!=null){
+                                    if(c.getCount() > 0){
                                         Toast.makeText(getActivity(), "部门名称已经存在", Toast.LENGTH_LONG).show();
                                         return;
                                     }
+                                    c.close();
+                                    helper.closeDB();
                                 }
                             } catch (SQLException e) {
                                 e.printStackTrace();

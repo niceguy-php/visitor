@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.LayoutInflaterFactory;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,6 +53,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -80,7 +82,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private String wltPath, bmpPath;
     private View dialog_layout;
 
-    private AlertDialog capturePreviewDialog;
+    private AlertDialog capturePreviewDialog,detailDialog;
     private AlertDialog printPreviewDialog;
     private String cameraTakeAvatarPath = null, idCardAvatarPath = null;
     private Bitmap barCodePic = null, idCardAvatarPic = null;
@@ -100,6 +102,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
     private ListView recent_visit_log_listview = null;
 
+    private long visit_time = 0;
+
 
 
     @Nullable
@@ -115,12 +119,12 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         /**
          * 读卡
          */
-        /*try {
+        try {
             mSerialPort = getSerialPort();
         } catch (SecurityException se) {
         } catch (IOException ioe) {
         } catch (InvalidParameterException ipe) {
-        }*/
+        }
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
                 + STROE_IDCARD_AVATAR_PATH;// 配置文件文件夹
         File config = new File(companyFolder);
@@ -154,11 +158,11 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         be_visited_dept.setAdapter(adapter);
 
 
-
         String[] duty_persons = helper.getUserNames(EmployeeList.USER_TYPE_DUTY);
         adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, duty_persons);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         duty_person.setAdapter(adapter);
+        duty_person.setSelection(0,true);
 
         avatar = (ImageView) view.findViewById(R.id.avatar_on_id_card);
         name = (TextView) view.findViewById(R.id.name_on_id_card);
@@ -197,18 +201,6 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         print_preview.setOnClickListener(this);
         clear_register.setOnClickListener(this);
 
-        visit_reason.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
         be_visited_dept.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -243,6 +235,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                                         visitedFemale.setChecked(true);
                                     }
                                 }
+                                c.close();
+                                helper.closeDB();
                             }
                         }
                     });
@@ -260,6 +254,69 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         recent_visit_log_listview.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+                View v = layoutInflater.inflate(R.layout.visit_log_detail, null);
+
+                Cursor c = (Cursor) parent.getItemAtPosition(position);
+
+                TextView detail_leave_time = (TextView) v.findViewById(R.id.detail_leave_time);
+                detail_leave_time.setText(c.getString(c.getColumnIndex("leave_time")));
+
+                TextView detail_visit_time = (TextView) v.findViewById(R.id.detail_visit_time);
+                detail_visit_time.setText(c.getString(c.getColumnIndex("visit_time")));
+
+                TextView detail_valid_date = (TextView) v.findViewById(R.id.detail_valid_date);
+                detail_valid_date.setText(c.getString(c.getColumnIndex("idcard_deadline")));
+
+                TextView detail_visit_reason = (TextView) v.findViewById(R.id.detail_visit_reason);
+                detail_visit_reason.setText(c.getString(c.getColumnIndex("visit_reason")));
+
+                TextView detail_visited_name = (TextView) v.findViewById(R.id.detail_visited_name);
+                detail_visited_name.setText(c.getString(c.getColumnIndex("visited_username")));
+
+                TextView detail_visited_dept = (TextView) v.findViewById(R.id.detail_visited_dept);
+                detail_visited_dept.setText(c.getString(c.getColumnIndex("visited_dept_name")));
+
+                TextView detail_visited_sex = (TextView) v.findViewById(R.id.detail_visited_sex);
+                detail_visited_sex.setText(c.getString(c.getColumnIndex("visited_sex")));
+
+                TextView detail_visited_pos = (TextView) v.findViewById(R.id.detail_visited_pos);
+                detail_visited_pos.setText(c.getString(c.getColumnIndex("visited_user_position")));
+
+                TextView detail_visited_phone = (TextView) v.findViewById(R.id.detail_visited_phone);
+                detail_visited_phone.setText(c.getString(c.getColumnIndex("visited_user_phone")));
+
+                TextView detail_visitor_ethnic = (TextView) v.findViewById(R.id.detail_visitor_ethnic);
+                detail_visitor_ethnic.setText(c.getString(c.getColumnIndex("visitor_ethnic")));
+
+                TextView detail_visitor_birthday = (TextView) v.findViewById(R.id.detail_visitor_birthday);
+                detail_visitor_birthday.setText(c.getString(c.getColumnIndex("visitor_birthday")));
+
+                TextView detail_visitor_address = (TextView) v.findViewById(R.id.detail_visitor_address);
+                detail_visitor_address.setText(c.getString(c.getColumnIndex("visitor_address")));
+
+                TextView detail_visitor_idno = (TextView) v.findViewById(R.id.detail_visitor_idno);
+                detail_visitor_idno.setText(c.getString(c.getColumnIndex("visitor_idno")));
+
+                TextView detail_visitor_count = (TextView) v.findViewById(R.id.detail_visitor_count);
+                detail_visitor_count.setText(c.getString(c.getColumnIndex("visitor_count")));
+
+                TextView detail_visitor_police = (TextView) v.findViewById(R.id.detail_visitor_police);
+                detail_visitor_police.setText(c.getString(c.getColumnIndex("idcard_police")));
+
+                TextView detail_visit_status = (TextView) v.findViewById(R.id.detail_visit_status);
+                detail_visit_status.setText(c.getString(c.getColumnIndex("visit_status")));
+
+                ImageView detail_idcard_avatar = (ImageView) v.findViewById(R.id.detail_idcard_avatar);
+                Bitmap idcard_avatar_bitmap = BitmapFactory.decodeFile(c.getString(c.getColumnIndex("idcard_avatar")));
+                detail_idcard_avatar.setImageBitmap(idcard_avatar_bitmap);
+
+                ImageView detail_cameraTake_avatar = (ImageView) v.findViewById(R.id.detail_cameraTake_avatar);
+                Bitmap cameraTake_avatar_bitmap = BitmapFactory.decodeFile(c.getString(c.getColumnIndex("visitor_avatar")));
+                detail_cameraTake_avatar.setImageBitmap(cameraTake_avatar_bitmap);
+                showDetailDialog(v, c.getInt(c.getColumnIndex("_id")));
+                c.close();
+                helper.closeDB();
 
             }
 
@@ -429,8 +486,12 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 break;
             case R.id.visitor_register_btn:
                 this.createBarCodeAndSetAvatar();
-                if (idCardAvatarPath != null && idCardAvatarPic != null) {
-                    print();
+                if (idCardAvatarPath != null && idCardAvatarPic != null && cameraTakeAvatarPath!=null) {
+                    if(barCodeString!=null){
+                        print();
+                    }else{
+                        this.toast(getString(R.string.barcode_not_exits));
+                    }
                 }else{
                     this.toast(getString(R.string.please_put_card));
                 }
@@ -511,6 +572,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
+
+            showRecentVisitLog();
         } else {
             clear();
         }
@@ -637,12 +700,25 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private void print() {
 
         if(cameraTakeAvatarPath!= null && idCardAvatarPath!= null && barCodeString!=null){
+            if(duty_person.getCount() == 0){
+                toast("请先配置值班人员");
+                return;
+            }
+            if(be_visited_dept.getCount() == 0){
+                toast("请先配置部门");
+                return;
+            }
+
+            if(visit_reason.getCount() == 0){
+                toast("请先配置来访事由");
+                return;
+            }
             if(!addVisitorLog()){
                 toast("登记失败，请重试！");
                 return;
             }
         }else{
-            toast("请给访客拍照并放入访客的身份证进行识别");
+            toast(getString(R.string.please_put_card));
         }
         initPrinter();
         if (printerClass != null) {
@@ -717,18 +793,19 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     }
 
     private String getPrintText() {
-        String visitorName = "张宏伟";
-        String visitorCount = "1";
-        String visitTime = "2015-10-23 10:00:00";
-        String visitedName = "刘启明";
-        String visitedDept = "人力资源部";
-        String visitReason = "送货";
+        String visitorName = this.name.getText().toString();
+        String visitor_count = visitorCount.getText().toString();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String visitTime = sdf.format(new Date(this.visit_time));
+        String visitedName = be_visited_name.getText().toString();
+        String dept = be_visited_dept.getSelectedItem().toString();
+        String visitReason = visit_reason.getSelectedItem().toString();
         String space = "   ";
         String nextLine = "\r\n";
 
-        String text = space + "宾客姓名：" + this.name.getText() + nextLine
-                + space + "来访人数：" + visitorCount + nextLine
-                + space + "被访部门：" + visitedDept + nextLine
+        String text = space + "宾客姓名：" + visitorName + nextLine
+                + space + "来访人数：" + visitor_count + nextLine
+                + space + "被访部门：" + dept + nextLine
                 + space + "被访人员：" + visitedName + nextLine
                 + space + "进入时间：" + visitTime + nextLine
                 + space + "来访事由：" + visitReason + nextLine
@@ -805,11 +882,12 @@ this.toast("in loading");
 
     public boolean addVisitorLog(){
 
+        this.visit_time = new Date().getTime();
         ContentValues cv = new ContentValues();
         cv.put("barcode",barCodeString);
         cv.put("visit_status",0);
         cv.put("leave_time",0);
-        cv.put("visit_time",new Date().getTime());
+        cv.put("visit_time",visit_time);
         cv.put("duty_username",duty_person.getSelectedItem().toString());
         cv.put("duty_user_id",0);
         cv.put("idcard_deadline",valid_date.getText().toString());
@@ -843,18 +921,64 @@ this.toast("in loading");
     }
 
     private void showRecentVisitLog(){
+        Log.v("YYX","in showRecentVisitLog ");
         String idno = id_number.getText().toString();
-//        if(idno!=null && !"".equals(idno)){
+        if(idno!=null && !"".equals(idno)){
 //            Cursor cur = helper.getRecentVisitLogByIdNumber(idno);
-            Cursor cur = helper.fetchAllVisitLog(0, 3);
-            if(cur != null){
+//            Cursor cur = helper.fetchAllVisitLog(0, 3);
+            Cursor cur = helper.fetchAllVisitLog("visitor_idno='"+idno+"'",0,3);
+            Log.v("YYX",cur.getCount()+"");
+            if(cur.getCount()>0){
                 SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.visit_log_item, cur,
                         new String[]{"_id", "visitor_name","visit_reason","visited_dept_name","visited_username","visit_time","leave_time","visit_status"},
                         new int[]{R.id.item_log_id,R.id.item_visitor_name, R.id.item_visit_reason,R.id.item_visited_dept,R.id.item_visited_name,R.id.item_visit_time,R.id.item_leave_time,R.id.item_visit_status});
                 //实现列表的显示
+                Log.v("YYX","in setAdapter");
                 recent_visit_log_listview.setAdapter(adapter);
             }
-//        }
+            cur.close();
+            helper.closeDB();
+        }
+    }
+
+    private void showDetailDialog(final View view, final int _id) {
+        String title = "详情";
+        String positiveButtonText = "登记离开" ;
+
+        TextView detail_visit_status = (TextView)view.findViewById(R.id.detail_visit_status);
+        if("未离开".equals(detail_visit_status.getText().toString())){
+
+        }else {
+            positiveButtonText = "确定";
+        }
+        final String finalPositiveButtonText = positiveButtonText;
+        detailDialog = new AlertDialog.Builder(getActivity())
+                .setTitle(title).setView(view)
+                .setPositiveButton(positiveButtonText, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        if(finalPositiveButtonText.equals("确定")){
+                            dialog.dismiss();
+                        }else{
+                            ContentValues cv = new ContentValues();
+                            cv.put("visit_status",1);
+                            helper.update(helper.TABLE_VISIT_LOG, cv, _id);
+                            showRecentVisitLog();
+                            Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        detailDialog.dismiss();
+                    }
+                }).create();
+        detailDialog.show();
+
     }
 
 }

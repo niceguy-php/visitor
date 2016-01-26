@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="10dp"
     android:layout_marginBottom="20dp"
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
@@ -39,7 +38,7 @@
         <EditText
             android:id="@+id/reason_detail_content"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="150dp"
             android:inputType="textMultiLine"
             android:hint="输入来访原因"
             android:background="@android:drawable/edit_text"

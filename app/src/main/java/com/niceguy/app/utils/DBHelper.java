@@ -39,6 +39,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return db;
     }
 
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.d("YYX", "---------------------start db oncreate------------new");
@@ -250,6 +251,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     /*public Cursor searchVisitLogByCondition(String a){
     }*/
+
+    public void closeDB(){
+        if(db!=null)
+            db.close();
+    }
 
 
 }

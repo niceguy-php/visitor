@@ -265,6 +265,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             System.out.println("query------->" + "reason：" + reason);
             Toast.makeText(this,reason,Toast.LENGTH_LONG).show();
         }
+        cursor.close();
         db.close();
     }
 }

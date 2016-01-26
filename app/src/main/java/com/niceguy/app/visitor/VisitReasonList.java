@@ -73,6 +73,7 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
                 reasonContent.setText(reason);
 
                 showDetailDialog(detailView,ACTION_UPDATE);
+                item.close();
             }
         });
 
@@ -158,6 +159,7 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
             //实现列表的显示
             listView.setAdapter(adapter);
         }
+        cur.close();
 
     }
 

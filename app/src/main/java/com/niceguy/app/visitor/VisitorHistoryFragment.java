@@ -133,18 +133,31 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
 
     private void showDetailDialog(final View view, final int _id) {
         String title = "详情";
+        String positiveButtonText = "登记离开" ;
 
+        TextView detail_visit_status = (TextView)view.findViewById(R.id.detail_visit_status);
+        if("未离开".equals(detail_visit_status.getText().toString())){
+
+        }else {
+            positiveButtonText = "确定";
+        }
+        final String finalPositiveButtonText = positiveButtonText;
         detailDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(title).setView(view)
-                .setPositiveButton("登记离开", new DialogInterface.OnClickListener() {
+                .setPositiveButton(positiveButtonText, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        ContentValues cv = new ContentValues();
-                        cv.put("visit_status",1);
-                        helper.update(helper.TABLE_VISIT_LOG,cv,_id);
-                        updateList(1);
-                        Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
+                        if(finalPositiveButtonText.equals("确定")){
+                            dialog.dismiss();
+                        }else{
+                            ContentValues cv = new ContentValues();
+                            cv.put("visit_status",1);
+                            helper.update(helper.TABLE_VISIT_LOG, cv, _id);
+                            updateList(1);
+                            Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
+                        }
+
                     }
                 }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
 
@@ -154,7 +167,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
                         detailDialog.dismiss();
                     }
                 }).create();
-            detailDialog.show();
+        detailDialog.show();
 
     }
 
@@ -192,6 +205,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
             //实现列表的显示
             listView.setAdapter(adapter);
         }
+        cur.close();
 
     }
 

@@ -242,6 +242,8 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
             //实现列表的显示
             listView.setAdapter(adapter);
         }
+        cur.close();
+        helper.closeDB();
 
     }
 
@@ -265,6 +267,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                             cv.put("phone",phone.getText().toString());
                             cv.put("code_num", code.getText().toString());
                             cv.put("position", pos.getText().toString());
+                            cv.put("user_type",USER_TYPE_DUTY);
 
                             if("".equals(cv.get("username").toString())){
                                 Toast.makeText(getActivity(), "请填写员工姓名", Toast.LENGTH_LONG).show();
@@ -288,6 +291,8 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                                 Cursor cursor = helper.fetchDepartmentByName(user_dept);
                                 cursor.moveToFirst();
                                 dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
+                                cursor.close();
+                                helper.closeDB();
                                 Log.v("YYX",user_dept+"------------------"+dept_id);
                             } catch (SQLException e) {
                                 e.printStackTrace();
@@ -369,6 +374,8 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                                     Cursor cursor = helper.fetchDepartmentByName(user_old_dept);
                                     cursor.moveToFirst();
                                     old_dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
+                                    cursor.close();
+                                    helper.closeDB();
                                 } catch (SQLException e) {
                                     e.printStackTrace();
                                 }
@@ -381,6 +388,8 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                                     Cursor cursor = helper.fetchDepartmentByName(user_dept);
                                     cursor.moveToFirst();
                                     dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
+                                    cursor.close();
+                                    helper.closeDB();
                                 } catch (SQLException e) {
                                     e.printStackTrace();
                                 }
