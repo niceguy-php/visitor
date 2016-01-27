@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
     android:orientation="vertical"
     android:paddingLeft="16dp"
     android:paddingRight="16dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="来访人信息"
-        android:textColor="@color/colorPrimaryDark" />
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
+        <!--<TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="来访人"
+            android:textColor="@color/colorPrimaryDark" />-->
         <GridLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,8 +32,8 @@
 
             <ImageView
                 android:id="@+id/detail_idcard_avatar"
-                android:layout_width="80dp"
-                android:layout_height="90dp" />
+                android:layout_width="50dp"
+                android:layout_height="60dp" />
 
             <TextView
                 android:layout_width="80dp"
@@ -42,14 +42,15 @@
 
             <ImageView
                 android:id="@+id/detail_cameraTake_avatar"
-                android:layout_width="150dp"
-                android:layout_height="90dp" />
+                android:layout_width="100dp"
+                android:layout_height="60dp" />
 
 
             <TextView
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="姓名：" />
+                android:text="来访人："
+                android:textColor="@color/colorPrimaryDark"/>
 
             <TextView
                 android:id="@+id/detail_visitor_name"
@@ -200,40 +201,47 @@
                 android:id="@+id/detail_visit_status"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="已离开"
+                android:text=""
                 android:textColor="@android:color/holo_red_dark" />
 
         </GridLayout>
     </LinearLayout>
 
-    <TextView
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="被访人信息"
-        android:textColor="@color/colorPrimaryDark" />
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/menu_border_color">
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
+        android:layout_marginTop="5dp"
         >
-
+        <!--<TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:text="被访人"
+            android:textColor="@color/colorPrimaryDark" />-->
         <GridLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:columnCount="4"
+            android:columnCount="6"
             android:rowCount="4">
 
             <TextView
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="被访人：" />
+                android:text="被访人："
+                android:textColor="@color/colorPrimaryDark"/>
 
             <TextView
                 android:id="@+id/detail_visited_name"
-                android:layout_width="140dp"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:text="张三" />
 
@@ -266,9 +274,9 @@
 
             <TextView
                 android:id="@+id/detail_visited_phone"
-                android:layout_width="150dp"
+                android:layout_width="90dp"
                 android:layout_height="wrap_content"
-                android:text="1988-09-08" />
+                android:text="18780278018" />
 
             <TextView
                 android:layout_width="90dp"
@@ -277,12 +285,12 @@
 
             <TextView
                 android:id="@+id/detail_visited_pos"
-                android:layout_width="180dp"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:text="副主任" />
 
             <TextView
-                android:layout_width="90dp"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:text="值班人员：" />
 

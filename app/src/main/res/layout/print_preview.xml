@@ -32,16 +32,18 @@
                 android:text="宾客姓名: "
                 />
             <TextView
+                android:id="@+id/preview_visitor_name"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1.5"
                 android:gravity="center_horizontal"
-                android:text="张三"/>
+                android:text=""/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="来访人数: "/>
             <TextView
+                android:id="@+id/preview_visitor_count"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -59,20 +61,23 @@
                 android:layout_height="match_parent"
                 android:text="被访部门: "/>
             <TextView
+                android:id="@+id/preview_visited_dept"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1.5"
-                android:text="人力资源部门"
+                android:text=""
                 android:gravity="center_horizontal"/>
             <TextView
+
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="被访人员: "/>
             <TextView
+                android:id="@+id/preview_visited_name"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="张三"
+                android:text=""
                 android:gravity="center_horizontal"/>
         </LinearLayout>
         <LinearLayout
@@ -86,20 +91,22 @@
                 android:layout_height="match_parent"
                 android:text="进入时间: "/>
             <TextView
+                android:id="@+id/preview_visit_time"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1.5"
-                android:text="2015-10-12 12:00:00"
+                android:text=""
                 android:gravity="center_horizontal"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="来访事由: "/>
             <TextView
+                android:id="@+id/preview_visit_reason"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="举报"
+                android:text=""
                 android:gravity="center_horizontal"/>
         </LinearLayout>
         <LinearLayout

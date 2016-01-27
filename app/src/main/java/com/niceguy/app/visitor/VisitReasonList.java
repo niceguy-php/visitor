@@ -40,7 +40,7 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
     private Button add,first,next,pre,last;
     private AlertDialog detailDialog;
     private DBHelper helper = null;
-    private int pagesize = 10,total_page = 0,curpage_num=1;
+    private int pagesize = 7,total_page = 0,curpage_num=1;
     private long count = 0;
     @Nullable
     @Override

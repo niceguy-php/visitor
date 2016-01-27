@@ -118,12 +118,12 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         /**
          * 读卡
          */
-        /*try {
+        try {
             mSerialPort = getSerialPort();
         } catch (SecurityException se) {
         } catch (IOException ioe) {
         } catch (InvalidParameterException ipe) {
-        }*/
+        }
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
                 + STROE_IDCARD_AVATAR_PATH;// 配置文件文件夹
         File config = new File(companyFolder);
@@ -314,17 +314,17 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
                 ImageView detail_idcard_avatar = (ImageView) v.findViewById(R.id.detail_idcard_avatar);
                 String a1 = c.getString(c.getColumnIndex("idcard_avatar"));
-                if("".equals(a1)){
+                if ("".equals(a1)) {
                     detail_idcard_avatar.setImageResource(R.mipmap.photo);
-                }else{
+                } else {
                     Bitmap idcard_avatar_bitmap = BitmapFactory.decodeFile(a1);
                     detail_idcard_avatar.setImageBitmap(idcard_avatar_bitmap);
                 }
 
                 ImageView detail_cameraTake_avatar = (ImageView) v.findViewById(R.id.detail_cameraTake_avatar);
-                if("".equals(a1)){
+                if ("".equals(a1)) {
                     detail_idcard_avatar.setImageResource(R.mipmap.photo);
-                }else{
+                } else {
                     Bitmap cameraTake_avatar_bitmap = BitmapFactory.decodeFile(c.getString(c.getColumnIndex("visitor_avatar")));
                     detail_cameraTake_avatar.setImageBitmap(cameraTake_avatar_bitmap);
                 }
@@ -480,6 +480,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
     @Override
     public void onClick(View v) {
+        this.visit_time = 0;
         switch (v.getId()) {
             case R.id.read_id_card:
                 loading(getString(R.string.read_card));
@@ -490,8 +491,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 break;
             case R.id.clear_register_btn:
 //                addVisitorLog();
-                showRecentVisitLog();
-//                this.clear();
+//                showRecentVisitLog();
+                this.clear();
                 break;
             case R.id.visitor_register_btn:
                 this.createBarCodeAndSetAvatar();
@@ -511,6 +512,24 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 View print_preview_view = inflater.inflate(R.layout.print_preview, null);
                 ImageView print_avatar = (ImageView) print_preview_view.findViewById(R.id.print_avatar);
                 ImageView print_barcode = (ImageView) print_preview_view.findViewById(R.id.bar_code);
+
+                TextView preview_visit_reason  = (TextView) print_preview_view.findViewById(R.id.preview_visit_reason);
+                preview_visit_reason.setText(visit_reason.getSelectedItem().toString());
+                TextView preview_visitor_count  = (TextView) print_preview_view.findViewById(R.id.preview_visitor_count);
+                preview_visitor_count.setText(visitorCount.getText().toString());
+                TextView preview_visitor_name  = (TextView) print_preview_view.findViewById(R.id.preview_visitor_name);
+                preview_visitor_name.setText(name.getText().toString());
+                TextView preview_visit_time  = (TextView) print_preview_view.findViewById(R.id.preview_visit_time);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                if(this.visit_time == 0){
+                    visit_time = new Date().getTime();
+                }
+                preview_visit_time.setText(sdf.format(visit_time));
+                TextView preview_visited_dept  = (TextView) print_preview_view.findViewById(R.id.preview_visited_dept);
+                preview_visited_dept.setText(be_visited_dept.getSelectedItem().toString());
+                TextView preview_visited_name  = (TextView) print_preview_view.findViewById(R.id.preview_visited_name);
+                preview_visited_name.setText(be_visited_name.getText().toString());
+
                 print_barcode.setImageBitmap(barCodePic);
                 if (idCardAvatarPath != null && idCardAvatarPic != null) {
                     print_avatar.setImageBitmap(idCardAvatarPic);
@@ -729,6 +748,11 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         }else{
             toast(getString(R.string.please_put_card));
         }
+
+        if(be_visited_name.getText().toString().trim().equals("")){
+            toast("请选择被访部门和被访的人员姓名！");
+            return;
+        }
         initPrinter();
         if (printerClass != null) {
             toast(getPrintText());
@@ -784,7 +808,6 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         print();
-                        Toast.makeText(getActivity(), "打印成功", Toast.LENGTH_LONG).show();
                     }
                 }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
 
@@ -837,6 +860,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     }
 
     private void clear(){
+        visit_time = 0;
         idCardAvatarPath = null;
         idCardAvatarPic = null;
         barCodePic = null;
@@ -865,7 +889,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             progressDialog = new ProgressDialog(getActivity());
         }
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-this.toast("in loading");
+//this.toast("in loading");
         progressDialog.setTitle("提示");
         if(text == null){
             text = "正在加载...";
@@ -891,7 +915,9 @@ this.toast("in loading");
 
     public boolean addVisitorLog(){
 
-        this.visit_time = new Date().getTime();
+        if(visit_time == 0){
+            this.visit_time = new Date().getTime();
+        }
         ContentValues cv = new ContentValues();
         cv.put("barcode",barCodeString);
         cv.put("visit_status",0);
@@ -975,7 +1001,7 @@ this.toast("in loading");
                         }else{
                             ContentValues cv = new ContentValues();
                             cv.put("visit_status",1);
-
+                            cv.put("leave_time",new Date().getTime());
                             connectDB();
                             helper.update(helper.TABLE_VISIT_LOG, cv, _id);
                             releaseDB();

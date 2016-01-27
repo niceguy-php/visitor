@@ -53,7 +53,18 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/qrcode_bitmap"
         android:gravity="center">
-
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:text="来访状态："/>
+        <TextView
+            android:id="@+id/leave_visit_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="15dp"
+            android:textColor="@android:color/holo_red_dark"
+            android:text=""/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -65,7 +76,7 @@
             ></Spinner>
 
         <Button
-            android:id="@+id/btn_manual_register_leave"
+            android:id="@+id/finish_visit"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:text="@string/sure_leave"

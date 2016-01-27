@@ -41,7 +41,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
     private AlertDialog detailDialog;
     private DBHelper helper = null;
     private SQLiteDatabase db = null;
-    private int pagesize = 10,total_page = 0,curpage_num=1;
+    private int pagesize = 7,total_page = 0,curpage_num=1;
     private long count = 0;
     private String old_dept_name;
     @Nullable

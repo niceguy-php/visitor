@@ -37,6 +37,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by qiumeilin on 2016/1/9.
@@ -61,7 +62,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
     private Button add,first,next,pre,last;
     private AlertDialog detailDialog;
     private DBHelper helper = null;
-    private int pagesize = 10,total_page = 0,curpage_num=1;
+    private int pagesize = 5,total_page = 0,curpage_num=1;
     private long count = 0;
 
     private ListView listView = null;
@@ -289,6 +290,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
                         }else{
                             ContentValues cv = new ContentValues();
                             cv.put("visit_status",1);
+                            cv.put("leave_time",new Date().getTime());
                             connectDB();
                             helper.update(helper.TABLE_VISIT_LOG, cv, _id);
                             releaseDB();
@@ -316,15 +318,19 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
         }else{
             count = helper.getCount(helper.TABLE_VISIT_LOG,condition);
         }
+        Log.v("YYX",count+"---count-------");
+        Log.v("YYX",pagesize+"---pagesize-------");
         releaseDB();
 
         if(count > 0 && count <pagesize){
             total_page = 1;
         }else{
-            double d = (double) (count / pagesize);
+            double d = (Double.parseDouble(String.valueOf(count)) / Double.parseDouble(String.valueOf(pagesize)));
+            Log.v("YYX",d+"----(count / pagesize)------");
             total_page = (int) Math.ceil(d);
+            Log.v("YYX",Math.ceil(d)+"----Math.ceil(d)------");
         }
-
+        Log.v("YYX",total_page+"----total_page------");
         return total_page;
     }
 
