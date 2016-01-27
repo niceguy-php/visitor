@@ -16,6 +16,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="22dp"
             android:text="输入查询条件："
             android:textSize="16dp"/>
         <include layout="@layout/search_condition"/>

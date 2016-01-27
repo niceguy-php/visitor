@@ -6,6 +6,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.SimpleCursorAdapter;
@@ -27,7 +30,13 @@ import android.widget.Toast;
 import com.niceguy.app.utils.DBHelper;
 import com.niceguy.app.utils.DateTimePicker;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 /**
  * Created by qiumeilin on 2016/1/9.
@@ -43,8 +52,8 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
     private EditText visitor_address;
     private Button search;
     private Activity inActivity;
-    private String initStartDateTime = "2013年9月3日 14:44"; // 初始化开始时间
-    private String initEndDateTime = "2014年8月23日 17:44"; // 初始化结束时间
+    private String initStartDateTime = "2016年1月1日 14:44"; // 初始化开始时间
+    private String initEndDateTime = "2016年1月1日 17:44"; // 初始化结束时间
 
 
     private Activity activity = null;
@@ -56,6 +65,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
     private long count = 0;
 
     private ListView listView = null;
+    private String condition = "";
 
     @Nullable
     @Override
@@ -115,6 +125,10 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
 
     private void initEvents(){
 
+        last.setOnClickListener(this);
+        first.setOnClickListener(this);
+        next.setOnClickListener(this);
+        pre.setOnClickListener(this);
         visit_time.setOnClickListener(this);
         leave_time.setOnClickListener(this);
         search.setOnClickListener(this);
@@ -133,12 +147,112 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
             }
         });
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+                View v = layoutInflater.inflate(R.layout.visit_log_detail, null);
+
+                Cursor c = (Cursor) parent.getItemAtPosition(position);
+
+                TextView detail_leave_time = (TextView) v.findViewById(R.id.detail_leave_time);
+                detail_leave_time.setText(c.getString(c.getColumnIndex("leave_time")));
+
+                TextView detail_visit_time = (TextView) v.findViewById(R.id.detail_visit_time);
+                detail_visit_time.setText(c.getString(c.getColumnIndex("visit_time")));
+
+                TextView detail_valid_date = (TextView) v.findViewById(R.id.detail_valid_date);
+                detail_valid_date.setText(c.getString(c.getColumnIndex("idcard_deadline")));
+
+                TextView detail_visit_reason = (TextView) v.findViewById(R.id.detail_visit_reason);
+                detail_visit_reason.setText(c.getString(c.getColumnIndex("visit_reason")));
+
+                TextView detail_visited_name = (TextView) v.findViewById(R.id.detail_visited_name);
+                detail_visited_name.setText(c.getString(c.getColumnIndex("visited_username")));
+
+                TextView detail_visited_dept = (TextView) v.findViewById(R.id.detail_visited_dept);
+                detail_visited_dept.setText(c.getString(c.getColumnIndex("visited_dept_name")));
+
+                TextView detail_visited_sex = (TextView) v.findViewById(R.id.detail_visited_sex);
+                detail_visited_sex.setText(c.getString(c.getColumnIndex("visited_sex")));
+
+                TextView detail_visited_pos = (TextView) v.findViewById(R.id.detail_visited_pos);
+                detail_visited_pos.setText(c.getString(c.getColumnIndex("visited_user_position")));
+
+                TextView detail_visited_phone = (TextView) v.findViewById(R.id.detail_visited_phone);
+                detail_visited_phone.setText(c.getString(c.getColumnIndex("visited_user_phone")));
+
+                TextView detail_visitor_ethnic = (TextView) v.findViewById(R.id.detail_visitor_ethnic);
+                detail_visitor_ethnic.setText(c.getString(c.getColumnIndex("visitor_ethnic")));
+
+                TextView detail_visitor_birthday = (TextView) v.findViewById(R.id.detail_visitor_birthday);
+                detail_visitor_birthday.setText(c.getString(c.getColumnIndex("visitor_birthday")));
+
+                TextView detail_visitor_address = (TextView) v.findViewById(R.id.detail_visitor_address);
+                detail_visitor_address.setText(c.getString(c.getColumnIndex("visitor_address")));
+
+                TextView detail_visitor_idno = (TextView) v.findViewById(R.id.detail_visitor_idno);
+                detail_visitor_idno.setText(c.getString(c.getColumnIndex("visitor_idno")));
+
+                TextView detail_visitor_count = (TextView) v.findViewById(R.id.detail_visitor_count);
+                detail_visitor_count.setText(c.getString(c.getColumnIndex("visitor_count")));
+
+                TextView detail_visitor_police = (TextView) v.findViewById(R.id.detail_visitor_police);
+                detail_visitor_police.setText(c.getString(c.getColumnIndex("idcard_police")));
+
+                TextView detail_visit_status = (TextView) v.findViewById(R.id.detail_visit_status);
+                detail_visit_status.setText(c.getString(c.getColumnIndex("visit_status")));
+
+                ImageView detail_idcard_avatar = (ImageView) v.findViewById(R.id.detail_idcard_avatar);
+                String a1 = c.getString(c.getColumnIndex("idcard_avatar"));
+                if ("".equals(a1)) {
+                    detail_idcard_avatar.setImageResource(R.mipmap.photo);
+                } else {
+                    Bitmap idcard_avatar_bitmap = BitmapFactory.decodeFile(a1);
+                    detail_idcard_avatar.setImageBitmap(idcard_avatar_bitmap);
+                }
+
+                ImageView detail_cameraTake_avatar = (ImageView) v.findViewById(R.id.detail_cameraTake_avatar);
+                if ("".equals(a1)) {
+                    detail_idcard_avatar.setImageResource(R.mipmap.photo);
+                } else {
+                    Bitmap cameraTake_avatar_bitmap = BitmapFactory.decodeFile(c.getString(c.getColumnIndex("visitor_avatar")));
+                    detail_cameraTake_avatar.setImageBitmap(cameraTake_avatar_bitmap);
+                }
+
+                showDetailDialog(v, c.getInt(c.getColumnIndex("_id")));
+                releaseDB();
+            }
+
+        });
+
     }
 
     @Override
     public void onClick(View v) {
 
+        total_page = getTotalPage();
         switch (v.getId()){
+            case R.id.log_first_page:
+                updateList(1);
+                break;
+            case R.id.log_last_page:
+                if(curpage_num != total_page && total_page>1){
+                    updateList(total_page);
+                }
+                break;
+            case R.id.log_pre_page:
+                if(curpage_num > 1){
+                    updateList(curpage_num - 1);
+                }
+                break;
+            case R.id.log_next_page:
+
+                if( curpage_num != total_page){
+                    updateList(curpage_num+1);
+                }
+                break;
             case R.id.visit_time:
                 DateTimePicker visitTimeDialog = new DateTimePicker(inActivity, initStartDateTime);
                 visitTimeDialog.dateTimePicKDialog(visit_time);
@@ -148,7 +262,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
                 leaveTimeDialog.dateTimePicKDialog(leave_time);
                 break;
             case R.id.visit_search:
-                Toast.makeText(inActivity,"开发中",Toast.LENGTH_SHORT).show();
+                updateList(1);
                 break;
         }
     }
@@ -197,7 +311,11 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
 
     private int getTotalPage(){
         connectDB();
-        count = helper.getCount(helper.TABLE_VISIT_LOG);
+        if("".equals(condition)){
+            count = helper.getCount(helper.TABLE_VISIT_LOG);
+        }else{
+            count = helper.getCount(helper.TABLE_VISIT_LOG,condition);
+        }
         releaseDB();
 
         if(count > 0 && count <pagesize){
@@ -212,28 +330,78 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
 
     public void updateList(int page_num){
 
+        ArrayList<String> list = new ArrayList<String>(5);
+        condition = "";
+        long leave_time_long = 0;
+        long visit_time_long = 0;
+        String idno = visitor_id_num.getText().toString().trim();
+        String address = visitor_address.getText().toString().trim();
+        String name = visitor_name.getText().toString().trim();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日 HH:mm");
+        try {
+            leave_time_long = sdf.parse(leave_time.getText().toString()).getTime();
+            visit_time_long = sdf.parse(visit_time.getText().toString()).getTime();
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        String s1="",s2="",s3="",s4="",s5="";
+        if(leave_time_long>0){
+            s1 = " leave_time < "+leave_time_long;
+            list.add(s1);
+        }
+        if(visit_time_long>0){
+            s2 = " visit_time > "+visit_time_long;
+            list.add(s2);
+        }
+        if(!"".equals(idno)){
+            s3 = " visitor_idno LIKE '%"+idno+"%'";
+            list.add(s3);
+        }
+
+        if(!"".equals(address)){
+            s4 = " visitor_address LIKE '%"+address+"%'";
+            list.add(s4);
+        }
+
+        if(!"".equals(name)){
+            s5 = " visitor_name LIKE '%"+name+"%'";
+            list.add(s5);
+        }
+
+
+        Object[] condition_arr = list.toArray();
+        condition = StringUtils.join(condition_arr, " AND ");
+
+        Log.v("YYX", condition);
+
         curpage_num = page_num;
         connectDB();
-        count = helper.getCount(helper.TABLE_VISIT_LOG);
-        total.setText(String.valueOf(count));
-        total_page = getTotalPage();
-        page.setText(String.valueOf(total_page));
-        page1.setText(String.valueOf(total_page));
-        curpage.setText(String.valueOf(curpage_num));
+
         if(page_num == 1){
             page_num = 0;
         }
         int offset = page_num*pagesize;
-        String condition = "";
-        connectDB();
-        Cursor cur = helper.fetchAllVisitLog(condition, offset, pagesize);
-        if(cur != null){
-            SimpleCursorAdapter adapter = new SimpleCursorAdapter(activity, R.layout.user_item, cur,
-                    new String[]{"_id", "username","sex","code_num","dept_name","position","phone"}, new int[]{R.id.user_id, R.id.user_name,R.id.user_sex,R.id.user_code,R.id.user_dept,R.id.user_position,R.id.user_phone});
+        Cursor cur;
+        if("".equals(condition)){
+            cur = helper.fetchAllVisitLog(offset, pagesize);
+        }else{
+            cur = helper.fetchAllVisitLog(condition, offset, pagesize);
+        }
+        total_page = getTotalPage();
+        page.setText(String.valueOf(total_page));
+        page1.setText(String.valueOf(total_page));
+        curpage.setText(String.valueOf(curpage_num));
+        total.setText(String.valueOf(count));
+
+        if(cur!=null && cur.getCount()>=0){
+            SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.visit_log_item, cur,
+                    new String[]{"_id", "visitor_name","visit_reason","visited_dept_name","visited_username","visit_time","leave_time","visit_status"},
+                    new int[]{R.id.item_log_id,R.id.item_visitor_name, R.id.item_visit_reason,R.id.item_visited_dept,R.id.item_visited_name,R.id.item_visit_time,R.id.item_leave_time,R.id.item_visit_status});
             //实现列表的显示
+            Log.v("YYX", "in setAdapter");
             listView.setAdapter(adapter);
         }
-        cur.close();
         releaseDB();
 
     }

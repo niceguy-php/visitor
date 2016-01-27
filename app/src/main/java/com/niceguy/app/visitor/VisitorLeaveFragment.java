@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.niceguy.app.utils.DBHelper;
 import com.zkc.pc700.helper.BarcodeCreater;
 
 /**
@@ -45,10 +46,13 @@ public class VisitorLeaveFragment extends Fragment{
     private static ImageView avatarImage;
     public static Bitmap avatarBitmap = null;
     private Spinner duty_person_in_leave = null;
+    private DBHelper helper;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_scan,container,false);
+
+        connectDB();
 
         activity = getActivity();
 //        mTextView = (TextView) view.findViewById(R.id.result);
@@ -57,7 +61,7 @@ public class VisitorLeaveFragment extends Fragment{
         avatarImage = (ImageView) view.findViewById(R.id.print_avatar);
         duty_person_in_leave = (Spinner) view.findViewById(R.id.duty_person_in_leave);
 
-        String[] duty_persons = new String[]{"张三", "李四", "王五"};
+        String[] duty_persons = helper.getUserNames(EmployeeList.USER_TYPE_DUTY);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, duty_persons);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         duty_person_in_leave.setAdapter(adapter);
@@ -121,5 +125,11 @@ public class VisitorLeaveFragment extends Fragment{
         }
         barCode = null;
         bitmapRec = null;
+    }
+
+    private void connectDB(){
+        if(helper==null){
+            helper = new DBHelper(getContext());
+        }
     }
 }

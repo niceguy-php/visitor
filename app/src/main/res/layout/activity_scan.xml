@@ -18,7 +18,7 @@
         <Button
             android:id="@+id/btn_idcard_read"
             android:layout_width="0dp"
-            android:layout_height="60dp"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:layout_marginRight="3dp"
             android:text="@string/str_idcard"
@@ -26,7 +26,7 @@
         <Button
             android:id="@+id/btn_barcode_read"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:text="@string/str_qrcode"
             android:layout_marginLeft="3dp"
@@ -67,7 +67,7 @@
         <Button
             android:id="@+id/btn_manual_register_leave"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:text="@string/sure_leave"
             style="@style/btn"
             />
