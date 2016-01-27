@@ -4,7 +4,9 @@ package com.niceguy.app.visitor;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -34,6 +36,8 @@ public class VisitorLeaveFragment extends Fragment{
     public static Activity activity = null;
     public static LinearLayout register_sign = null;
 
+    public static DBHelper helper;
+
     /**
      * 显示扫描结果
      */
@@ -46,7 +50,7 @@ public class VisitorLeaveFragment extends Fragment{
     private static ImageView avatarImage;
     public static Bitmap avatarBitmap = null;
     private Spinner duty_person_in_leave = null;
-    private DBHelper helper;
+//    private DBHelper helper;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -105,9 +109,14 @@ public class VisitorLeaveFragment extends Fragment{
     }
 
     public static void callBack(){
+
         register_sign.setVisibility(View.INVISIBLE);
         if(barCode != null){
 //            mTextView.setText(barCode);
+            Cursor cur = helper.getVisitLogByBarcode(barCode);
+            if(cur!=null && cur.getCount()>0){
+                avatarImage.setImageBitmap(BitmapFactory.decodeFile(cur.getString(cur.getColumnIndex("idcard_avatar"))));
+            }
         }
         if(bitmapRec !=null ){
             mImageView.setImageBitmap(bitmapRec);
