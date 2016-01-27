@@ -58,7 +58,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
         View view = inflater.inflate(R.layout.user_list, container, false);
 
-        helper = new DBHelper(getContext());
+        connectDB();
 
         initViews(view);
 
@@ -104,6 +104,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
                 Spinner deptlist = (Spinner) detailView.findViewById(R.id.user_detail_dept);
 
+                connectDB();
                 final String[] deptNames = helper.getDeptNames();
                 int selectedIndex = 0;
                 for(int i=0;i<deptNames.length;i++){
@@ -141,7 +142,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                 showDetailDialog(detailView,ACTION_UPDATE);
 
                 item.close();
-                helper.closeDB();
+                releaseDB();
             }
         });
 
@@ -176,7 +177,9 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
-        count = helper.getCount(TABLE);
+        connectDB();
+        count = helper.getCount(TABLE,"user_type=1");
+        releaseDB();
         total_page = getTotalPage();
         switch (v.getId()){
             case R.id.user_first_page:
@@ -205,7 +208,9 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
                 Spinner deptlist = (Spinner) detailView.findViewById(R.id.user_detail_dept);
 
+                connectDB();
                 final String[] deptNames = helper.getDeptNames();
+                releaseDB();
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, deptNames);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 deptlist.setAdapter(adapter);
@@ -227,8 +232,9 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
     public void updateList(int page_num){
 
+        connectDB();
         curpage_num = page_num;
-        count = helper.getCount(TABLE);
+        count = helper.getCount(TABLE,"user_type=1");
         total.setText(String.valueOf(count));
         total_page = getTotalPage();
         page.setText(String.valueOf(total_page));
@@ -246,8 +252,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
             listView.setAdapter(adapter);
         }
 
-        cur.close();
-        helper.closeDB();
+        releaseDB();
     }
 
     private void showDetailDialog(final View view,int action) {
@@ -259,6 +264,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                     .setPositiveButton("添加", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            connectDB();
                             EditText name = (EditText)view.findViewById(R.id.user_detail_name);
                             EditText code = (EditText)view.findViewById(R.id.user_detail_code);
                             EditText pos = (EditText)view.findViewById(R.id.user_detail_position);
@@ -293,9 +299,8 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                                 Cursor cursor = helper.fetchDepartmentByName(user_dept);
                                 cursor.moveToFirst();
                                 dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
-                                Log.v("YYX",user_dept+"------------------"+dept_id);
+                                Log.v("YYX", user_dept + "------------------" + dept_id);
                                 cursor.close();
-                                helper.closeDB();
                             } catch (SQLException e) {
                                 e.printStackTrace();
                             }
@@ -312,7 +317,8 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                             ContentValues cv1 = new ContentValues();
                             cv1.put("user_id",user_id);
                             cv1.put("dept_id",dept_id);
-                            helper.insert(TABLE_USER_DEPARTMENT,cv1);
+                            helper.insert(TABLE_USER_DEPARTMENT, cv1);
+                            releaseDB();
                             updateList(1);
 
                             Toast.makeText(getActivity(), "添加成功", Toast.LENGTH_LONG).show();
@@ -365,6 +371,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                             }
 
 
+                            connectDB();
                             boolean rs = helper.update(TABLE, cv, user_id);
 
                             Log.v("YYX",user_dept+"-------"+user_old_dept);
@@ -377,7 +384,6 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                                     cursor.moveToFirst();
                                     old_dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
                                     cursor.close();
-                                    helper.closeDB();
                                 } catch (SQLException e) {
                                     e.printStackTrace();
                                 }
@@ -391,7 +397,6 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                                     cursor.moveToFirst();
                                     dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
                                     cursor.close();
-                                    helper.closeDB();
                                 } catch (SQLException e) {
                                     e.printStackTrace();
                                 }
@@ -402,6 +407,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                                 helper.insert(TABLE_USER_DEPARTMENT, cv1);
                             }
 
+                            releaseDB();
                             updateList(1);
 
                             Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
@@ -413,9 +419,10 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
                             TextView v = (TextView) view.findViewById(R.id.user_detail_id);
                             Long user_id = Long.parseLong(v.getText().toString());
-                            helper.delete(TABLE,user_id);
+                            connectDB();
+                            helper.delete(TABLE, user_id);
                             helper.db.rawQuery("DELETE FROM " + TABLE_USER_DEPARTMENT + " WHERE user_id=?", new String[]{String.valueOf(user_id)});
-
+                            releaseDB();
                             updateList(1);
                             Toast.makeText(getActivity(), "删除成功", Toast.LENGTH_LONG).show();
                             detailDialog.dismiss();
@@ -427,7 +434,8 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
     }
 
     private int getTotalPage(){
-        count = helper.getCount(TABLE);
+        connectDB();
+        count = helper.getCount(TABLE,"user_type=1");
 
         if(count > 0 && count <pagesize){
             total_page = 1;
@@ -435,8 +443,20 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
             double d = (double) (count / pagesize);
             total_page = (int) Math.ceil(d);
         }
+        releaseDB();
 
         return total_page;
+    }
+
+    private void connectDB(){
+        if(helper==null){
+            helper = new DBHelper(getContext());
+        }
+    }
+    private void releaseDB(){
+        /*if(helper!=null){
+            helper.close();
+        }*/
     }
 
 }

@@ -3,8 +3,10 @@ package com.niceguy.app.visitor;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -38,6 +40,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
     private Button add,first,next,pre,last;
     private AlertDialog detailDialog;
     private DBHelper helper = null;
+    private SQLiteDatabase db = null;
     private int pagesize = 10,total_page = 0,curpage_num=1;
     private long count = 0;
     private String old_dept_name;
@@ -47,11 +50,9 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
 
         View view = inflater.inflate(R.layout.department_list, container, false);
 
-        helper = new DBHelper(getContext());
+        connectDB();
 
         initViews(view);
-
-
 
         updateList(curpage_num);
 
@@ -80,7 +81,6 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
 
                 showDetailDialog(detailView, ACTION_UPDATE);
                 item.close();
-                helper.closeDB();
             }
         });
 
@@ -115,7 +115,10 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
+
+        connectDB();
         count = helper.getCount(TABLE);
+        releaseDB();
         total_page = getTotalPage();
         switch (v.getId()){
             case R.id.dept_first_page:
@@ -149,6 +152,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
     public void updateList(int page_num){
 
         curpage_num = page_num;
+        connectDB();
         count = helper.getCount(TABLE);
         total.setText(String.valueOf(count));
         total_page = getTotalPage();
@@ -166,9 +170,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
             //实现列表的显示
             listView.setAdapter(adapter);
         }
-        cur.close();
-        helper.closeDB();
-
+        releaseDB();
     }
 
     private void showDetailDialog(final View view,int action) {
@@ -191,6 +193,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                                 detailDialog.show();
                                 return;
                             }
+                            connectDB();
                             try {
                                 Cursor c = helper.fetchDepartmentByName(name);
                                 if(c.getCount()>0){
@@ -198,13 +201,13 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                                     return;
                                 }
                                 c.close();
-                                helper.closeDB();
                             } catch (SQLException e) {
                                 e.printStackTrace();
                             }
                             cv.put("dept_name",name);
                             cv.put("code_num",code);
                             helper.insert(TABLE, cv);
+                            releaseDB();
                             updateList(1);
 
                             Toast.makeText(getActivity(), "添加成功", Toast.LENGTH_LONG).show();
@@ -238,6 +241,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                                 return;
                             }
 
+                            connectDB();
                             try {
                                 if(!name.equals(old_dept_name)){
                                     Cursor c = helper.fetchDepartmentByName(name);
@@ -246,7 +250,6 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                                         return;
                                     }
                                     c.close();
-                                    helper.closeDB();
                                 }
                             } catch (SQLException e) {
                                 e.printStackTrace();
@@ -256,6 +259,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                             cv.put("code_num",code);
 
                             helper.update(TABLE, cv, Long.parseLong(v.getText().toString()));
+                            releaseDB();
                             updateList(1);
                             Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
                         }
@@ -265,7 +269,9 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                         public void onClick(DialogInterface dialog, int which) {
 
                             TextView v = (TextView) view.findViewById(R.id.dept_detail_id);
+                            connectDB();
                             helper.delete(TABLE,Long.parseLong(v.getText().toString()));
+                            releaseDB();
 
                             updateList(1);
                             Toast.makeText(getActivity(), "删除成功", Toast.LENGTH_LONG).show();
@@ -277,7 +283,9 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
 
     }
 
+
     private int getTotalPage(){
+        connectDB();
         count = helper.getCount(TABLE);
 
         if(count > 0 && count <pagesize){
@@ -286,7 +294,18 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
             double d = (double) (count / pagesize);
             total_page = (int) Math.ceil(d);
         }
-
+        releaseDB();
         return total_page;
+    }
+
+    private void connectDB(){
+        if(helper==null){
+            helper = new DBHelper(getContext());
+        }
+    }
+    private void releaseDB(){
+        /*if(helper!=null){
+            helper.close();
+        }*/
     }
 }

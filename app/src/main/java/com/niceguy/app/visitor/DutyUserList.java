@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -58,7 +59,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
 
         View view = inflater.inflate(R.layout.user_list, container, false);
 
-        helper = new DBHelper(getContext());
+        connectDB();
 
         initViews(view);
 
@@ -173,7 +174,9 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
-        count = helper.getCount(TABLE);
+        connectDB();
+        count = helper.getCount(TABLE,"user_type=2");
+        releaseDB();
         total_page = getTotalPage();
         switch (v.getId()){
             case R.id.user_first_page:
@@ -202,6 +205,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
 
                 Spinner deptlist = (Spinner) detailView.findViewById(R.id.user_detail_dept);
 
+                connectDB();
                 final String[] deptNames = helper.getDeptNames();
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, deptNames);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -217,6 +221,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                         Toast.makeText(getActivity(), "请选择员工所属部门", Toast.LENGTH_SHORT).show();
                     }
                 });
+                releaseDB();
                 showDetailDialog(detailView, ACTION_ADD);
                 break;
         }
@@ -225,7 +230,8 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
     public void updateList(int page_num){
 
         curpage_num = page_num;
-        count = helper.getCount(TABLE);
+        connectDB();
+        count = helper.getCount(TABLE,"user_type=2");
         total.setText(String.valueOf(count));
         total_page = getTotalPage();
         page.setText(String.valueOf(total_page));
@@ -242,8 +248,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
             //实现列表的显示
             listView.setAdapter(adapter);
         }
-        cur.close();
-        helper.closeDB();
+        releaseDB();
 
     }
 
@@ -287,12 +292,12 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                             }
 
                             int dept_id = 0;
+                            connectDB();
                             try {
                                 Cursor cursor = helper.fetchDepartmentByName(user_dept);
                                 cursor.moveToFirst();
                                 dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
                                 cursor.close();
-                                helper.closeDB();
                                 Log.v("YYX",user_dept+"------------------"+dept_id);
                             } catch (SQLException e) {
                                 e.printStackTrace();
@@ -311,6 +316,8 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                             cv1.put("user_id",user_id);
                             cv1.put("dept_id",dept_id);
                             helper.insert(TABLE_USER_DEPARTMENT,cv1);
+                            releaseDB();
+
                             updateList(1);
 
                             Toast.makeText(getActivity(), "添加成功", Toast.LENGTH_LONG).show();
@@ -330,6 +337,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
+                            connectDB();
                             TextView id = (TextView)view.findViewById(R.id.user_detail_id);
                             EditText name = (EditText)view.findViewById(R.id.user_detail_name);
                             EditText code = (EditText)view.findViewById(R.id.user_detail_code);
@@ -375,7 +383,6 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                                     cursor.moveToFirst();
                                     old_dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
                                     cursor.close();
-                                    helper.closeDB();
                                 } catch (SQLException e) {
                                     e.printStackTrace();
                                 }
@@ -389,7 +396,6 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                                     cursor.moveToFirst();
                                     dept_id = cursor.getInt(cursor.getColumnIndex("_id"));
                                     cursor.close();
-                                    helper.closeDB();
                                 } catch (SQLException e) {
                                     e.printStackTrace();
                                 }
@@ -399,6 +405,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                                 cv1.put("dept_id", dept_id);
                                 helper.insert(TABLE_USER_DEPARTMENT, cv1);
                             }
+                            releaseDB();
 
                             updateList(1);
 
@@ -411,9 +418,10 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
 
                             TextView v = (TextView) view.findViewById(R.id.user_detail_id);
                             Long user_id = Long.parseLong(v.getText().toString());
+                            connectDB();
                             helper.delete(TABLE,user_id);
                             helper.db.rawQuery("DELETE FROM " + TABLE_USER_DEPARTMENT + " WHERE user_id=?", new String[]{String.valueOf(user_id)});
-
+                            releaseDB();
                             updateList(1);
                             Toast.makeText(getActivity(), "删除成功", Toast.LENGTH_LONG).show();
                             detailDialog.dismiss();
@@ -425,7 +433,8 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
     }
 
     private int getTotalPage(){
-        count = helper.getCount(TABLE);
+        connectDB();
+        count = helper.getCount(TABLE,"user_type=2");
 
         if(count > 0 && count <pagesize){
             total_page = 1;
@@ -433,8 +442,20 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
             double d = (double) (count / pagesize);
             total_page = (int) Math.ceil(d);
         }
+        releaseDB();
 
         return total_page;
+    }
+
+    private void connectDB(){
+        if(helper==null){
+            helper = new DBHelper(getContext());
+        }
+    }
+    private void releaseDB(){
+        /*if(helper!=null){
+            helper.close();
+        }*/
     }
 
 }

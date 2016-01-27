@@ -111,20 +111,19 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.visitor_register_tab, container, false);
 
-        helper = new DBHelper(getContext());
-
+        connectDB();
         initViews(view);
         initEvents();
 
         /**
          * 读卡
          */
-        try {
+        /*try {
             mSerialPort = getSerialPort();
         } catch (SecurityException se) {
         } catch (IOException ioe) {
         } catch (InvalidParameterException ipe) {
-        }
+        }*/
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
                 + STROE_IDCARD_AVATAR_PATH;// 配置文件文件夹
         File config = new File(companyFolder);
@@ -138,6 +137,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
     private void initViews(View view) {
 
+        connectDB();
         cameraPreview = (SurfaceView) view.findViewById(R.id.camera_preview);
         mHolder = cameraPreview.getHolder();
         visit_reason = (Spinner) view.findViewById(R.id.visit_reason);
@@ -191,6 +191,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         be_visited_name = (AutoCompleteTextView) view.findViewById(R.id.be_visited_name);
 
         recent_visit_log_listview = (ListView) view.findViewById(R.id.recent_visit_log);
+        releaseDB();
 
     }
 
@@ -205,21 +206,24 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String name = be_visited_dept.getSelectedItem().toString();
-                String[] deptUsers = helper.getUserNamesByDeptName(EmployeeList.USER_TYPE_EMPLOYEE,name);
+                connectDB();
+                String[] deptUsers = helper.getUserNamesByDeptName(EmployeeList.USER_TYPE_EMPLOYEE, name);
+                releaseDB();
                 ArrayAdapter<String> av = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_dropdown_item_1line, deptUsers);
                 be_visited_name.setAdapter(av);
-                if(deptUsers.length > 0){
+                if (deptUsers.length > 0) {
                     be_visited_name.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                             String n = (String) parent.getItemAtPosition(position);
                             toast(n);
                             int p = n.indexOf("-(");
-                            if( p != -1){
-                                String username = n.substring(0,p);
-                                String dept_name = n.substring(p+2,n.length()-1);
+                            if (p != -1) {
+                                String username = n.substring(0, p);
+                                String dept_name = n.substring(p + 2, n.length() - 1);
+                                connectDB();
                                 Cursor c = helper.fetchUserByDeptNameAndUserName(username, dept_name);
-                                if(c.getCount()>0){
+                                if (c.getCount() > 0) {
                                     c.moveToFirst();
                                     String sex = c.getString(c.getColumnIndex("sex"));
                                     String phone = c.getString(c.getColumnIndex("phone"));
@@ -227,16 +231,16 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
                                     visitedPos.setText(pos);
                                     visitedPhone.setText(phone);
-                                    if("男".equals(sex)){
+                                    if ("男".equals(sex)) {
                                         visitedMale.setChecked(true);
                                         visitedFemale.setChecked(false);
-                                    }else{
+                                    } else {
                                         visitedMale.setChecked(false);
                                         visitedFemale.setChecked(true);
                                     }
                                 }
                                 c.close();
-                                helper.closeDB();
+                                releaseDB();
                             }
                         }
                     });
@@ -251,9 +255,10 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
         be_visited_dept.setSelection(0, true);
 
-        recent_visit_log_listview.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        recent_visit_log_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 LayoutInflater layoutInflater = getActivity().getLayoutInflater();
                 View v = layoutInflater.inflate(R.layout.visit_log_detail, null);
 
@@ -308,22 +313,26 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 detail_visit_status.setText(c.getString(c.getColumnIndex("visit_status")));
 
                 ImageView detail_idcard_avatar = (ImageView) v.findViewById(R.id.detail_idcard_avatar);
-                Bitmap idcard_avatar_bitmap = BitmapFactory.decodeFile(c.getString(c.getColumnIndex("idcard_avatar")));
-                detail_idcard_avatar.setImageBitmap(idcard_avatar_bitmap);
+                String a1 = c.getString(c.getColumnIndex("idcard_avatar"));
+                if("".equals(a1)){
+                    detail_idcard_avatar.setImageResource(R.mipmap.photo);
+                }else{
+                    Bitmap idcard_avatar_bitmap = BitmapFactory.decodeFile(a1);
+                    detail_idcard_avatar.setImageBitmap(idcard_avatar_bitmap);
+                }
 
                 ImageView detail_cameraTake_avatar = (ImageView) v.findViewById(R.id.detail_cameraTake_avatar);
-                Bitmap cameraTake_avatar_bitmap = BitmapFactory.decodeFile(c.getString(c.getColumnIndex("visitor_avatar")));
-                detail_cameraTake_avatar.setImageBitmap(cameraTake_avatar_bitmap);
+                if("".equals(a1)){
+                    detail_idcard_avatar.setImageResource(R.mipmap.photo);
+                }else{
+                    Bitmap cameraTake_avatar_bitmap = BitmapFactory.decodeFile(c.getString(c.getColumnIndex("visitor_avatar")));
+                    detail_cameraTake_avatar.setImageBitmap(cameraTake_avatar_bitmap);
+                }
+
                 showDetailDialog(v, c.getInt(c.getColumnIndex("_id")));
-                c.close();
-                helper.closeDB();
-
+                releaseDB();
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
         });
     }
 
@@ -482,7 +491,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             case R.id.clear_register_btn:
 //                addVisitorLog();
                 showRecentVisitLog();
-                this.clear();
+//                this.clear();
                 break;
             case R.id.visitor_register_btn:
                 this.createBarCodeAndSetAvatar();
@@ -915,33 +924,36 @@ this.toast("in loading");
         cv.put("visited_user_id", 0);
         cv.put("reason_id", 0);
         cv.put("visit_reason", visit_reason.getSelectedItem().toString());
-
-        return helper.insert(helper.TABLE_VISIT_LOG,cv) > 0;
+        connectDB();
+        boolean flag = helper.insert(helper.TABLE_VISIT_LOG,cv) > 0;
+        releaseDB();
+        return flag;
 
     }
 
     private void showRecentVisitLog(){
         Log.v("YYX","in showRecentVisitLog ");
         String idno = id_number.getText().toString();
-        if(idno!=null && !"".equals(idno)){
+//        if(idno!=null && !"".equals(idno)){
 //            Cursor cur = helper.getRecentVisitLogByIdNumber(idno);
-//            Cursor cur = helper.fetchAllVisitLog(0, 3);
-            Cursor cur = helper.fetchAllVisitLog("visitor_idno='"+idno+"'",0,3);
+//        Cursor cur = helper.fetchAllVisitLog("visitor_idno='" + idno + "'", 0, 3);
+        Cursor cur = helper.fetchAllVisitLog(0, 3);
+        connectDB();
             Log.v("YYX",cur.getCount()+"");
             if(cur.getCount()>0){
                 SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.visit_log_item, cur,
                         new String[]{"_id", "visitor_name","visit_reason","visited_dept_name","visited_username","visit_time","leave_time","visit_status"},
                         new int[]{R.id.item_log_id,R.id.item_visitor_name, R.id.item_visit_reason,R.id.item_visited_dept,R.id.item_visited_name,R.id.item_visit_time,R.id.item_leave_time,R.id.item_visit_status});
                 //实现列表的显示
-                Log.v("YYX","in setAdapter");
+                Log.v("YYX", "in setAdapter");
                 recent_visit_log_listview.setAdapter(adapter);
             }
-            cur.close();
-            helper.closeDB();
-        }
+            releaseDB();
+//        }
     }
 
     private void showDetailDialog(final View view, final int _id) {
+        Log.v("YYX","------------showDetailDialog-----------");
         String title = "详情";
         String positiveButtonText = "登记离开" ;
 
@@ -963,7 +975,10 @@ this.toast("in loading");
                         }else{
                             ContentValues cv = new ContentValues();
                             cv.put("visit_status",1);
+
+                            connectDB();
                             helper.update(helper.TABLE_VISIT_LOG, cv, _id);
+                            releaseDB();
                             showRecentVisitLog();
                             Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
                         }
@@ -979,6 +994,17 @@ this.toast("in loading");
                 }).create();
         detailDialog.show();
 
+    }
+
+    private void connectDB(){
+        if(helper==null){
+            helper = new DBHelper(getContext());
+        }
+    }
+    private void releaseDB(){
+        /*if(helper!=null){
+            helper.close();
+        }*/
     }
 
 }

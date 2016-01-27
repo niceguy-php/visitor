@@ -3,6 +3,7 @@ package com.niceguy.app.visitor;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import java.sql.SQLException;
  */
 public class VisitorHistoryFragment extends Fragment implements View.OnClickListener{
 
+    private static String TAG = "YYX";
     private EditText visitor_name;
     private EditText visitor_id_num;
     private EditText visited_name;
@@ -59,6 +61,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        Log.v(TAG,"-------"+Thread.currentThread().getStackTrace()[2].getMethodName()+"--------------");
         View view  = inflater.inflate(R.layout.visitor_history_tab,container,false);
         visitor_name = (EditText) view.findViewById(R.id.visitor_name);
         visitor_id_num = (EditText) view.findViewById(R.id.visitor_id_num);
@@ -69,11 +72,30 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
         search = (Button) view.findViewById(R.id.visit_search);
         inActivity = getActivity();
 
+        connectDB();
+
         initViews(view);
         initEvents();
         return view;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.v(TAG, "-------" + Thread.currentThread().getStackTrace()[2].getMethodName() + "--------------");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.v(TAG, "-------" + Thread.currentThread().getStackTrace()[2].getMethodName() + "--------------");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.v(TAG, "-------" + Thread.currentThread().getStackTrace()[2].getMethodName() + "--------------");
+    }
 
     private void initViews(View view){
         activity = getActivity();
@@ -153,7 +175,9 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
                         }else{
                             ContentValues cv = new ContentValues();
                             cv.put("visit_status",1);
+                            connectDB();
                             helper.update(helper.TABLE_VISIT_LOG, cv, _id);
+                            releaseDB();
                             updateList(1);
                             Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
                         }
@@ -172,7 +196,9 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
     }
 
     private int getTotalPage(){
+        connectDB();
         count = helper.getCount(helper.TABLE_VISIT_LOG);
+        releaseDB();
 
         if(count > 0 && count <pagesize){
             total_page = 1;
@@ -187,6 +213,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
     public void updateList(int page_num){
 
         curpage_num = page_num;
+        connectDB();
         count = helper.getCount(helper.TABLE_VISIT_LOG);
         total.setText(String.valueOf(count));
         total_page = getTotalPage();
@@ -198,6 +225,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
         }
         int offset = page_num*pagesize;
         String condition = "";
+        connectDB();
         Cursor cur = helper.fetchAllVisitLog(condition, offset, pagesize);
         if(cur != null){
             SimpleCursorAdapter adapter = new SimpleCursorAdapter(activity, R.layout.user_item, cur,
@@ -206,7 +234,19 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
             listView.setAdapter(adapter);
         }
         cur.close();
+        releaseDB();
 
+    }
+
+    private void connectDB(){
+        if(helper==null){
+            helper = new DBHelper(getContext());
+        }
+    }
+    private void releaseDB(){
+        /*if(helper!=null){
+            helper.close();
+        }*/
     }
 
 }

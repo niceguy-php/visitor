@@ -2,12 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="10dp"
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
-    android:layout_marginTop="10dp"
     android:orientation="vertical"
-    android:padding="@dimen/activity_horizontal_margin">
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
 
     <TextView
         android:layout_width="match_parent"
@@ -43,7 +42,7 @@
 
             <ImageView
                 android:id="@+id/detail_cameraTake_avatar"
-                android:layout_width="80dp"
+                android:layout_width="150dp"
                 android:layout_height="90dp" />
 
 
@@ -54,7 +53,7 @@
 
             <TextView
                 android:id="@+id/detail_visitor_name"
-                android:layout_width="80dp"
+                android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:text="张三" />
 
@@ -76,7 +75,7 @@
 
             <TextView
                 android:id="@+id/detail_visitor_ethnic"
-                android:layout_width="80dp"
+                android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:text="汉族" />
 
@@ -98,7 +97,7 @@
 
             <TextView
                 android:id="@+id/detail_visitor_address"
-                android:layout_width="50dp"
+                android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:text="成都市" />
 
@@ -120,7 +119,7 @@
 
             <TextView
                 android:id="@+id/detail_visitor_police"
-                android:layout_width="50dp"
+                android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:text="派出所" />
 
@@ -166,9 +165,9 @@
 
             <TextView
                 android:id="@+id/detail_visit_time"
-                android:layout_width="50dp"
+                android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="2015" />
+                android:text="2015-01-26 12:12:12" />
 
             <TextView
                 android:layout_width="80dp"
@@ -179,7 +178,7 @@
                 android:id="@+id/detail_leave_time"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="2015" />
+                android:text="2015-01-26 12:12:12" />
 
             <TextView
                 android:layout_width="80dp"
@@ -188,7 +187,7 @@
 
             <TextView
                 android:id="@+id/detail_visit_reason"
-                android:layout_width="50dp"
+                android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:text="测试" />
 
@@ -199,7 +198,7 @@
 
             <TextView
                 android:id="@+id/detail_visit_status"
-                android:layout_width="50dp"
+                android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:text="已离开"
                 android:textColor="@android:color/holo_red_dark" />
@@ -234,7 +233,7 @@
 
             <TextView
                 android:id="@+id/detail_visited_name"
-                android:layout_width="80dp"
+                android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 android:text="张三" />
 
@@ -256,7 +255,7 @@
 
             <TextView
                 android:id="@+id/detail_visited_dept"
-                android:layout_width="80dp"
+                android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:text="技术部" />
 
@@ -278,7 +277,7 @@
 
             <TextView
                 android:id="@+id/detail_visited_pos"
-                android:layout_width="50dp"
+                android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:text="副主任" />
 
@@ -289,7 +288,7 @@
 
             <TextView
                 android:id="@+id/detail_duty_user"
-                android:layout_width="50dp"
+                android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorPrimaryDark"
                 android:text="李四" />

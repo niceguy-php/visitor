@@ -48,8 +48,7 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
 
         View view = inflater.inflate(R.layout.visit_reason_list, container, false);
 
-        helper = new DBHelper(getContext());
-
+        connectDB();
         initViews(view);
 
         updateList(curpage_num);
@@ -108,7 +107,9 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
+        connectDB();
         count = helper.getCount(TABLE);
+        releaseDB();
         total_page = getTotalPage();
         switch (v.getId()){
             case R.id.reason_first_page:
@@ -142,6 +143,7 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
     public void updateList(int page_num){
 
         curpage_num = page_num;
+        connectDB();
         count = helper.getCount(TABLE);
         total.setText(String.valueOf(count));
         total_page = getTotalPage();
@@ -152,6 +154,7 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
             page_num = 0;
         }
         int offset = page_num*pagesize;
+        connectDB();
         Cursor cur = helper.fetchAll(TABLE, offset, pagesize);
         if(cur != null){
             SimpleCursorAdapter adapter = new SimpleCursorAdapter(activity, R.layout.reason_item, cur,
@@ -159,7 +162,7 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
             //实现列表的显示
             listView.setAdapter(adapter);
         }
-        cur.close();
+        releaseDB();
 
     }
 
@@ -182,7 +185,9 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
                                 return;
                             }
                             cv.put("reason", reason);
+                            connectDB();
                             helper.insert(TABLE, cv);
+                            releaseDB();
                             updateList(1);
 
                             Toast.makeText(getActivity(), "添加成功", Toast.LENGTH_LONG).show();
@@ -214,7 +219,9 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
                                 return;
                             }
 
+                            connectDB();
                             helper.update(TABLE, cv, Long.parseLong(v.getText().toString()));
+                            releaseDB();
                             updateList(1);
                             Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
                         }
@@ -224,8 +231,9 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
                         public void onClick(DialogInterface dialog, int which) {
 
                             TextView v = (TextView) view.findViewById(R.id.reason_detail_id);
-                            helper.delete(TABLE,Long.parseLong(v.getText().toString()));
-
+                            connectDB();
+                            helper.delete(TABLE, Long.parseLong(v.getText().toString()));
+                            releaseDB();
                             updateList(1);
                             Toast.makeText(getActivity(), "删除成功", Toast.LENGTH_LONG).show();
                             detailDialog.dismiss();
@@ -237,7 +245,9 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
     }
 
     private int getTotalPage(){
+        connectDB();
         count = helper.getCount(TABLE);
+        releaseDB();
 
         if(count > 0 && count <pagesize){
             total_page = 1;
@@ -247,5 +257,16 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
         }
 
         return total_page;
+    }
+
+    private void connectDB(){
+        if(helper==null){
+            helper = new DBHelper(getContext());
+        }
+    }
+    private void releaseDB(){
+        /*if(helper!=null){
+            helper.close();
+        }*/
     }
 }

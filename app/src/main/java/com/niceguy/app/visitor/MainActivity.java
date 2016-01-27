@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int RE_CAPTURE = 0;
     private static final int CAPTURE_OK = 1;
 
-    private DBHelper dbHelper = null;
+    private DBHelper helper = null;
     private SQLiteDatabase db = null;
 
 
@@ -55,12 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        try {
-            dbHelper = new DBHelper(this);
-            db = dbHelper.getWritableDatabase();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -163,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         visitorRegisterTab.setBackgroundResource(R.drawable.menu_border_color);
         visitorLeaveTab.setBackgroundResource(R.drawable.menu_border_color);
 
-        Log.v(TAG,"------------------"+String.valueOf(i));
+        Log.v(TAG, "------------------" + String.valueOf(i));
         switch (i){
             case 0:
                 if(homeFragment == null) {
@@ -248,24 +243,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //往ContentValues对象存放数据，键-值对模式
 //        cv.put("_id",1);
         cv.put("reason", "这是一个测试");
-        db.insert("visit_reason", null, cv);
-        db.insert("visit_reason", null, cv);
-        db.insert("visit_reason", null, cv);
-        db.insert("visit_reason", null, cv);
-        db.insert("visit_reason", null, cv);
-        db.insert("visit_reason", null, cv);
-        db.insert("visit_reason", null, cv);
-        db.insert("visit_reason", null, cv);
+
+        connectDB();
+        helper.insert(helper.TABLE_VISIT_LOG,  cv);
+        helper.insert(helper.TABLE_VISIT_LOG,  cv);
+        helper.insert(helper.TABLE_VISIT_LOG,  cv);
+        helper.insert(helper.TABLE_VISIT_LOG,  cv);
+        helper.insert(helper.TABLE_VISIT_LOG,  cv);
+        helper.insert(helper.TABLE_VISIT_LOG,  cv);
+        helper.insert(helper.TABLE_VISIT_LOG,  cv);
+        helper.insert(helper.TABLE_VISIT_LOG,  cv);
         //关闭数据库
 //        db.close();
-
-        Cursor cursor = db.query("visit_reason", new String[]{"_id","reason"}, "_id=?", new String[]{"1"}, null, null, null);
+        Cursor cursor = helper.fetchAll(helper.TABLE_VISIT_LOG,0,1);
         while(cursor.moveToNext()){
             String reason = cursor.getString(cursor.getColumnIndex("reason"));
             System.out.println("query------->" + "reason：" + reason);
             Toast.makeText(this,reason,Toast.LENGTH_LONG).show();
         }
         cursor.close();
-        db.close();
+        releaseDB();
     }
+    private void connectDB(){
+        if(helper==null){
+            helper = new DBHelper(this);
+        }
+    }
+    private void releaseDB(){
+        /*if(helper!=null){
+            helper.close();
+        }*/
+    }
+
+
 }

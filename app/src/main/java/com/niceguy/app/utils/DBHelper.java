@@ -27,13 +27,13 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TABLE_USER_DEPARTMENT = "user_department";
     public static final int DATABASE_VERSION = 1;
 
-
     public SQLiteDatabase db = null;
     public DBHelper(Context context) {
         //CursorFactory设置为null,使用默认值
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         db = this.getWritableDatabase();
     }
+
 
     public SQLiteDatabase getDB(){
         return db;
@@ -73,6 +73,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void close(){
         if(db!=null){
             db.close();
+            db = null;
         }
     }
 
@@ -119,12 +120,16 @@ public class DBHelper extends SQLiteOpenHelper {
     public Cursor fetchAllVisitLog(int offset,int limit){
         return db.rawQuery("SELECT _id,visit_reason,visited_username,visited_dept_name,visitor_name," +
                 "datetime(visit_time/1000,'unixepoch', 'localtime') AS visit_time,(CASE leave_time WHEN 0 THEN '' ELSE datetime(leave_time/1000,'unixepoch', 'localtime') END) AS leave_time,(CASE visit_status WHEN 0 THEN '未离开' WHEN 1 THEN '已离开' END) AS visit_status" +
+                ",CASE visited_sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS visited_sex,CASE visitor_sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS visitor_sex"+
+                ",visited_user_position,visited_user_phone,visitor_avatar,idcard_avatar,visitor_phone,visitor_ethnic,visitor_birthday,visitor_address,visitor_idno,visitor_count,idcard_police,idcard_deadline,duty_username"+
                 " FROM "+TABLE_VISIT_LOG+" ORDER BY _id DESC LIMIT ?,?", new String[]{String.valueOf(offset),String.valueOf(limit)});
     }
 
     public Cursor fetchAllVisitLog(String condition,int offset,int limit ){
         return db.rawQuery("SELECT _id,visit_reason,visited_username,visited_dept_name,visitor_name," +
                 "datetime(visit_time/1000,'unixepoch', 'localtime') AS visit_time,(CASE leave_time WHEN 0 THEN '' ELSE datetime(leave_time/1000,'unixepoch', 'localtime') END) AS leave_time,(CASE visit_status WHEN 0 THEN '未离开' WHEN 1 THEN '已离开' END) AS visit_status" +
+                ",CASE visited_sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS visited_sex,CASE visitor_sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS visitor_sex"+
+                ",visited_user_position,visited_user_phone,visitor_avatar,idcard_avatar,visitor_phone,visitor_ethnic,visitor_birthday,visitor_address,visitor_idno,visitor_count,idcard_police,idcard_deadline,duty_username"+
                 " FROM "+TABLE_VISIT_LOG+" WHERE "+condition+" ORDER BY _id DESC LIMIT ?,?", new String[]{String.valueOf(offset),String.valueOf(limit)});
     }
 
@@ -151,7 +156,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return data;
     }
 
-    public Cursor fetchUserByDeptNameAndUserName(String user_name,String dept_name){
+    public Cursor fetchUserByDeptNameAndUserName(String user_name, String dept_name) {
         Cursor c = db.rawQuery("SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND u.username=? AND d.dept_name=? ORDER BY u._id DESC", new String[]{String.valueOf(user_name), String.valueOf(dept_name)});
         Log.v("YYY", c.getCount() + "------------------------" + "SELECT u._id,u.username,u.code_num,u.position,u.phone,CASE u.sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sex,d.dept_name,d.code_num AS dept_code,d._id AS dept_id,ud._id AS ud_id FROM user u,department d,user_department ud WHERE u._id = ud.user_id AND d._id=ud.dept_id AND u.username='" + user_name + "' AND d.dept_name='" + dept_name + "' ORDER BY u._id DESC");
         return c;
@@ -159,7 +164,18 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     public long getCount(String table) {
+
         String sql = "select count(*) from "+table;
+        Cursor c = db.rawQuery(sql, null);
+        c.moveToFirst();
+        long length = c.getLong(0);
+        c.close();
+        return length;
+    }
+
+    public long getCount(String table,String condition) {
+
+        String sql = "select count(*) from "+table+" where "+condition;
         Cursor c = db.rawQuery(sql, null);
         c.moveToFirst();
         long length = c.getLong(0);
@@ -210,7 +226,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return deptNames;
     }
 
-    public String[] getVisitReasons(){
+    public String[] getVisitReasons() {
         Cursor cur = fetchAll(TABLE_VISIT_REASON, 0, 10000);
         int len = cur.getCount();
         String[] data = new String[len];
@@ -251,11 +267,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     /*public Cursor searchVisitLogByCondition(String a){
     }*/
-
-    public void closeDB(){
-        if(db!=null)
-            db.close();
-    }
 
 
 }
