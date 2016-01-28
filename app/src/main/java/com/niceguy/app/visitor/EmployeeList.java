@@ -104,6 +104,11 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
                 Spinner deptlist = (Spinner) detailView.findViewById(R.id.user_detail_dept);
 
+                if(deptlist.getCount()==0){
+                    Toast.makeText(getActivity(), "请先新建部门，在添加部门成员", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 connectDB();
                 final String[] deptNames = helper.getDeptNames();
                 int selectedIndex = 0;
@@ -225,6 +230,10 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                         Toast.makeText(getActivity(), "请选择员工所属部门", Toast.LENGTH_SHORT).show();
                     }
                 });
+                if(deptlist.getCount()==0){
+                    Toast.makeText(getActivity(), "请先新建部门，在添加部门成员", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 showDetailDialog(detailView, ACTION_ADD);
                 break;
         }

@@ -94,7 +94,7 @@ public class VisitorLeaveFragment extends Fragment{
         visited_name  = (TextView) view.findViewById(R.id.preview_visited_name);
         visit_status  = (TextView) view.findViewById(R.id.leave_visit_status);
 
-        String[] duty_persons = helper.getUserNames(EmployeeList.USER_TYPE_DUTY);
+        final String[] duty_persons = helper.getUserNames(EmployeeList.USER_TYPE_DUTY);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, duty_persons);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         duty_person_in_leave.setAdapter(adapter);
@@ -136,10 +136,11 @@ public class VisitorLeaveFragment extends Fragment{
             public void onClick(View v) {
                 ContentValues cv = new ContentValues();
                 cv.put("visit_status",1);
+                cv.put("duty_username_leave",duty_person_in_leave.getSelectedItem().toString());
                 cv.put("leave_time",new Date().getTime());
                 if(helper.update(helper.TABLE_VISIT_LOG,cv,log_id)){
                     log_id = 0;
-                    visit_status.setText("已登记离开");
+                    visit_status.setText("已离开");
                     visit_status.setTextColor(Color.GREEN);
                     Toast.makeText(getActivity(),"操作成功",Toast.LENGTH_SHORT).show();
                 }else{
@@ -172,12 +173,12 @@ public class VisitorLeaveFragment extends Fragment{
                 visited_dept.setText(cur.getString(cur.getColumnIndex("visited_dept_name")));
                 visited_name.setText(cur.getString(cur.getColumnIndex("visited_username")));
                 visit_time.setText(cur.getString(cur.getColumnIndex("visit_time")));
-                int status = cur.getInt(cur.getColumnIndex("visit_status"));
-                Log.v("YYX","-----"+status);
-                if( status== 0){
-                    visit_status.setText("未离开");
+                String status = cur.getString(cur.getColumnIndex("visit_status"));
+                visit_status.setText(status);
+                Log.v("YYX", "-----" + status);
+                if( status== "未离开"){
+                    visit_status.setTextColor(Color.RED);
                 }else{
-                    visit_status.setText("已经登记离开");
                     visit_status.setTextColor(Color.GREEN);
                 }
             }
@@ -223,12 +224,12 @@ public class VisitorLeaveFragment extends Fragment{
                 visited_dept.setText(cur.getString(cur.getColumnIndex("visited_dept_name")));
                 visited_name.setText(cur.getString(cur.getColumnIndex("visited_username")));
                 visit_time.setText(cur.getString(cur.getColumnIndex("visit_time")));
-                int status = cur.getInt(cur.getColumnIndex("visit_status"));
-                Log.v("YYX", "-----" + status+"---"+id_number);
-                if( status== 0){
-                    visit_status.setText("未离开");
+                String status = cur.getString(cur.getColumnIndex("visit_status"));
+                visit_status.setText(status);
+                Log.v("YYX","-----"+status);
+                if( status== "未离开"){
+                    visit_status.setTextColor(Color.RED);
                 }else{
-                    visit_status.setText("已经登记离开");
                     visit_status.setTextColor(Color.GREEN);
                 }
 

@@ -205,6 +205,16 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
                 TextView detail_visit_status = (TextView) v.findViewById(R.id.detail_visit_status);
                 detail_visit_status.setText(c.getString(c.getColumnIndex("visit_status")));
 
+                TextView detail_duty_user = (TextView) v.findViewById(R.id.detail_duty_user);
+                String in_duty_username = c.getString(c.getColumnIndex("duty_username"))+"(进)";
+                String leave_duty_username = c.getString(c.getColumnIndex("duty_username_leave"));
+                if(leave_duty_username != null){
+                    leave_duty_username = "，"+c.getString(c.getColumnIndex("duty_username_leave"))+"(出)";
+                }else{
+                    leave_duty_username = "";
+                }
+                detail_duty_user.setText(in_duty_username+leave_duty_username);
+
                 ImageView detail_idcard_avatar = (ImageView) v.findViewById(R.id.detail_idcard_avatar);
                 String a1 = c.getString(c.getColumnIndex("idcard_avatar"));
                 if ("".equals(a1)) {

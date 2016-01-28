@@ -26,6 +26,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -48,6 +49,8 @@ import com.zkc.helper.printer.PrintService;
 import com.zkc.helper.printer.PrinterClass;
 import com.zkc.pc700.helper.BarcodeCreater;
 import com.zkc.pc700.helper.PrinterClassSerialPort;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -183,7 +186,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         visitorCount = (EditText) view.findViewById(R.id.visitor_num);
         visitorPhone = (EditText) view.findViewById(R.id.visitor_tel);
         visitedPhone = (EditText) view.findViewById(R.id.be_visited_tel);
-        visitedName = (EditText) view.findViewById(R.id.be_visited_name);
+//        visitedName = (EditText) view.findViewById(R.id.be_visited_name);
         visitedPos = (EditText) view.findViewById(R.id.be_visited_pos);
         visitedFemale = (RadioButton) view.findViewById(R.id.visitedSexFemale);
         visitedMale = (RadioButton) view.findViewById(R.id.visitedSexMale);
@@ -208,6 +211,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 String name = be_visited_dept.getSelectedItem().toString();
                 connectDB();
                 String[] deptUsers = helper.getUserNamesByDeptName(EmployeeList.USER_TYPE_EMPLOYEE, name);
+                Log.v("YYX", StringUtils.join(deptUsers,','));
                 releaseDB();
                 ArrayAdapter<String> av = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_dropdown_item_1line, deptUsers);
                 be_visited_name.setAdapter(av);
@@ -311,6 +315,16 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
                 TextView detail_visit_status = (TextView) v.findViewById(R.id.detail_visit_status);
                 detail_visit_status.setText(c.getString(c.getColumnIndex("visit_status")));
+
+                TextView detail_duty_user = (TextView) v.findViewById(R.id.detail_duty_user);
+                String in_duty_username = c.getString(c.getColumnIndex("duty_username"))+"(进)";
+                String leave_duty_username = c.getString(c.getColumnIndex("duty_username_leave"));
+                if(leave_duty_username != null){
+                    leave_duty_username = "，"+c.getString(c.getColumnIndex("duty_username_leave"))+"(出)";
+                }else{
+                    leave_duty_username = "";
+                }
+                detail_duty_user.setText(in_duty_username+leave_duty_username);
 
                 ImageView detail_idcard_avatar = (ImageView) v.findViewById(R.id.detail_idcard_avatar);
                 String a1 = c.getString(c.getColumnIndex("idcard_avatar"));
@@ -469,8 +483,10 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        mCamera.stopPreview();
-        setStartPreview(mCamera, mHolder);
+        if(mCamera !=null){
+            mCamera.stopPreview();
+            setStartPreview(mCamera, mHolder);
+        }
     }
 
     @Override
@@ -496,6 +512,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 break;
             case R.id.visitor_register_btn:
                 this.createBarCodeAndSetAvatar();
+                if(checkInput()==false)return;
                 if (idCardAvatarPath != null && idCardAvatarPic != null && cameraTakeAvatarPath!=null) {
                     if(barCodeString!=null){
                         print();
@@ -508,6 +525,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 break;
             case R.id.print_preview_btn:
                 this.createBarCodeAndSetAvatar();
+                if(checkInput()==false)return;
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 View print_preview_view = inflater.inflate(R.layout.print_preview, null);
                 ImageView print_avatar = (ImageView) print_preview_view.findViewById(R.id.print_avatar);
@@ -728,7 +746,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private void print() {
 
         if(cameraTakeAvatarPath!= null && idCardAvatarPath!= null && barCodeString!=null){
-            if(duty_person.getCount() == 0){
+            /*if(duty_person.getCount() == 0){
                 toast("请先配置值班人员");
                 return;
             }
@@ -740,7 +758,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             if(visit_reason.getCount() == 0){
                 toast("请先配置来访事由");
                 return;
-            }
+            }*/
             if(!addVisitorLog()){
                 toast("登记失败，请重试！");
                 return;
@@ -1031,6 +1049,54 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         /*if(helper!=null){
             helper.close();
         }*/
+    }
+
+    private boolean checkInput(){
+
+        String msg = "\r\n";
+        boolean flag = true;
+        String nextline = "\r\n";
+
+        if(duty_person.getCount() == 0){
+            msg +="请先配置值班人员"+nextline;
+            flag = false;
+        }
+        if(be_visited_dept.getCount() == 0){
+            msg +="请先配置部门"+nextline;
+            flag = false;
+        }
+
+        if(visit_reason.getCount() == 0){
+            msg +="请先配置来访事由"+nextline;
+            flag = false;
+        }
+
+        if(be_visited_name.getText().toString().trim().equals("")){
+            msg += "请输入被访人的姓名"+nextline;
+            flag = false;
+        }
+
+
+        if(cameraTakeAvatarPath == null){
+            msg += "请给访客拍照"+nextline;
+            flag = false;
+        }
+
+        if(idCardAvatarPath == null){
+            msg += "请放入访客的身份证进行识别"+nextline;
+            flag = false;
+        }
+
+        if(barCodeString==null){
+            msg += "生成条码失败，请重试"+nextline;
+            flag = false;
+        }
+
+        if(flag == false){
+            toast(msg);
+        }
+        return flag;
+
     }
 
 }
