@@ -337,7 +337,6 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
     public void updateList(int page_num){
 
         ArrayList<String> list = new ArrayList<String>(5);
-        condition = "";
         long leave_time_long = 0;
         long visit_time_long = 0;
         String idno = visitor_id_num.getText().toString().trim();
@@ -379,7 +378,8 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
         Object[] condition_arr = list.toArray();
         condition = StringUtils.join(condition_arr, " AND ");
 
-        Log.v("YYX", condition);
+        Log.v("YYX", condition+"---------condition---");
+        Log.v("YYX", page_num+"---------page_num---");
 
         curpage_num = page_num;
         connectDB();
@@ -387,7 +387,12 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
         if(page_num == 1){
             page_num = 0;
         }
-        int offset = page_num*pagesize;
+        int offset = 0;
+        if(page_num>0){
+            offset = (page_num-1)*pagesize;
+        }else{
+            offset = page_num*pagesize;
+        }
         Cursor cur;
         if("".equals(condition)){
             cur = helper.fetchAllVisitLog(offset, pagesize);

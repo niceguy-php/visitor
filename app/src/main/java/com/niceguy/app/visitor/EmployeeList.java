@@ -243,7 +243,12 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
         if(page_num == 1){
             page_num = 0;
         }
-        int offset = page_num*pagesize;
+        int offset = 0;
+        if(page_num>0){
+            offset = (page_num-1)*pagesize;
+        }else{
+            offset = page_num*pagesize;
+        }
         Cursor cur = helper.fetchAllUser(USER_TYPE_EMPLOYEE, offset, pagesize);
         if(cur != null){
             SimpleCursorAdapter adapter = new SimpleCursorAdapter(activity, R.layout.user_item, cur,
@@ -440,7 +445,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
         if(count > 0 && count <pagesize){
             total_page = 1;
         }else{
-            double d = (double) (count / pagesize);
+            double d = (Double.parseDouble(String.valueOf(count)) / Double.parseDouble(String.valueOf(pagesize)));
             total_page = (int) Math.ceil(d);
         }
         releaseDB();

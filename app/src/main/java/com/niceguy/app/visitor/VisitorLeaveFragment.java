@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -25,9 +26,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.niceguy.app.utils.DBHelper;
+import com.synjones.bluetooth.DecodeWlt;
+import com.synjones.sdt.IDCard;
+import com.synjones.sdt.SerialPort;
 import com.zkc.pc700.helper.BarcodeCreater;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by qiumeilin on 2016/1/9.
@@ -58,6 +67,9 @@ public class VisitorLeaveFragment extends Fragment{
     public static Bitmap avatarBitmap = null;
     private Spinner duty_person_in_leave = null;
     private static int log_id=0;
+
+    protected SerialPort mSerialPort;
+    private IDCard idcard = null;
 
 //    private DBHelper helper;
     @Nullable
@@ -104,7 +116,8 @@ public class VisitorLeaveFragment extends Fragment{
 
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "开发中.....", Toast.LENGTH_SHORT).show();
+                readCard();
+//                Toast.makeText(getActivity(), "开发中.....", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -185,6 +198,65 @@ public class VisitorLeaveFragment extends Fragment{
         }
         barCode = null;
         bitmapRec = null;
+    }
+
+    private void readCard() {
+        try {
+            mSerialPort = getSerialPort();
+        } catch (SecurityException se) {
+        } catch (IOException ioe) {
+        } catch (InvalidParameterException ipe) {
+        }
+        idcard = mSerialPort.getIDCard();
+        if (idcard != null) {
+            String id_number = idcard.getIDCardNo();
+            Cursor cur = helper.getVisitLogByIdNumber(id_number);
+            register_sign.setVisibility(View.INVISIBLE);
+
+            if(cur!=null && cur.getCount()>0){
+                cur.moveToFirst();
+                log_id = cur.getInt(cur.getColumnIndex("_id"));
+                avatarImage.setImageBitmap(BitmapFactory.decodeFile(cur.getString(cur.getColumnIndex("idcard_avatar"))));
+                visit_reason.setText(cur.getString(cur.getColumnIndex("visit_reason")));
+                visitor_name.setText(cur.getString(cur.getColumnIndex("visitor_name")));
+                visitor_count.setText(cur.getString(cur.getColumnIndex("visitor_count")));
+                visited_dept.setText(cur.getString(cur.getColumnIndex("visited_dept_name")));
+                visited_name.setText(cur.getString(cur.getColumnIndex("visited_username")));
+                visit_time.setText(cur.getString(cur.getColumnIndex("visit_time")));
+                int status = cur.getInt(cur.getColumnIndex("visit_status"));
+                Log.v("YYX", "-----" + status+"---"+id_number);
+                if( status== 0){
+                    visit_status.setText("未离开");
+                }else{
+                    visit_status.setText("已经登记离开");
+                    visit_status.setTextColor(Color.GREEN);
+                }
+
+                Bitmap barCodePic = null;
+                barCodePic = BarcodeCreater.creatBarcode(getActivity(),
+                        cur.getString(cur.getColumnIndex("barcode")), 380, 70, true, 1);// 最后一位参数是条码格式
+
+                if(barCodePic != null){
+                    barCodeImage.setImageBitmap(barCodePic);
+                }
+
+            }
+            cur.close();
+
+
+        }else{
+            Toast.makeText(getActivity(),"请放入访客的身份证",Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private SerialPort getSerialPort() throws SecurityException, IOException, InvalidParameterException {
+        if (mSerialPort == null) {
+            mSerialPort = new SerialPort(new File("/dev/ttySAC1"), 115200, 0);
+            mSerialPort.setMaxRFByte((byte) 0x50);
+        }
+
+        return mSerialPort;
     }
 
     private void connectDB(){
