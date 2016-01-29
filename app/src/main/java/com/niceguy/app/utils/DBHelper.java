@@ -27,13 +27,22 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TABLE_USER_DEPARTMENT = "user_department";
     public static final int DATABASE_VERSION = 1;
 
+    public static DBHelper instance ;
+
     public SQLiteDatabase db = null;
-    public DBHelper(Context context) {
+    private DBHelper(Context context) {
         //CursorFactory设置为null,使用默认值
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         db = this.getWritableDatabase();
     }
 
+
+    public static DBHelper getInstance(Context context){
+        if(instance == null){
+            instance = new DBHelper(context);
+        }
+        return instance;
+    }
 
     public SQLiteDatabase getDB(){
         return db;

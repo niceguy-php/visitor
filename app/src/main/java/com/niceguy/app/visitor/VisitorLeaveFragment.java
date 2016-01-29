@@ -262,7 +262,7 @@ public class VisitorLeaveFragment extends Fragment{
 
     private void connectDB(){
         if(helper==null){
-            helper = new DBHelper(getContext());
+            helper = DBHelper.getInstance(getActivity());
         }
     }
 }

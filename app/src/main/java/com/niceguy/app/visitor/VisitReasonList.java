@@ -266,7 +266,7 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
 
     private void connectDB(){
         if(helper==null){
-            helper = new DBHelper(getContext());
+            helper = DBHelper.getInstance(getActivity());
         }
     }
     private void releaseDB(){

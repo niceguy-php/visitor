@@ -54,6 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:imeOptions="flagNoExtractUi"
             android:background="@android:drawable/edit_text"/>
 
     </LinearLayout>
@@ -112,6 +113,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/be_visited_tel"
             android:inputType="phone"
+            android:imeOptions="flagNoExtractUi"
             android:layout_weight="1"
             android:background="@android:drawable/edit_text"/>
     </LinearLayout>

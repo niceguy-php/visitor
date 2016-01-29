@@ -121,12 +121,12 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         /**
          * 读卡
          */
-        try {
+        /*try {
             mSerialPort = getSerialPort();
         } catch (SecurityException se) {
         } catch (IOException ioe) {
         } catch (InvalidParameterException ipe) {
-        }
+        }*/
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
                 + STROE_IDCARD_AVATAR_PATH;// 配置文件文件夹
         File config = new File(companyFolder);
@@ -1042,7 +1042,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
     private void connectDB(){
         if(helper==null){
-            helper = new DBHelper(getContext());
+            helper = DBHelper.getInstance(getActivity());
         }
     }
     private void releaseDB(){

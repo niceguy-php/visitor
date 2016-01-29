@@ -258,6 +258,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
         }else{
             offset = page_num*pagesize;
         }
+        connectDB();
         Cursor cur = helper.fetchAllUser(USER_TYPE_EMPLOYEE, offset, pagesize);
         if(cur != null){
             SimpleCursorAdapter adapter = new SimpleCursorAdapter(activity, R.layout.user_item, cur,
@@ -464,7 +465,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
     private void connectDB(){
         if(helper==null){
-            helper = new DBHelper(getContext());
+            helper = DBHelper.getInstance(getActivity());
         }
     }
     private void releaseDB(){

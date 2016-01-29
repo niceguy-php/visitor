@@ -429,7 +429,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
 
     private void connectDB(){
         if(helper==null){
-            helper = new DBHelper(getContext());
+            helper = DBHelper.getInstance(getActivity());
         }
     }
     private void releaseDB(){

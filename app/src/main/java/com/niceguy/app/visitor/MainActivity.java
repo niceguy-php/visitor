@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     private void connectDB(){
         if(helper==null){
-            helper = new DBHelper(this);
+            helper = DBHelper.getInstance(this);
         }
     }
     private void releaseDB(){
