@@ -56,6 +56,9 @@ public class SettingActivity extends AppCompatActivity {
                     case R.id.visit_reason_tab_btn:
                         setSelected(3);
                         break;
+                    case R.id.backup_and_restore:
+                        setSelected(4);
+                        break;
                     case R.id.go_home:
                         finish();
                         break;
@@ -69,10 +72,10 @@ public class SettingActivity extends AppCompatActivity {
         FragmentTransaction transaction = fm.beginTransaction();
         hideFragment(transaction);
 
-        dept_tab_btn.setTextColor(Color.BLACK);
+        /*dept_tab_btn.setTextColor(Color.BLACK);
         employee_tab_btn.setTextColor(Color.BLACK);
         visit_reason_tab_btn.setTextColor(Color.BLACK);
-        duty_user_tab_btn.setTextColor(Color.BLACK);
+        duty_user_tab_btn.setTextColor(Color.BLACK);*/
 
         switch (i){
             case 0:

@@ -9,13 +9,14 @@
         android:id="@+id/start_backup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="备份"
+        android:text="点击备份当前数据库"
         style="@style/btn_blue"/>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:orientation="horizontal"
         android:gravity="center"
+        android:background="@drawable/menu_border_color"
         >
 
         <TextView
@@ -29,7 +30,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center"
+            android:gravity="left"
             android:textSize="16sp"
             android:text="文件名称"/>
 
@@ -40,9 +41,11 @@
         android:layout_height="wrap_content">
 
         <ListView
-            android:id="@+id/backup_item"
+            android:id="@+id/backup_listview"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="0.01dp">
 
         </ListView>
     </LinearLayout>
