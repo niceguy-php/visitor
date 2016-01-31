@@ -131,6 +131,7 @@
         <EditText
             android:textColorHint="@color/hint"
             android:hint="被访人职位"
+            android:imeOptions="flagNoExtractUi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/be_visited_pos"

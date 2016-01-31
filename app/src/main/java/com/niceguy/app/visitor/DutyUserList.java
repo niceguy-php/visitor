@@ -118,6 +118,11 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                 deptlist.setAdapter(adapter);
                 deptlist.setSelection(selectedIndex,true);
 
+                if(deptlist.getCount()==0){
+                    Toast.makeText(getActivity(), "请先新建部门，在更新部门成员", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 deptlist.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -221,6 +226,10 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                         Toast.makeText(getActivity(), "请选择员工所属部门", Toast.LENGTH_SHORT).show();
                     }
                 });
+                if(deptlist.getCount()==0){
+                    Toast.makeText(getActivity(), "请先新建部门，在更新部门成员", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 releaseDB();
                 showDetailDialog(detailView, ACTION_ADD);
                 break;
@@ -351,7 +360,6 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                             EditText phone = (EditText)view.findViewById(R.id.user_detail_phone);
                             RadioButton userSexFemale = (RadioButton) view.findViewById(R.id.user_detail_sex_female);
 
-
                             Long user_id = Long.parseLong(id.getText().toString());
                             ContentValues cv = new ContentValues();
                             cv.put("username",name.getText().toString());
@@ -363,7 +371,6 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                             }else{
                                 cv.put("sex", SEX_MALE);
                             }
-
 
                             if("".equals(cv.get("username").toString())){
                                 Toast.makeText(getActivity(), "请填写员工姓名", Toast.LENGTH_LONG).show();

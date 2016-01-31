@@ -104,11 +104,6 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
 
                 Spinner deptlist = (Spinner) detailView.findViewById(R.id.user_detail_dept);
 
-                if(deptlist.getCount()==0){
-                    Toast.makeText(getActivity(), "请先新建部门，在添加部门成员", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
                 connectDB();
                 final String[] deptNames = helper.getDeptNames();
                 int selectedIndex = 0;
@@ -122,6 +117,11 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 deptlist.setAdapter(adapter);
                 deptlist.setSelection(selectedIndex, true);
+
+                if(deptlist.getCount()==0){
+                    Toast.makeText(getActivity(), "请先新建部门，在添加部门成员", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 deptlist.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override

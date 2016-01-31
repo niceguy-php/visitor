@@ -60,6 +60,16 @@
                 android:button="@null"
                 android:text="来访事由"/>
             <RadioButton
+                android:id="@+id/backup_and_restore"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/color_radio_btn"
+                android:background="@drawable/radio_selected"
+                android:layout_height="match_parent"
+                android:button="@null"
+                android:text="备份恢复"/>
+            <RadioButton
                 android:id="@+id/go_home"
                 android:layout_width="0dp"
                 android:layout_weight="1"

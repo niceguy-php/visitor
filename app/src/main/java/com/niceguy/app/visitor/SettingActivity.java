@@ -19,7 +19,7 @@ import android.widget.RadioGroup;
 
 public class SettingActivity extends AppCompatActivity {
 
-    private Fragment departmentList,dutyUserList,employeeList,visitReasonList;
+    private Fragment departmentList,dutyUserList,employeeList,visitReasonList,backupAndRestore;
     private RadioButton dept_tab_btn,employee_tab_btn,visit_reason_tab_btn,duty_user_tab_btn;
     private RadioGroup radioGroup;
     @Override
@@ -112,6 +112,15 @@ public class SettingActivity extends AppCompatActivity {
                     transaction.show(visitReasonList);
                 }
                 break;
+            case 4:
+                if(backupAndRestore == null) {
+                    backupAndRestore = new Backup();
+                    transaction.add(R.id.settings_fragment,backupAndRestore);
+                }else{
+
+                    transaction.show(backupAndRestore);
+                }
+                break;
         }
         transaction.commit();
     }
@@ -119,6 +128,7 @@ public class SettingActivity extends AppCompatActivity {
     private void hideFragment(FragmentTransaction transiction){
 
         if(visitReasonList != null) transiction.hide(visitReasonList);
+        if(backupAndRestore != null) transiction.hide(backupAndRestore);
         if(dutyUserList != null) transiction.hide(dutyUserList);
         if(departmentList != null) transiction.hide(departmentList);
         if(employeeList != null) transiction.hide(employeeList);

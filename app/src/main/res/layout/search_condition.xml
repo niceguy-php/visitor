@@ -41,6 +41,7 @@
                             android:background="@android:drawable/edit_text"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:imeOptions="flagNoExtractUi"
                             android:id="@+id/visitor_name"/>
                     </LinearLayout>
                     <LinearLayout
@@ -58,6 +59,7 @@
                             android:background="@android:drawable/edit_text"
                             android:layout_width="match_parent"
                             android:inputType="phone"
+                            android:imeOptions="flagNoExtractUi"
                             android:layout_height="wrap_content"
                             android:id="@+id/visitor_id_num"/>
                     </LinearLayout>
@@ -76,6 +78,7 @@
                             android:background="@android:drawable/edit_text"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:imeOptions="flagNoExtractUi"
                             android:id="@+id/visitor_address"/>
                     </LinearLayout>
 
@@ -103,6 +106,7 @@
                             android:background="@android:drawable/edit_text"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:imeOptions="flagNoExtractUi"
                             android:id="@+id/visited_name"/>
                     </LinearLayout>
                     <LinearLayout

@@ -213,14 +213,15 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 String[] deptUsers = helper.getUserNamesByDeptName(EmployeeList.USER_TYPE_EMPLOYEE, name);
                 Log.v("YYX", StringUtils.join(deptUsers,','));
                 releaseDB();
-                ArrayAdapter<String> av = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_dropdown_item_1line, deptUsers);
+                ArrayAdapter<String> av = new ArrayAdapter<String>(getActivity(),
+                        android.R.layout.simple_dropdown_item_1line, deptUsers);
                 be_visited_name.setAdapter(av);
                 if (deptUsers.length > 0) {
                     be_visited_name.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                             String n = (String) parent.getItemAtPosition(position);
-                            toast(n);
+//                            toast(n);
                             int p = n.indexOf("-(");
                             if (p != -1) {
                                 String username = n.substring(0, p);
@@ -746,19 +747,6 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private void print() {
 
         if(cameraTakeAvatarPath!= null && idCardAvatarPath!= null && barCodeString!=null){
-            /*if(duty_person.getCount() == 0){
-                toast("请先配置值班人员");
-                return;
-            }
-            if(be_visited_dept.getCount() == 0){
-                toast("请先配置部门");
-                return;
-            }
-
-            if(visit_reason.getCount() == 0){
-                toast("请先配置来访事由");
-                return;
-            }*/
             if(!addVisitorLog()){
                 toast("登记失败，请重试！");
                 return;
@@ -885,7 +873,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         barCodeString = null;
 
         visitedPhone.setText("");
-        visitedName.setText("");
+        be_visited_name.setText("");
         visitorCount.setText("1");
         visitorPhone.setText("");
         visitedPos.setText("");
