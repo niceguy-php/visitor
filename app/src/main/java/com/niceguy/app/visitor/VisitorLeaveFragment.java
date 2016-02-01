@@ -265,4 +265,19 @@ public class VisitorLeaveFragment extends Fragment{
             helper = DBHelper.getInstance(getActivity());
         }
     }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if(hidden){
+            visit_reason.setText("");
+            visitor_name.setText("");
+            visitor_count.setText("");
+            visited_dept.setText("");
+            visited_name.setText("");
+            visit_time.setText("");
+            avatarImage.setImageResource(R.mipmap.photo);
+        }
+
+    }
 }

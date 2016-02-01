@@ -9,6 +9,7 @@
         android:id="@+id/start_backup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="8dp"
         android:text="点击备份当前数据库"
         style="@style/btn_blue"/>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -21,18 +22,25 @@
 
         <TextView
             android:layout_width="60dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:gravity="center"
             android:textSize="16sp"
             android:text="序    号"/>
 
         <TextView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="left"
+            android:gravity="center"
             android:textSize="16sp"
             android:text="文件名称"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:text="备份时间"/>
 
 
     </LinearLayout>
@@ -42,7 +50,7 @@
 
         <ListView
             android:id="@+id/backup_listview"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:divider="@android:color/darker_gray"
             android:dividerHeight="0.01dp">

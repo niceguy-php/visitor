@@ -17,6 +17,8 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.google.zxing.common.StringUtils;
+
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -57,8 +59,8 @@ public class Backup extends Fragment implements View.OnClickListener{
                 final String filename = (String) map.get("file_name");
                 AlertDialog detailDialog = new AlertDialog.Builder(getActivity())
                         .setTitle("提示").setMessage("请选择相应的操作：" +
-                                "\r\n删除备份文件会导致被删除的历史备份无法恢复，" +
-                                "\r\n恢复该备份到系统会导致该备份会覆盖当前系统的数据")
+                                "\r\n1. 删除备份文件会导致被删除的该历史备份无法恢复" +
+                                "\r\n2. 恢复该备份到系统会导致该备份会覆盖当前系统数据")
                         .setPositiveButton("删除此备份文件", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -70,6 +72,11 @@ public class Backup extends Fragment implements View.OnClickListener{
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 restoreDBFile(filename);
+                            }
+                        }).setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
                             }
                         }).create();
                 detailDialog.show();
@@ -173,7 +180,17 @@ public class Backup extends Fragment implements View.OnClickListener{
                 if(f.isFile()){
                     HashMap hashMap = new HashMap();
                     hashMap.put("file_id",i+"");
-                    hashMap.put("file_name",f.getName());
+                    String fname = f.getName();
+                    hashMap.put("file_name",fname);
+                    if(fname.indexOf('_')!=-1){
+                        String tmp = fname.substring(0,fname.length()-3);
+                        String[] name_arr = org.apache.commons.lang3.StringUtils.split(tmp, '_');
+//                        String backup_time = String.format("%s-%s-%s %s:%s:%s",name_arr[0],name_arr[1],name_arr[2],name_arr[3],name_arr[4],name_arr[5]);
+                        String backup_time = String.format("%s-%s-%s %s:%s:%s",name_arr);
+                        hashMap.put("backup_time",backup_time);
+                    }else{
+                        hashMap.put("backup_time","");
+                    }
                     objs.add(hashMap);
                 }
                 i++;
@@ -182,7 +199,7 @@ public class Backup extends Fragment implements View.OnClickListener{
 
         if(objs != null && objs.size()>0 ){
             SimpleAdapter simple = new SimpleAdapter(getActivity(),objs,
-                    R.layout.backup_file_item,new String[]{"file_id","file_name"},new int[]{R.id.file_id,R.id.file_name});
+                    R.layout.backup_file_item,new String[]{"file_id","file_name","backup_time"},new int[]{R.id.file_id,R.id.file_name,R.id.backup_time});
             listView.setAdapter(simple);
         }
     }

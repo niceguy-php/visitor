@@ -127,7 +127,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         user_dept = deptNames[position];
-                        Toast.makeText(getActivity(),user_dept+"---",Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getActivity(),user_dept+"---",Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -227,7 +227,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                     }
                 });
                 if(deptlist.getCount()==0){
-                    Toast.makeText(getActivity(), "请先新建部门，在更新部门成员", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "请先新建部门，在添加部门成员", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 releaseDB();
@@ -348,36 +348,42 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
         }else{
             detailDialog = new AlertDialog.Builder(getActivity())
                     .setTitle(title).setView(view)
+                    .setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
                     .setPositiveButton("更新", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
                             connectDB();
-                            TextView id = (TextView)view.findViewById(R.id.user_detail_id);
-                            EditText name = (EditText)view.findViewById(R.id.user_detail_name);
-                            EditText code = (EditText)view.findViewById(R.id.user_detail_code);
-                            EditText pos = (EditText)view.findViewById(R.id.user_detail_position);
-                            EditText phone = (EditText)view.findViewById(R.id.user_detail_phone);
+                            TextView id = (TextView) view.findViewById(R.id.user_detail_id);
+                            EditText name = (EditText) view.findViewById(R.id.user_detail_name);
+                            EditText code = (EditText) view.findViewById(R.id.user_detail_code);
+                            EditText pos = (EditText) view.findViewById(R.id.user_detail_position);
+                            EditText phone = (EditText) view.findViewById(R.id.user_detail_phone);
                             RadioButton userSexFemale = (RadioButton) view.findViewById(R.id.user_detail_sex_female);
 
                             Long user_id = Long.parseLong(id.getText().toString());
                             ContentValues cv = new ContentValues();
-                            cv.put("username",name.getText().toString());
-                            cv.put("phone",phone.getText().toString());
+                            cv.put("username", name.getText().toString());
+                            cv.put("phone", phone.getText().toString());
                             cv.put("code_num", code.getText().toString());
                             cv.put("position", pos.getText().toString());
-                            if(userSexFemale.isChecked()){
-                                cv.put("sex",SEX_FEMALE);
-                            }else{
+                            if (userSexFemale.isChecked()) {
+                                cv.put("sex", SEX_FEMALE);
+                            } else {
                                 cv.put("sex", SEX_MALE);
                             }
 
-                            if("".equals(cv.get("username").toString())){
+                            if ("".equals(cv.get("username").toString())) {
                                 Toast.makeText(getActivity(), "请填写员工姓名", Toast.LENGTH_LONG).show();
                                 detailDialog.show();
                                 return;
                             }
-                            if("".equals(cv.get("phone").toString())){
+                            if ("".equals(cv.get("phone").toString())) {
                                 Toast.makeText(getActivity(), "请填写员工电话", Toast.LENGTH_LONG).show();
                                 detailDialog.show();
                                 return;
@@ -386,9 +392,9 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
 
                             boolean rs = helper.update(TABLE, cv, user_id);
 
-                            Log.v("YYX",user_dept+"-------"+user_old_dept);
+                            Log.v("YYX", user_dept + "-------" + user_old_dept);
 
-                            if(rs && user_dept != user_old_dept){
+                            if (rs && user_dept != user_old_dept) {
 
                                 int old_dept_id = 0;
                                 try {
@@ -400,7 +406,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                                     e.printStackTrace();
                                 }
 
-                                helper.db.execSQL("DELETE FROM "+TABLE_USER_DEPARTMENT+" WHERE user_id=? AND dept_id=?",new String[]{String.valueOf(user_id),String.valueOf(old_dept_id)});
+                                helper.db.execSQL("DELETE FROM " + TABLE_USER_DEPARTMENT + " WHERE user_id=? AND dept_id=?", new String[]{String.valueOf(user_id), String.valueOf(old_dept_id)});
 
 
                                 int dept_id = 0;
@@ -414,7 +420,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
                                 }
 
                                 ContentValues cv1 = new ContentValues();
-                                cv1.put("user_id",user_id);
+                                cv1.put("user_id", user_id);
                                 cv1.put("dept_id", dept_id);
                                 helper.insert(TABLE_USER_DEPARTMENT, cv1);
                             }

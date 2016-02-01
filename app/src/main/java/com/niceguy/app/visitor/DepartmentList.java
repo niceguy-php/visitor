@@ -68,7 +68,6 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
 
                 old_dept_name = name;
 
-                Toast.makeText(activity, "", Toast.LENGTH_SHORT).show();
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 View detailView = inflater.inflate(R.layout.dept_detail, null);
 
@@ -80,7 +79,6 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                 deptCode.setText(code);
 
                 showDetailDialog(detailView, ACTION_UPDATE);
-                item.close();
             }
         });
 
@@ -188,13 +186,13 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                     .setPositiveButton("添加", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            EditText t = (EditText)view.findViewById(R.id.dept_detail_name);
+                            EditText t = (EditText) view.findViewById(R.id.dept_detail_name);
                             String name = t.getText().toString();
-                            EditText t1 = (EditText)view.findViewById(R.id.dept_detail_code);
+                            EditText t1 = (EditText) view.findViewById(R.id.dept_detail_code);
                             String code = t1.getText().toString();
 
                             ContentValues cv = new ContentValues();
-                            if("".equals(name.trim())){
+                            if ("".equals(name.trim())) {
                                 Toast.makeText(getActivity(), "请填写部门名称", Toast.LENGTH_LONG).show();
                                 detailDialog.show();
                                 return;
@@ -202,7 +200,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                             connectDB();
                             try {
                                 Cursor c = helper.fetchDepartmentByName(name);
-                                if(c.getCount()>0){
+                                if (c.getCount() > 0) {
                                     Toast.makeText(getActivity(), "部门名称已经存在", Toast.LENGTH_LONG).show();
                                     return;
                                 }
@@ -210,8 +208,8 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                             } catch (SQLException e) {
                                 e.printStackTrace();
                             }
-                            cv.put("dept_name",name);
-                            cv.put("code_num",code);
+                            cv.put("dept_name", name);
+                            cv.put("code_num", code);
                             helper.insert(TABLE, cv);
                             releaseDB();
                             updateList(1);
@@ -229,19 +227,25 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
         }else{
             detailDialog = new AlertDialog.Builder(getActivity())
                     .setTitle(title).setView(view)
+                    .setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
                     .setPositiveButton("更新", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
                             TextView v = (TextView) view.findViewById(R.id.dept_detail_id);
 
-                            EditText t = (EditText)view.findViewById(R.id.dept_detail_name);
+                            EditText t = (EditText) view.findViewById(R.id.dept_detail_name);
                             String name = t.getText().toString();
-                            EditText t1 = (EditText)view.findViewById(R.id.dept_detail_code);
+                            EditText t1 = (EditText) view.findViewById(R.id.dept_detail_code);
                             String code = t1.getText().toString();
 
                             ContentValues cv = new ContentValues();
-                            if("".equals(name.trim())){
+                            if ("".equals(name.trim())) {
                                 Toast.makeText(getActivity(), "请填写部门名称", Toast.LENGTH_LONG).show();
                                 detailDialog.show();
                                 return;
@@ -249,9 +253,9 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
 
                             connectDB();
                             try {
-                                if(!name.equals(old_dept_name)){
+                                if (!name.equals(old_dept_name)) {
                                     Cursor c = helper.fetchDepartmentByName(name);
-                                    if(c.getCount() > 0){
+                                    if (c.getCount() > 0) {
                                         Toast.makeText(getActivity(), "部门名称已经存在", Toast.LENGTH_LONG).show();
                                         return;
                                     }
@@ -261,8 +265,8 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                                 e.printStackTrace();
                             }
 
-                            cv.put("dept_name",name);
-                            cv.put("code_num",code);
+                            cv.put("dept_name", name);
+                            cv.put("code_num", code);
 
                             helper.update(TABLE, cv, Long.parseLong(v.getText().toString()));
                             releaseDB();

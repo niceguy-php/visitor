@@ -62,7 +62,6 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
                 String reason = item.getString(item.getColumnIndex("reason"));
                 int rid = item.getInt(item.getColumnIndex("_id"));
 
-                Toast.makeText(activity,"",Toast.LENGTH_SHORT).show();
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 View detailView = inflater.inflate(R.layout.reason_detail, null);
 
@@ -72,7 +71,6 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
                 reasonContent.setText(reason);
 
                 showDetailDialog(detailView,ACTION_UPDATE);
-                item.close();
             }
         });
 
@@ -184,7 +182,7 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
                             String reason = t.getText().toString();
 
                             ContentValues cv = new ContentValues();
-                            if("".equals(reason.trim())){
+                            if ("".equals(reason.trim())) {
                                 Toast.makeText(getActivity(), "请填写来访原因", Toast.LENGTH_LONG).show();
                                 detailDialog.show();
                                 return;
@@ -208,17 +206,23 @@ public class VisitReasonList extends Fragment implements View.OnClickListener{
         }else{
             detailDialog = new AlertDialog.Builder(getActivity())
                     .setTitle(title).setView(view)
+                    .setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
                     .setPositiveButton("更新", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            EditText t = (EditText)view.findViewById(R.id.reason_detail_content);
+                            EditText t = (EditText) view.findViewById(R.id.reason_detail_content);
                             String reason = t.getText().toString();
                             TextView v = (TextView) view.findViewById(R.id.reason_detail_id);
 
                             ContentValues cv = new ContentValues();
-                            cv.put("reason",reason);
+                            cv.put("reason", reason);
 
-                            if("".equals(reason.trim())){
+                            if ("".equals(reason.trim())) {
                                 Toast.makeText(getActivity(), "请填写来访原因", Toast.LENGTH_LONG).show();
                                 detailDialog.show();
                                 return;

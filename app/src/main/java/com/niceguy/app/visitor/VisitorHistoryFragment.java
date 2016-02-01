@@ -199,6 +199,9 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
                 TextView detail_visitor_count = (TextView) v.findViewById(R.id.detail_visitor_count);
                 detail_visitor_count.setText(c.getString(c.getColumnIndex("visitor_count")));
 
+                TextView detail_visitor_name = (TextView) v.findViewById(R.id.detail_visitor_name);
+                detail_visitor_name.setText(c.getString(c.getColumnIndex("visitor_name")));
+
                 TextView detail_visitor_police = (TextView) v.findViewById(R.id.detail_visitor_police);
                 detail_visitor_police.setText(c.getString(c.getColumnIndex("idcard_police")));
 

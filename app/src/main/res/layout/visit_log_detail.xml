@@ -56,7 +56,7 @@
                 android:id="@+id/detail_visitor_name"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="张三" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -67,7 +67,7 @@
                 android:id="@+id/detail_visitor_sex"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="男" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -78,7 +78,7 @@
                 android:id="@+id/detail_visitor_ethnic"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="汉族" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -89,7 +89,7 @@
                 android:id="@+id/detail_visitor_birthday"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:text="1988-09-08" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -100,7 +100,7 @@
                 android:id="@+id/detail_visitor_address"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="成都市" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -111,7 +111,7 @@
                 android:id="@+id/detail_visitor_idno"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="832923198809080718" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -122,7 +122,7 @@
                 android:id="@+id/detail_visitor_police"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="派出所" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -133,7 +133,7 @@
                 android:id="@+id/detail_valid_date"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="832923198809080718" />
+                android:text="" />
 
 
             <TextView
@@ -145,7 +145,7 @@
                 android:id="@+id/detail_visitor_count"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:text="1" />
+                android:text="" />
 
             <TextView
                 android:layout_width="90dp"
@@ -156,7 +156,7 @@
                 android:id="@+id/detail_visitor_phone"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="1234567897789" />
+                android:text="" />
 
 
             <TextView
@@ -168,7 +168,7 @@
                 android:id="@+id/detail_visit_time"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="2015-01-26 12:12:12" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -179,7 +179,7 @@
                 android:id="@+id/detail_leave_time"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="2015-01-26 12:12:12" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -190,7 +190,7 @@
                 android:id="@+id/detail_visit_reason"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="测试" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -243,7 +243,7 @@
                 android:id="@+id/detail_visited_name"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="张三" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -254,7 +254,7 @@
                 android:id="@+id/detail_visited_sex"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="男" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -265,7 +265,7 @@
                 android:id="@+id/detail_visited_dept"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:text="技术部" />
+                android:text="" />
 
             <TextView
                 android:layout_width="90dp"
@@ -276,7 +276,7 @@
                 android:id="@+id/detail_visited_phone"
                 android:layout_width="90dp"
                 android:layout_height="wrap_content"
-                android:text="18780278018" />
+                android:text="" />
 
             <TextView
                 android:layout_width="90dp"
@@ -287,7 +287,7 @@
                 android:id="@+id/detail_visited_pos"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="副主任" />
+                android:text="" />
 
             <TextView
                 android:layout_width="80dp"
@@ -299,7 +299,7 @@
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorPrimaryDark"
-                android:text="李四" />
+                android:text="" />
 
         </GridLayout>
     </LinearLayout>

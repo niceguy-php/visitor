@@ -10,48 +10,48 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.6"
-                android:text="张三丰"/>
+                android:text=""/>
             <TextView
                 android:id="@+id/item_visitor_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="张三丰"/>
+                android:text=""/>
             <TextView
                 android:id="@+id/item_visit_reason"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="送货"/>
+                android:text=""/>
             <TextView
                 android:id="@+id/item_visited_dept"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="技术部"/>
+                android:text=""/>
             <TextView
                 android:id="@+id/item_visited_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="李从礼"/>
+                android:text=""/>
             <TextView
                 android:id="@+id/item_visit_time"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="2015/12/01 10:10:10"/>
+                android:text=""/>
             <TextView
                 android:id="@+id/item_leave_time"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="2015/12/01 10:10:10"/>
+                android:text=""/>
             <TextView
                 android:id="@+id/item_visit_status"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="2015/12/01 10:10:10"/>
+                android:text=""/>
 
 </LinearLayout>

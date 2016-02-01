@@ -121,12 +121,12 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         /**
          * 读卡
          */
-        /*try {
+        try {
             mSerialPort = getSerialPort();
         } catch (SecurityException se) {
         } catch (IOException ioe) {
         } catch (InvalidParameterException ipe) {
-        }*/
+        }
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
                 + STROE_IDCARD_AVATAR_PATH;// 配置文件文件夹
         File config = new File(companyFolder);
@@ -310,6 +310,9 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
                 TextView detail_visitor_count = (TextView) v.findViewById(R.id.detail_visitor_count);
                 detail_visitor_count.setText(c.getString(c.getColumnIndex("visitor_count")));
+
+                TextView detail_visitor_name = (TextView) v.findViewById(R.id.detail_visitor_name);
+                detail_visitor_name.setText(c.getString(c.getColumnIndex("visitor_name")));
 
                 TextView detail_visitor_police = (TextView) v.findViewById(R.id.detail_visitor_police);
                 detail_visitor_police.setText(c.getString(c.getColumnIndex("idcard_police")));
@@ -547,7 +550,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 TextView preview_visited_dept  = (TextView) print_preview_view.findViewById(R.id.preview_visited_dept);
                 preview_visited_dept.setText(be_visited_dept.getSelectedItem().toString());
                 TextView preview_visited_name  = (TextView) print_preview_view.findViewById(R.id.preview_visited_name);
-                preview_visited_name.setText(be_visited_name.getText().toString());
+                preview_visited_name.setText(parseName(be_visited_name.getText().toString()));
 
                 print_barcode.setImageBitmap(barCodePic);
                 if (idCardAvatarPath != null && idCardAvatarPic != null) {
@@ -835,7 +838,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         String visitor_count = visitorCount.getText().toString();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         String visitTime = sdf.format(new Date(this.visit_time));
-        String visitedName = be_visited_name.getText().toString();
+        String visitedName = parseName(be_visited_name.getText().toString());
         String dept = be_visited_dept.getSelectedItem().toString();
         String visitReason = visit_reason.getSelectedItem().toString();
         String space = "   ";
@@ -865,7 +868,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         }
     }
 
-    private void clear(){
+    public void clear(){
         visit_time = 0;
         idCardAvatarPath = null;
         idCardAvatarPic = null;
@@ -952,7 +955,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         }
         cv.put("visited_dept_name", be_visited_dept.getSelectedItem().toString());
         cv.put("visited_dept_id", 0);
-        cv.put("visited_username", be_visited_name.getText().toString());
+        cv.put("visited_username", parseName(be_visited_name.getText().toString()));
         cv.put("visited_user_id", 0);
         cv.put("reason_id", 0);
         cv.put("visit_reason", visit_reason.getSelectedItem().toString());
@@ -1087,4 +1090,20 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
     }
 
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if(hidden){
+            clear();
+        }
+    }
+    public static String parseName(String str){
+        int p = str.indexOf("-(");
+        String uname="";
+        if (p != -1) {
+            uname = str.substring(0, p);
+//            String dept_name = str.substring(p + 2, str.length() - 1);
+        }
+        return uname;
+    }
 }
