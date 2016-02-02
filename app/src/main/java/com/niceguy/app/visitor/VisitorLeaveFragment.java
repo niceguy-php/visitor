@@ -102,22 +102,25 @@ public class VisitorLeaveFragment extends Fragment{
         register_sign = (LinearLayout) view.findViewById(R.id.register_sign);
 
 
-        Intent intent = new Intent();
+        /*Intent intent = new Intent();
         intent.setClass(getActivity(), CaptureActivity.class);
-        startActivityForResult(intent, SCANNIN_GREQUEST_CODE);
+        startActivityForResult(intent, SCANNIN_GREQUEST_CODE);*/
 
         // 点击按钮跳转到二维码扫描界面，这里用的是startActivityForResult跳转
         // 扫描完了之后调到该界面
-        Button mButton = (Button) view.findViewById(R.id.btn_barcode_read);
-        Button mButtonIdCardReadLeave = (Button) view.findViewById(R.id.btn_idcard_read);
+        final Button mButton = (Button) view.findViewById(R.id.btn_barcode_read);
+        final Button mButtonIdCardReadLeave = (Button) view.findViewById(R.id.btn_idcard_read);
         Button mFinishVisit = (Button) view.findViewById(R.id.finish_visit);
 
         mButtonIdCardReadLeave.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v) {
+                mButtonIdCardReadLeave.setBackgroundColor(Color.parseColor("#3F51B5"));
+                mButtonIdCardReadLeave.setTextColor(Color.WHITE);
+                mButton.setBackgroundColor(Color.parseColor("#D4D6D5"));
+                mButton.setTextColor(Color.BLACK);
                 readCard();
-//                Toast.makeText(getActivity(), "开发中.....", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -125,6 +128,10 @@ public class VisitorLeaveFragment extends Fragment{
 
             @Override
             public void onClick(View v) {
+                mButton.setBackgroundColor(Color.parseColor("#3F51B5"));
+                mButton.setTextColor(Color.WHITE);
+                mButtonIdCardReadLeave.setBackgroundColor(Color.parseColor("#D4D6D5"));
+                mButtonIdCardReadLeave.setTextColor(Color.BLACK);
                 Intent intent = new Intent();
                 intent.setClass(getActivity(), CaptureActivity.class);
                 startActivityForResult(intent, SCANNIN_GREQUEST_CODE);
@@ -134,18 +141,24 @@ public class VisitorLeaveFragment extends Fragment{
         mFinishVisit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ContentValues cv = new ContentValues();
-                cv.put("visit_status",1);
-                cv.put("duty_username_leave",duty_person_in_leave.getSelectedItem().toString());
-                cv.put("leave_time",new Date().getTime());
-                if(helper.update(helper.TABLE_VISIT_LOG,cv,log_id)){
-                    log_id = 0;
-                    visit_status.setText("已离开");
-                    visit_status.setTextColor(Color.GREEN);
-                    Toast.makeText(getActivity(),"操作成功",Toast.LENGTH_SHORT).show();
+                if(log_id>0){
+                    ContentValues cv = new ContentValues();
+                    cv.put("visit_status",1);
+                    cv.put("duty_username_leave",duty_person_in_leave.getSelectedItem().toString());
+                    cv.put("leave_time",new Date().getTime());
+                    if(helper.update(helper.TABLE_VISIT_LOG,cv,log_id)){
+                        log_id = 0;
+                        visit_status.setText("已离开");
+                        visit_status.setTextColor(Color.GREEN);
+                        Toast.makeText(getActivity(),"操作成功",Toast.LENGTH_SHORT).show();
+                        getActivity().findViewById(R.id.id_tab_home).performClick();
+                    }else{
+                        Toast.makeText(getActivity(),"操作失败，请重试",Toast.LENGTH_SHORT).show();
+                    }
                 }else{
-                    Toast.makeText(getActivity(),"操作失败，请重试",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(),"请扫描条码或放入访客身份证识别登记离开",Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
         return view;
