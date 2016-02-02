@@ -36,6 +36,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.SimpleAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -57,7 +58,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.UUID;
 
 
@@ -890,6 +893,15 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         police.setText("");
         valid_date.setText("");
         avatar.setImageResource(R.mipmap.photo);
+
+        ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
+        if(list.size()>0){
+            list.clear();
+        }
+        SimpleAdapter simpleAdapter = new SimpleAdapter(getActivity(), list,R.layout.visit_log_item,
+                new String[]{"_id", "visitor_name","visit_reason","visited_dept_name","visited_username","visit_time","leave_time","visit_status"},
+                new int[]{R.id.item_log_id,R.id.item_visitor_name, R.id.item_visit_reason,R.id.item_visited_dept,R.id.item_visited_name,R.id.item_visit_time,R.id.item_leave_time,R.id.item_visit_status});
+        recent_visit_log_listview.setAdapter(simpleAdapter);
 
     }
 
