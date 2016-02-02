@@ -159,12 +159,21 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="2"
-        android:gravity="center">
+        android:orientation="vertical"
+        android:layout_marginTop="8dp"
+        android:gravity="center_horizontal">
         <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="查询"
+        style="@style/btn_blue"
+        android:id="@+id/visit_search"/>
+        <Button
+            android:layout_marginTop="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="查询"
-            style="@style/btn_blue"
-            android:id="@+id/visit_search"/>
+            android:text="清空"
+            android:background="#D4D6D5"
+            android:id="@+id/search_clear"/>
     </LinearLayout>
 </LinearLayout>

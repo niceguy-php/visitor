@@ -18,11 +18,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.SimpleAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +40,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * Created by qiumeilin on 2016/1/9.
@@ -51,7 +54,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
     private EditText visit_time;
     private EditText leave_time;
     private EditText visitor_address;
-    private Button search;
+    private Button search,clear;
     private Activity inActivity;
     private String initStartDateTime = "2016年1月1日 14:44"; // 初始化开始时间
     private String initEndDateTime = "2016年1月1日 17:44"; // 初始化结束时间
@@ -81,6 +84,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
         visited_name = (EditText) view.findViewById(R.id.visited_name);
         visitor_address = (EditText) view.findViewById(R.id.visitor_address);
         search = (Button) view.findViewById(R.id.visit_search);
+        clear = (Button) view.findViewById(R.id.search_clear);
         inActivity = getActivity();
 
         connectDB();
@@ -133,6 +137,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
         visit_time.setOnClickListener(this);
         leave_time.setOnClickListener(this);
         search.setOnClickListener(this);
+        clear.setOnClickListener(this);
         listView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -278,6 +283,9 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
             case R.id.visit_search:
                 updateList(1);
                 break;
+            case R.id.search_clear:
+                clear();
+                break;
         }
     }
 
@@ -343,7 +351,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
             total_page = (int) Math.ceil(d);
             Log.v("YYX",Math.ceil(d)+"----Math.ceil(d)------");
         }
-        Log.v("YYX",total_page+"----total_page------");
+        Log.v("YYX", total_page + "----total_page------");
         return total_page;
     }
 
@@ -428,6 +436,31 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
         }
         releaseDB();
 
+    }
+
+    public void clear(){
+        visit_time.setText("");
+        leave_time.setText("");
+        visited_name.setText("");
+        visitor_address.setText("");
+        visitor_id_num.setText("");
+        visitor_name.setText("");
+        ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
+        if(list.size()>0){
+            list.clear();
+        }
+        SimpleAdapter simpleAdapter = new SimpleAdapter(getActivity(), list,R.layout.visit_log_item,
+                new String[]{"_id", "visitor_name","visit_reason","visited_dept_name","visited_username","visit_time","leave_time","visit_status"},
+                new int[]{R.id.item_log_id,R.id.item_visitor_name, R.id.item_visit_reason,R.id.item_visited_dept,R.id.item_visited_name,R.id.item_visit_time,R.id.item_leave_time,R.id.item_visit_status});
+        listView.setAdapter(simpleAdapter);
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if(hidden){
+            clear();
+        }
     }
 
     private void connectDB(){
