@@ -15,3 +15,8 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-keep class com.google.zxing.** {*;}
+-keep class org.apache.commons.lang3.** {*;}
+-keep class org.apache.commons.io.** {*;}
+-keep class android.support.v4.** {*;}
+-keep class android.support.v7.** {*;}
