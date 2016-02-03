@@ -45,8 +45,8 @@ public class SettingActivity extends AppCompatActivity {
 //            setSelected(5);//auth page
             authorization_btn.performClick();
         }else{
-//            setSelected(0);
-            dept_tab_btn.performClick();
+            setSelected(0);
+//            dept_tab_btn.performClick();
         }
     }
 
