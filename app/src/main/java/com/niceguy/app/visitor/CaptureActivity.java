@@ -43,6 +43,7 @@ public class CaptureActivity extends Activity implements Callback {
 	private boolean playBeep;
 	private static final float BEEP_VOLUME = 0.10f;
 	private boolean vibrate;
+	private static String from = "";
 
 	/** Called when the activity is first created. */
 	@Override
@@ -52,6 +53,10 @@ public class CaptureActivity extends Activity implements Callback {
 		//ViewUtil.addTopView(getApplicationContext(), this, R.string.scan_card);
 		CameraManager.init(getApplication());
 		viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
+		Bundle bundle = getIntent().getExtras();
+		if(bundle!=null){
+			from = bundle.getString("from","");
+		}
 		hasSurface = false;
 		inactivityTimer = new InactivityTimer(this);
 	}
@@ -112,10 +117,16 @@ public class CaptureActivity extends Activity implements Callback {
 			Bundle bundle = new Bundle();
 			bundle.putString("result", resultString);
 			resultIntent.putExtras(bundle);
-			QrCodeActivity.bitmapRec=barcode;
-			VisitorLeaveFragment.bitmapRec=barcode;
-			VisitorLeaveFragment.barCode = resultString;
-			VisitorLeaveFragment.callBack();
+			if("auth".equals(from)){//
+				Authorization.key = resultString;
+				Authorization.callBack();
+			}else {
+				QrCodeActivity.bitmapRec=barcode;
+				VisitorLeaveFragment.bitmapRec=barcode;
+				VisitorLeaveFragment.barCode = resultString;
+				VisitorLeaveFragment.callBack();
+			}
+
 			this.setResult(RESULT_OK, resultIntent);
 		}
 		CaptureActivity.this.finish();

@@ -83,5 +83,9 @@
     <string name="read_card">正在识别身份证，请稍后...</string>
     <string name="please_put_card">请放入访客的身份证进行识别，并且给访客拍照！</string>
     <string name="barcode_not_exits">请放入访客的身份证进行识别，并且给访客拍照！</string>
+    <string name="please_authorize_first">"请从首页进入“信息配置”=>“授权认证”完成授权认证"</string>
 
+
+    <!--必须填写md5值-->
+    <string name="some_key">e10adc3949ba59abbe56e057f20f883e</string>
 </resources>

@@ -3,6 +3,7 @@ package com.niceguy.app.visitor;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 /**
  * Created by qiumeilin on 2016/1/9.
@@ -33,6 +35,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         Activity a = getActivity();
+        SharedPreferences config = a.getSharedPreferences("config", Activity.MODE_PRIVATE);
+        int id  = v.getId();
+        if((id == R.id.leave_fragment_click || id == R.id.register_fragment_click || id == R.id.history_fragment_click)
+                && config.getInt("auth_status",0) == 0){
+            Toast.makeText(a, getString(R.string.please_authorize_first), Toast.LENGTH_SHORT).show();
+            return;
+        }
         switch (v.getId()){
             case R.id.leave_fragment_click:
                 a.findViewById(R.id.id_tab_visitor_leave).performClick();
@@ -55,9 +64,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
 
     }
 
-    interface HomeListener{
-
-    }
 
     @Nullable
     @Override

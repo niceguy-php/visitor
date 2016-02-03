@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    >
+
+
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:columnCount="2"
+        android:rowCount="2">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="授权状态："/>
+        <TextView
+            android:id="@+id/auth_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:text="未授权"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="16sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="授权时间："/>
+        <TextView
+            android:id="@+id/auth_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_marginLeft="15dp"
+            android:text=""/>
+    </GridLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:gravity="center">
+        <Button
+            android:id="@+id/scan_key"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:padding="8dp"
+            android:text="扫二维码授权"
+            style="@style/btn_blue"/>
+        <Button
+            android:id="@+id/input_key"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:background="#D4D6D5"
+            android:layout_marginLeft="10dp"
+            android:padding="8dp"
+            android:text="手动输入授权码"
+            />
+        <Button
+            android:id="@+id/auth_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:background="#D4D6D5"
+            android:layout_marginLeft="10dp"
+            android:padding="8dp"
+            android:text="解除授权"
+            />
+    </LinearLayout>
+
+
+
+</LinearLayout>
+
+
