@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="4dp"
         android:layout_marginLeft="6dp"
         android:layout_marginRight="6dp"
@@ -18,7 +18,7 @@
         <Button
             android:id="@+id/btn_idcard_read"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:layout_marginRight="3dp"
             android:background="#D4D6D5"
@@ -27,7 +27,7 @@
         <Button
             android:id="@+id/btn_barcode_read"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:text="@string/str_qrcode"
             android:layout_marginLeft="3dp"

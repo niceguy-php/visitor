@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
@@ -42,6 +43,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hdos.idCardUartDevice.publicSecurityIDCardLib;
 import com.niceguy.app.utils.DBHelper;
 import com.synjones.bluetooth.DecodeWlt;
 import com.synjones.sdt.IDCard;
@@ -54,8 +56,10 @@ import com.zkc.pc700.helper.PrinterClassSerialPort;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -77,6 +81,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private SurfaceView cameraPreview;
     private SurfaceHolder mHolder;
 
+    private publicSecurityIDCardLib iDCardDevice;
     protected SerialPort mSerialPort;
     private IDCard idcard = null;
     private Spinner visit_reason;
@@ -109,6 +114,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private ListView recent_visit_log_listview = null;
 
     private long visit_time = 0;
+    String port="/dev/ttyS1";
 
 
 
@@ -124,12 +130,14 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         /**
          * 读卡
          */
-        try {
+        /*try {
             mSerialPort = getSerialPort();
         } catch (SecurityException se) {
         } catch (IOException ioe) {
         } catch (InvalidParameterException ipe) {
-        }
+        }*/
+        iDCardDevice = new publicSecurityIDCardLib();
+
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
                 + STROE_IDCARD_AVATAR_PATH;// 配置文件文件夹
         File config = new File(companyFolder);
@@ -324,14 +332,14 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 detail_visit_status.setText(c.getString(c.getColumnIndex("visit_status")));
 
                 TextView detail_duty_user = (TextView) v.findViewById(R.id.detail_duty_user);
-                String in_duty_username = c.getString(c.getColumnIndex("duty_username"))+"(进)";
+                String in_duty_username = c.getString(c.getColumnIndex("duty_username")) + "(进)";
                 String leave_duty_username = c.getString(c.getColumnIndex("duty_username_leave"));
-                if(leave_duty_username != null){
-                    leave_duty_username = "，"+c.getString(c.getColumnIndex("duty_username_leave"))+"(出)";
-                }else{
+                if (leave_duty_username != null) {
+                    leave_duty_username = "，" + c.getString(c.getColumnIndex("duty_username_leave")) + "(出)";
+                } else {
                     leave_duty_username = "";
                 }
-                detail_duty_user.setText(in_duty_username+leave_duty_username);
+                detail_duty_user.setText(in_duty_username + leave_duty_username);
 
                 ImageView detail_idcard_avatar = (ImageView) v.findViewById(R.id.detail_idcard_avatar);
                 String a1 = c.getString(c.getColumnIndex("idcard_avatar"));
@@ -571,76 +579,88 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
         idCardAvatarPic=null;
         idCardAvatarPath = null;
-        idcard = mSerialPort.getIDCard();
-        if (idcard != null) {
-            name.setText(idcard.getName());
-            sex.setText(idcard.getSex());
-            ethnic.setText(idcard.getNation());
-            birthday.setText(idcard.getBirthday().substring(0, 4) + "-"
-                    + idcard.getBirthday().substring(4, 6) + "-"
-                    + idcard.getBirthday().substring(6, 8));
-            address.setText(idcard.getAddress());
-            id_number.setText(idcard.getIDCardNo());
-            police.setText(idcard.getGrantDept());
-            valid_date.setText(idcard.getUserLifeBegin() + "-" + idcard.getUserLifeEnd());
-//            tv = (TextView) findViewById(R.id.textViewStatus);
-//            tv.setText(getString(R.string.sdtstatus));
-            if (idcard.getWlt() == null) {
-                return;
-            }
-            try {
-                File wltFile = new File(wltPath);
-                FileOutputStream fos = new FileOutputStream(wltFile);
-                fos.write(idcard.getWlt());
-                fos.close();
-                DecodeWlt dw = new DecodeWlt();
-                int result = dw.Wlt2Bmp(wltPath, bmpPath);
+         byte[] bname = new byte[32];
+         byte[] bsex = new byte[6];
+         byte[] bbirth = new byte[18];
+         byte[] bnation = new byte[12];
+         byte[] baddress = new byte[72];
+         byte[] bDepartment = new byte[32];
+         byte[] bIDNo = new byte[38];
+         byte[] bEffectDate = new byte[18];
+         byte[] bExpireDate = new byte[18];
+         byte[] bpErrMsg = new byte[20];
+         byte[] bBmpFile = new byte[38556];
 
-                if (result == 1) {
-                    File f = new File(bmpPath);
-                    if (f.exists()) {
-                        Bitmap readedBitmap = BitmapFactory.decodeFile(bmpPath);
-                        avatar.setImageBitmap(readedBitmap);
-                        String filename = UUID.randomUUID().toString() + ".jpg";
-                        String directory = Environment.getExternalStorageDirectory() + STROE_IDCARD_AVATAR_PATH;
-                        String path = directory + filename;
-                        File dir = new File(directory);
-                        if (!dir.exists()) {
-                            dir.mkdirs();
-                        }
-                        FileOutputStream fos1 = new FileOutputStream(path);
-                        readedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos1);
-                        fos1.flush();
-                        fos1.close();
-                        File file = new File(path);
-                        if (file.exists()) {
-                            this.idCardAvatarPath = file.getAbsolutePath();
-                        }
-                    } else {
-                        avatar.setImageResource(R.mipmap.photo);
-                    }
-                } else {
-                    avatar.setImageResource(R.mipmap.photo);
+        int retval;
+        String pkName;
+        pkName=getActivity().getPackageName();
+        pkName="/data/data/"+pkName+"/libs/armeabi/libwlt2bmp.so";
+        try {
+            retval = iDCardDevice.readBaseMsg(port,pkName,bBmpFile, bname, bsex, bnation, bbirth, baddress, bIDNo, bDepartment,
+                    bEffectDate, bExpireDate,bpErrMsg);
+
+            if (retval < 0) {
+                clear();
+                avatar.setImageResource(R.mipmap.photo);
+                this.toast("读卡错误，原因：" + new String(bpErrMsg, "Unicode"));
+            } else {
+                int[] colors = iDCardDevice.convertByteToColor(bBmpFile);
+                Bitmap bm = Bitmap.createBitmap(colors, 102, 126, Config.ARGB_8888);
+                avatar.setScaleType(ImageView.ScaleType.MATRIX);
+                avatar.setImageBitmap(bm);
+
+                this.name.setText(new String(bname, "Unicode"));
+                this.sex.setText(new String(bsex, "Unicode"));
+                ethnic.setText(new String(bnation, "Unicode"));
+                birthday.setText(new String(bbirth, "Unicode"));
+                this.address.setText(new String(baddress, "Unicode"));
+                id_number.setText(new String(bIDNo, "Unicode"));
+                police.setText(new String(bDepartment, "Unicode"));
+                valid_date.setText(new String(bEffectDate, "Unicode") + "-" + new String(bExpireDate, "Unicode"));
+
+                // Bitmap bm1=Bitmap.createScaledBitmap(bm, (int)(102*1),(int)(126*1), false); //这里你可以自定义它的大小
+                ImageView imageView = new ImageView(getActivity());
+                imageView.setScaleType(ImageView.ScaleType.MATRIX);
+                imageView.setImageBitmap(bm);
+                File dir = new File(Environment.getExternalStorageDirectory() + STROE_IDCARD_AVATAR_PATH);
+                if (!dir.exists()) {
+                    dir.mkdirs();
                 }
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
+                idCardAvatarPath = Environment.getExternalStorageDirectory() + STROE_IDCARD_AVATAR_PATH + UUID.randomUUID() + ".jpg";
+                try {
+                    FileOutputStream writeIdCardAvatar = null;
+                    writeIdCardAvatar = new FileOutputStream(new File(idCardAvatarPath));
+                    bm.compress(Bitmap.CompressFormat.JPEG, 90, writeIdCardAvatar);
+                    if(writeIdCardAvatar!=null){
+                        writeIdCardAvatar.flush();
+                        writeIdCardAvatar.close();
+                    }
+                } catch (FileNotFoundException e) {
+                    idCardAvatarPath = null;
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    idCardAvatarPath = null;
+                    e.printStackTrace();
+                }
+
+                showRecentVisitLog();
             }
 
-            showRecentVisitLog();
-        } else {
-            clear();
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+
         hideLoading();
     }
 
-    private SerialPort getSerialPort() throws SecurityException, IOException, InvalidParameterException {
+    /*private SerialPort getSerialPort() throws SecurityException, IOException, InvalidParameterException {
         if (mSerialPort == null) {
             mSerialPort = new SerialPort(new File("/dev/ttySAC1"), 115200, 0);
             mSerialPort.setMaxRFByte((byte) 0x50);
         }
-
         return mSerialPort;
-    }
+    }*/
 
     private void showCapturePreviewDialog(View view, final String filepath) {
 
@@ -981,6 +1001,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private void showRecentVisitLog(){
         Log.v("YYX","in showRecentVisitLog ");
         String idno = id_number.getText().toString();
+        Log.v("YYX",idno);
 //        if(idno!=null && !"".equals(idno)){
 //            Cursor cur = helper.getRecentVisitLogByIdNumber(idno);
 //        Cursor cur = helper.fetchAllVisitLog("visitor_idno='" + idno + "'", 0, 3);
@@ -1086,7 +1107,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         }
 
         if(idCardAvatarPath == null){
-            msg += "请放入访客的身份证进行识别"+nextline;
+            msg += "请放入访客的身份证进行识别" + nextline;
             flag = false;
         }
 
@@ -1118,4 +1139,6 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         }
         return uname;
     }
+
+
 }
