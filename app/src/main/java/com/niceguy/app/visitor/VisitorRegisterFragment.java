@@ -6,17 +6,21 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.LayoutInflaterFactory;
@@ -47,7 +51,8 @@ import com.hdos.idCardUartDevice.publicSecurityIDCardLib;
 import com.niceguy.app.utils.DBHelper;
 import com.synjones.bluetooth.DecodeWlt;
 import com.synjones.sdt.IDCard;
-import com.synjones.sdt.SerialPort;
+//import com.synjones.sdt.SerialPort;
+import android_serialport_api.SerialPort;
 import com.zkc.helper.printer.PrintService;
 import com.zkc.helper.printer.PrinterClass;
 import com.zkc.pc700.helper.BarcodeCreater;
@@ -59,6 +64,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
@@ -66,6 +73,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -82,7 +91,6 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private SurfaceHolder mHolder;
 
     private publicSecurityIDCardLib iDCardDevice;
-    protected SerialPort mSerialPort;
     private IDCard idcard = null;
     private Spinner visit_reason;
     private Spinner be_visited_dept, duty_person;
@@ -103,6 +111,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private EditText visitorPhone = null;
     private EditText visitedPhone = null;
     private EditText visitedName = null;
+    private EditText visitorCarNum = null;
+    private EditText visitorTake = null;
     private EditText visitedPos = null;
     private DBHelper helper = null;
     private AutoCompleteTextView be_visited_name = null;
@@ -116,7 +126,81 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private long visit_time = 0;
     String port="/dev/ttyS1";
 
+    protected SerialPort mSerialPort;
+    protected OutputStream mOutputStream;
+    protected ReadThread mReadThread;
+    private int n = 0;
 
+    MyHandler handler;
+    private boolean stop = false;
+    private final int PRINTIT =1;
+    ExecutorService pool = Executors.newSingleThreadExecutor();
+    PowerManager.WakeLock lock;
+    int printer_status=0;
+    private InputStream mInputStream;
+
+    private class MyHandler extends Handler {
+        public void handleMessage(Message msg) {
+            if(stop == true) return;
+            switch (msg.what) {
+                case PRINTIT:
+                    final ArrayList<String> rInfoList = new ArrayList<String>();
+    				/*rInfoList.add("       点评团");
+    				rInfoList.add("       t.dianping.com");
+    				rInfoList.add("--------------------------------------------");
+    				rInfoList.add("验证消费成功");
+    				rInfoList.add("套餐名称: " + "套餐名称: "+"套餐名称: "+"套餐名称: "+"套餐名称: ");
+    				rInfoList.add("售价: " + "111111.11");
+    				rInfoList.add("上线时间: " + "2013年7月11日");
+    				rInfoList.add("商户名称: " + "商户名称商户名称商户名称");
+    				rInfoList.add("终端编号:  " + "12345678901234567890");
+    				rInfoList.add(atMiddleNormal("-------------------------------"));
+    				rInfoList.add("序列号:  " + "12345678901234567890");
+    				rInfoList.add("验证时间: "+ "2013年7月11日10时10分10秒");*/
+
+
+                    new WriteThread(rInfoList).start();
+    		/*		pool.submit(new Runnable() {
+
+    					public void run() {
+    						sendCharacterDemo(rInfoList);
+    						ConsoleActivity.this.sleep(1000);
+    						sendCharacterDemo(rInfoList);
+    						ConsoleActivity.this.sleep(5000);
+    						handler.sendMessage(handler.obtainMessage(PRINTIT, 1, 0,null));
+    					}
+
+    				});*/
+                    //	handler.sendMessageDelayed(handler.obtainMessage(PRINTIT, 1, 0,null), 3000);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    class ReadThread extends Thread {
+
+        @Override
+        public void run() {
+            super.run();
+            while(!isInterrupted()) {
+                int size;
+                try {
+                    byte[] buffer = new byte[64];
+
+                    if (mInputStream == null) return;
+                    size = mInputStream.read(buffer);
+                    if (size > 0) {
+                        onDataReceived(buffer, size,n);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        }
+    }
 
     @Nullable
     @Override
@@ -127,15 +211,10 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         initViews(view);
         initEvents();
 
-        /**
-         * 读卡
-         */
-        /*try {
-            mSerialPort = getSerialPort();
-        } catch (SecurityException se) {
-        } catch (IOException ioe) {
-        } catch (InvalidParameterException ipe) {
-        }*/
+        handler = new MyHandler();
+        PowerManager pm = (PowerManager)getActivity().getApplicationContext().getSystemService(Context.POWER_SERVICE);
+        lock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, TAG);
+
         iDCardDevice = new publicSecurityIDCardLib();
 
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
@@ -197,6 +276,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         visitorCount = (EditText) view.findViewById(R.id.visitor_num);
         visitorPhone = (EditText) view.findViewById(R.id.visitor_tel);
         visitedPhone = (EditText) view.findViewById(R.id.be_visited_tel);
+        visitorTake = (EditText) view.findViewById(R.id.visitor_take);
+        visitorCarNum = (EditText) view.findViewById(R.id.visitor_car_num);
 //        visitedName = (EditText) view.findViewById(R.id.be_visited_name);
         visitedPos = (EditText) view.findViewById(R.id.be_visited_pos);
         visitedFemale = (RadioButton) view.findViewById(R.id.visitedSexFemale);
@@ -331,6 +412,12 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 TextView detail_visit_status = (TextView) v.findViewById(R.id.detail_visit_status);
                 detail_visit_status.setText(c.getString(c.getColumnIndex("visit_status")));
 
+                TextView detail_visit_take = (TextView) v.findViewById(R.id.detail_visit_take);
+                detail_visit_take.setText(c.getString(c.getColumnIndex("visitor_take")));
+
+                TextView detail_visit_carnum = (TextView) v.findViewById(R.id.detail_car_num);
+                detail_visit_carnum.setText(c.getString(c.getColumnIndex("visitor_car_num")));
+
                 TextView detail_duty_user = (TextView) v.findViewById(R.id.detail_duty_user);
                 String in_duty_username = c.getString(c.getColumnIndex("duty_username")) + "(进)";
                 String leave_duty_username = c.getString(c.getColumnIndex("duty_username_leave"));
@@ -387,6 +474,16 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         if (progressDialog != null)progressDialog.dismiss();
         if (printPreviewDialog != null) printPreviewDialog.dismiss();
         if (capturePreviewDialog != null) capturePreviewDialog.dismiss();
+        if (mReadThread != null)
+            mReadThread.interrupt();
+            mSerialPort.close();
+            mSerialPort = null;
+        try
+        {
+            mOutputStream.close();
+            mInputStream.close();
+        } catch (IOException e) {
+        }
     }
 
     @Override
@@ -528,7 +625,10 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             case R.id.visitor_register_btn:
                 this.createBarCodeAndSetAvatar();
                 if(checkInput()==false)return;
-                if (idCardAvatarPath != null && idCardAvatarPic != null && cameraTakeAvatarPath!=null) {
+                if (    idCardAvatarPath != null
+                        && idCardAvatarPic != null
+                        //&& cameraTakeAvatarPath!=null
+                        ) {
                     if(barCodeString!=null){
                         print();
                     }else{
@@ -689,89 +789,27 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     }
 
     private void initPrinter() {
-        Handler mhandler = new Handler() {
-            public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case PrinterClass.MESSAGE_READ:
-                        byte[] readBuf = (byte[]) msg.obj;
-                        Log.i(TAG, "readBuf:" + readBuf[0]);
-                        if (readBuf[0] == 0x13) {
-                            PrintService.isFUll = true;
-                        } else if (readBuf[0] == 0x11) {
-                            PrintService.isFUll = false;
-                        } else {
-                            String readMessage = new String(readBuf, 0, msg.arg1);
-                            if (readMessage.contains("800"))// 80mm paper
-                            {
-                                PrintService.imageWidth = 72;
-                                Toast.makeText(getActivity(), "80mm",
-                                        Toast.LENGTH_SHORT).show();
-                            } else if (readMessage.contains("580"))// 58mm paper
-                            {
-                                PrintService.imageWidth = 48;
-                                Toast.makeText(getActivity(), "58mm",
-                                        Toast.LENGTH_SHORT).show();
-                            } else {
 
-                            }
-                        }
-                        break;
-                    case PrinterClass.MESSAGE_STATE_CHANGE:// 蓝牙连接状
-                        switch (msg.arg1) {
-                            case PrinterClass.STATE_CONNECTED:// 已经连接
-                                break;
-                            case PrinterClass.STATE_CONNECTING:// 正在连接
-                                Toast.makeText(getActivity(),
-                                        "STATE_CONNECTING", Toast.LENGTH_SHORT).show();
-                                break;
-                            case PrinterClass.STATE_LISTEN:
-                            case PrinterClass.STATE_NONE:
-                                break;
-                            case PrinterClass.SUCCESS_CONNECT:
-                                printerClass.write(new byte[]{0x1b, 0x2b});// 检测打印机型号
-                                Toast.makeText(getActivity(),
-                                        "SUCCESS_CONNECT", Toast.LENGTH_SHORT).show();
-                                break;
-                            case PrinterClass.FAILED_CONNECT:
-                                Toast.makeText(getActivity(),
-                                        "FAILED_CONNECT", Toast.LENGTH_SHORT).show();
+        String path =   "/dev/ttyS4";
+        int baudrate = 9600;//Integer.decode(sp.getString("BAUDRATE", "-1"));
 
-                                break;
-                            case PrinterClass.LOSE_CONNECT:
-                                Toast.makeText(getActivity(), "LOSE_CONNECT",
-                                        Toast.LENGTH_SHORT).show();
-                        }
-                        break;
-                    case PrinterClass.MESSAGE_WRITE:
+        try {
+            mSerialPort = new SerialPort(new File(path), baudrate, 0);
+            mOutputStream = mSerialPort.getOutputStream();
+            mInputStream = mSerialPort.getInputStream();
 
-                        break;
-                }
-                super.handleMessage(msg);
-            }
-        };
-
-        printerClass = new PrinterClassSerialPort(mhandler);
-        printerClass.open(getActivity());
-
+			/* Create a receiving thread */
+            mReadThread = new ReadThread();
+            mReadThread.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
-    private Handler hanler = new Handler() {
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    print_preview.setEnabled(true);
-                    visitor_register.setEnabled(true);
-                    break;
-
-                default:
-                    break;
-            }
-        }
-    };
-
     private void print() {
 
+        cameraTakeAvatarPath = "TEST";
         if(cameraTakeAvatarPath!= null && idCardAvatarPath!= null && barCodeString!=null){
             if(!addVisitorLog()){
                 toast("登记失败，请重试！");
@@ -786,27 +824,18 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             return;
         }
         initPrinter();
-        if (printerClass != null) {
+        if (mSerialPort != null) {
             toast(getPrintText());
             if (idCardAvatarPic != null) {
-                printerClass.printImage(idCardAvatarPic);
-                Message msgMessage = new Message();
-                msgMessage.what = 0;
-                hanler.sendMessage(msgMessage);
+                new BmpThread().start();
+
             } else {
                 toast("未找到需要打印的访客身份证头像");
             }
 
-            new Thread() {
-                public void run() {
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    printerClass.printText(getPrintText());
-                }
-            }.start();
+            new WriteThread(getPrintTextArray()).start();
+
+
             if (barCodePic != null) {
                 new Thread() {
                     public void run() {
@@ -815,12 +844,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        printerClass.printImage(barCodePic);
-                        Message msgMessage = new Message();
-                        msgMessage.what = 0;
-                        hanler.sendMessage(msgMessage);
 
-                        printerClass.printText("\r\n\r\n");
+                        sendCommand(0x0a);
                     }
                 }.start();
             } else {
@@ -876,6 +901,29 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 + space + "被访签名：" + nextLine
                 + space + "保安签名：" + nextLine + nextLine;
         return text;
+    }
+
+    private ArrayList<String> getPrintTextArray() {
+        String visitorName = this.name.getText().toString();
+        String visitor_count = visitorCount.getText().toString();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String visitTime = sdf.format(new Date(this.visit_time));
+        String visitedName = parseName(be_visited_name.getText().toString());
+        String dept = be_visited_dept.getSelectedItem().toString();
+        String visitReason = visit_reason.getSelectedItem().toString();
+        String space = "   ";
+
+        ArrayList<String> a = new ArrayList<String>();
+        a.add(space + "宾客姓名：" + visitorName);
+        a.add(space + "来访人数：" + visitor_count);
+        a.add(space + "被访部门：" + dept);
+        a.add(space + "被访人员：" + visitedName);
+        a.add(space + "进入时间：" + visitTime);
+        a.add(space + "来访事由：" + visitReason);
+        a.add(space + "被访签名：");
+        a.add(space + "保安签名：");
+
+        return a;
     }
 
     private void createBarCodeAndSetAvatar(){
@@ -980,6 +1028,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         cv.put("visitor_name", name.getText().toString());
         cv.put("visited_user_phone", visitedPhone.getText().toString());
         cv.put("visited_user_position", visitedPos.getText().toString());
+        cv.put("visitor_car_num",visitorCarNum.getText().toString());
+        cv.put("visitor_take",visitorTake.getText().toString());
         if(visitedFemale.isChecked()){
             cv.put("visited_sex", 2);
         }else{
@@ -1002,10 +1052,10 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         Log.v("YYX","in showRecentVisitLog ");
         String idno = id_number.getText().toString();
         Log.v("YYX",idno);
-//        if(idno!=null && !"".equals(idno)){
+        if(idno!=null && !"".equals(idno)){
 //            Cursor cur = helper.getRecentVisitLogByIdNumber(idno);
-//        Cursor cur = helper.fetchAllVisitLog("visitor_idno='" + idno + "'", 0, 3);
-        Cursor cur = helper.fetchAllVisitLog(0, 3);
+        Cursor cur = helper.fetchAllVisitLog("visitor_idno='" + idno + "'", 0, 5);
+//        Cursor cur = helper.fetchAllVisitLog(0, 3);
         connectDB();
             Log.v("YYX",cur.getCount()+"");
             if(cur.getCount()>0){
@@ -1016,8 +1066,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 Log.v("YYX", "in setAdapter");
                 recent_visit_log_listview.setAdapter(adapter);
             }
-            releaseDB();
-//        }
+        releaseDB();
+        }
     }
 
     private void showDetailDialog(final View view, final int _id) {
@@ -1101,10 +1151,10 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         }
 
 
-        if(cameraTakeAvatarPath == null){
+        /*if(cameraTakeAvatarPath == null){
             msg += "请给访客拍照"+nextline;
             flag = false;
-        }
+        }*/
 
         if(idCardAvatarPath == null){
             msg += "请放入访客的身份证进行识别" + nextline;
@@ -1116,7 +1166,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             flag = false;
         }
 
-        if(flag == false){
+        if(flag == false) {
             toast(msg);
         }
         return flag;
@@ -1139,6 +1189,165 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         }
         return uname;
     }
+
+
+    public void PrintBmp(int startx,Bitmap bitmap) throws IOException
+    {
+        byte[] start1 = { 0x0d,0x0a};
+        byte[] start2 = { 0x1D,0x76,0x30,0x30,0x00,0x00,0x01,0x00};
+
+        int width = bitmap.getWidth()+startx;
+        int height = bitmap.getHeight();
+
+        if(width>384)
+            width=384;
+        int tmp = (width+7)/8;
+        byte[] data = new byte[tmp];
+        byte xL = (byte) (tmp % 256);
+        byte xH = (byte) (tmp / 256);
+        start2[4]=xL;
+        start2[5]=xH;
+        start2[6]=(byte) (height % 256);;
+        start2[7]=(byte) (height / 256);;
+        mOutputStream.write(start2);
+        for (int i = 0; i < height; i++) {
+
+
+            for (int x = 0; x < tmp; x++)
+                data[x]=0;
+            for (int x = startx; x < width; x++) {
+                int pixel = bitmap.getPixel(x-startx, i);
+                if (Color.red(pixel) == 0 || Color.green(pixel) == 0 || Color.blue(pixel) == 0) {
+                    // 高位在左，所以使用128 右移
+                    data[x/8] += 128>>(x%8);//(byte) (128 >> (y % 8));
+                }
+            }
+            Log.e(TAG,"printer_status="+printer_status);
+			/* while((printer_status&0x13)!=0){
+				 try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+				}
+			 }*/
+            mOutputStream.write(data);
+			 /*try {
+				Thread.sleep(5);
+			} catch (InterruptedException e) {
+			}*/
+        }
+    }
+
+    private class WriteThread extends Thread
+    {
+        ArrayList<String> arr ;
+        public WriteThread(ArrayList<String> str)
+        {
+            arr = str;
+        }
+
+
+        public void run() {
+            super.run();
+
+            lock.acquire();
+            try
+            {
+                //ConsoleActivity.this.sleep(500);
+                sendCharacterDemo(arr);
+                sendCommand(0x0a);
+//	sendCommand(0x1d,0x56,0x42,0x20); //
+                //sendCommand(0x1d,0x56,0x30);
+                //ConsoleActivity.this.sleep(4000);
+//	ConsoleActivity.this.sleep(2000);
+            }finally{
+                lock.release();
+
+            }
+
+        }
+    }
+
+    private class BmpThread extends Thread
+    {
+        public BmpThread()
+        {
+        }
+
+
+        public void run() {
+            super.run();
+
+            //ConsoleActivity.this.sleep(500);
+            lock.acquire();
+            try {
+                if(idCardAvatarPic!=null){
+                    PrintBmp(10,idCardAvatarPic);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }finally{
+                lock.release();
+                //	ConsoleActivity.this.sleep(2000);
+
+            }
+        }
+    }
+
+    private  void sendCharacterDemo(ArrayList<String> arr) {
+
+        try {
+            mOutputStream.write("取消倍宽命令".getBytes("cp936"));
+            sendCommand(0x0a);
+        } catch (UnsupportedEncodingException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        try {
+            mOutputStream.write("english test".getBytes());
+            sendCommand(0x0a);
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
+        sendCommand(0x0a);
+
+    }
+
+    private void sendCommand(int...command) {
+        try {
+            for(int i = 0; i < command.length; i++){
+                mOutputStream.write(command[i]);
+                //	Log.e(TAG,"command["+i+"] = "+Integer.toHexString(command[i]));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+///	sleep(1);
+    }
+
+    protected void onDataReceived(final byte[] buffer, final int size,final int n) {
+        printer_status = buffer[0];
+//		Log.e(TAG, "onDataReceived= "+printer_status);
+/*		runOnUiThread(new Runnable() {
+
+			public void run() {
+				Log.e(TAG, "onDataReceived==============");
+
+				StringBuilder sn=new StringBuilder();
+				for(int i=0;i<size;i++)
+				{
+					sn.append(String.format("%02x", buffer[i]));
+				}
+				TVSerialRx.setText("*recive:"+sn.toString()+"\n");
+			}
+		});*/
+    }
+
+
 
 
 }
