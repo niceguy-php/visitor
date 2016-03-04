@@ -271,7 +271,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return db.rawQuery("SELECT _id,visit_reason,visited_username,visited_dept_name,visitor_name," +
                 "datetime(visit_time/1000,'unixepoch', 'localtime') AS visit_time,(CASE leave_time WHEN 0 THEN '' ELSE datetime(leave_time/1000,'unixepoch', 'localtime') END) AS leave_time,(CASE visit_status WHEN 0 THEN '未离开' WHEN 1 THEN '已离开' END) AS visit_status" +
                 ",CASE visited_sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS visited_sex,CASE visitor_sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS visitor_sex"+
-                ",visited_user_position,visited_user_phone,visitor_avatar,idcard_avatar,visitor_phone,visitor_ethnic,visitor_birthday,visitor_address,visitor_idno,visitor_count,idcard_police,idcard_deadline,duty_username,barcode,duty_username_leave"+
+                ",visited_user_position,visited_user_phone,visitor_avatar,idcard_avatar,visitor_phone,visitor_ethnic,visitor_birthday,visitor_address,visitor_idno,visitor_count,idcard_police,idcard_deadline,duty_username,barcode,duty_username_leave,visitor_take,visitor_car_num"+
                 " FROM "+TABLE_VISIT_LOG+" WHERE visitor_idno=? ORDER BY _id DESC limit 0,1",new String[]{visitor_idno});
     }
 
@@ -279,7 +279,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return db.rawQuery("SELECT _id,visit_reason,visited_username,visited_dept_name,visitor_name," +
                 "datetime(visit_time/1000,'unixepoch', 'localtime') AS visit_time,(CASE leave_time WHEN 0 THEN '' ELSE datetime(leave_time/1000,'unixepoch', 'localtime') END) AS leave_time,(CASE visit_status WHEN 0 THEN '未离开' WHEN 1 THEN '已离开' END) AS visit_status" +
                 ",CASE visited_sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS visited_sex,CASE visitor_sex WHEN 1 THEN '男' WHEN 2 THEN '女' END AS visitor_sex"+
-                ",visited_user_position,visited_user_phone,visitor_avatar,idcard_avatar,visitor_phone,visitor_ethnic,visitor_birthday,visitor_address,visitor_idno,visitor_count,idcard_police,idcard_deadline,duty_username,duty_username_leave,barcode"+
+                ",visited_user_position,visited_user_phone,visitor_avatar,idcard_avatar,visitor_phone,visitor_ethnic,visitor_birthday,visitor_address,visitor_idno,visitor_count,idcard_police,idcard_deadline,duty_username,duty_username_leave,barcode,visitor_take,visitor_car_num"+
                 " FROM "+TABLE_VISIT_LOG+" WHERE barcode=? ORDER BY _id DESC",new String[]{barcode});
     }
 

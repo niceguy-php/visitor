@@ -652,6 +652,10 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 preview_visitor_count.setText(visitorCount.getText().toString());
                 TextView preview_visitor_name  = (TextView) print_preview_view.findViewById(R.id.preview_visitor_name);
                 preview_visitor_name.setText(name.getText().toString());
+                TextView preview_visitor_take  = (TextView) print_preview_view.findViewById(R.id.preview_visit_take);
+                preview_visitor_take.setText(visitorTake.getText().toString());
+                TextView preview_car_num  = (TextView) print_preview_view.findViewById(R.id.preview_car_num);
+                preview_car_num.setText(visitorCarNum.getText().toString());
                 TextView preview_visit_time  = (TextView) print_preview_view.findViewById(R.id.preview_visit_time);
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 if(this.visit_time == 0){
@@ -826,15 +830,27 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         initPrinter();
         if (mSerialPort != null) {
             toast(getPrintText());
-            if (idCardAvatarPic != null) {
-                new BmpThread().start();
+//            if (idCardAvatarPic != null) {
+//                new Thread() {
+//                    public void run() {
+//                        new BmpThread(idCardAvatarPic).start();
+//                    }
+//                }.start();
+//
+//            } else {
+//                toast("未找到需要打印的访客身份证头像");
+//            }
 
-            } else {
-                toast("未找到需要打印的访客身份证头像");
-            }
-
-            new WriteThread(getPrintTextArray()).start();
-
+            new Thread() {
+                public void run() {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    sendCharacterDemo(getPrintTextArray());
+                }
+            }.start();
 
             if (barCodePic != null) {
                 new Thread() {
@@ -844,8 +860,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                        new BmpThread(barCodePic).start();
 
-                        sendCommand(0x0a);
                     }
                 }.start();
             } else {
@@ -911,6 +927,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         String visitedName = parseName(be_visited_name.getText().toString());
         String dept = be_visited_dept.getSelectedItem().toString();
         String visitReason = visit_reason.getSelectedItem().toString();
+        String visitTake = visitorTake.getText().toString();
+        String visitCarNum = visitorCarNum.getText().toString();
         String space = "   ";
 
         ArrayList<String> a = new ArrayList<String>();
@@ -920,6 +938,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         a.add(space + "被访人员：" + visitedName);
         a.add(space + "进入时间：" + visitTime);
         a.add(space + "来访事由：" + visitReason);
+        a.add(space + "车辆牌号：" + visitCarNum);
+        a.add(space + "随身物品：" + visitTake);
         a.add(space + "被访签名：");
         a.add(space + "保安签名：");
 
@@ -1252,6 +1272,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             lock.acquire();
             try
             {
+
                 //ConsoleActivity.this.sleep(500);
                 sendCharacterDemo(arr);
                 sendCommand(0x0a);
@@ -1269,8 +1290,10 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
     private class BmpThread extends Thread
     {
-        public BmpThread()
+        private Bitmap bm=null;
+        public BmpThread(Bitmap bm)
         {
+            this.bm = bm;
         }
 
 
@@ -1280,8 +1303,9 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             //ConsoleActivity.this.sleep(500);
             lock.acquire();
             try {
-                if(idCardAvatarPic!=null){
-                    PrintBmp(10,idCardAvatarPic);
+                if(bm!=null){
+                    PrintBmp(10,bm);
+                    sendCommand(0x0a);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1296,8 +1320,13 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private  void sendCharacterDemo(ArrayList<String> arr) {
 
         try {
-            mOutputStream.write("取消倍宽命令".getBytes("cp936"));
-            sendCommand(0x0a);
+            for(int i=0; i<arr.size();i++){
+                String str = arr.get(i).toString();
+                Log.v("YYX","========================"+str);
+                mOutputStream.write(str.getBytes("cp936"));
+                sendCommand(0x0a);
+            }
+
         } catch (UnsupportedEncodingException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -1305,14 +1334,6 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        try {
-            mOutputStream.write("english test".getBytes());
-            sendCommand(0x0a);
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-
         sendCommand(0x0a);
 
     }

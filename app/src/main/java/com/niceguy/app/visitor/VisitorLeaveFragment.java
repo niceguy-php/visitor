@@ -25,6 +25,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hdos.idCardUartDevice.publicSecurityIDCardLib;
 import com.niceguy.app.utils.DBHelper;
 import com.synjones.bluetooth.DecodeWlt;
 import com.synjones.sdt.IDCard;
@@ -34,6 +35,7 @@ import com.zkc.pc700.helper.BarcodeCreater;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidParameterException;
 import java.util.Date;
 import java.util.UUID;
@@ -63,13 +65,16 @@ public class VisitorLeaveFragment extends Fragment{
     private static ImageView barCodeImage;
     private static ImageView avatarImage;
 
-    private static TextView visitor_name,visited_name,visit_time,visited_dept,visitor_count,visit_reason,visit_status;
+    private static TextView visitor_name,visited_name,visit_time,visited_dept,visitor_count,visit_reason,visit_status,visit_take,visit_car_num;
     public static Bitmap avatarBitmap = null;
     private Spinner duty_person_in_leave = null;
     private static int log_id=0;
 
-    protected SerialPort mSerialPort;
-    private IDCard idcard = null;
+
+    private publicSecurityIDCardLib iDCardDevice;
+    String port="/dev/ttyS1";
+
+    protected android_serialport_api.SerialPort mSerialPort;
 
 //    private DBHelper helper;
     @Nullable
@@ -93,6 +98,8 @@ public class VisitorLeaveFragment extends Fragment{
         visited_dept  = (TextView) view.findViewById(R.id.preview_visited_dept);
         visited_name  = (TextView) view.findViewById(R.id.preview_visited_name);
         visit_status  = (TextView) view.findViewById(R.id.leave_visit_status);
+        visit_car_num  = (TextView) view.findViewById(R.id.preview_car_num);
+        visit_take  = (TextView) view.findViewById(R.id.preview_visit_take);
 
         final String[] duty_persons = helper.getUserNames(EmployeeList.USER_TYPE_DUTY);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, duty_persons);
@@ -186,6 +193,9 @@ public class VisitorLeaveFragment extends Fragment{
                 visited_dept.setText(cur.getString(cur.getColumnIndex("visited_dept_name")));
                 visited_name.setText(cur.getString(cur.getColumnIndex("visited_username")));
                 visit_time.setText(cur.getString(cur.getColumnIndex("visit_time")));
+                visit_take.setText(cur.getString(cur.getColumnIndex("visitor_take")));
+                visit_car_num.setText(cur.getString(cur.getColumnIndex("visitor_car_num")));
+
                 String status = cur.getString(cur.getColumnIndex("visit_status"));
                 visit_status.setText(status);
                 Log.v("YYX", "-----" + status);
@@ -215,15 +225,40 @@ public class VisitorLeaveFragment extends Fragment{
     }
 
     private void readCard() {
+
+        byte[] bname = new byte[32];
+        byte[] bsex = new byte[6];
+        byte[] bbirth = new byte[18];
+        byte[] bnation = new byte[12];
+        byte[] baddress = new byte[72];
+        byte[] bDepartment = new byte[32];
+        byte[] bIDNo = new byte[38];
+        byte[] bEffectDate = new byte[18];
+        byte[] bExpireDate = new byte[18];
+        byte[] bpErrMsg = new byte[20];
+        byte[] bBmpFile = new byte[38556];
+
+        int retval;
+        String pkName;
+        pkName=getActivity().getPackageName();
+        pkName="/data/data/"+pkName+"/libs/armeabi/libwlt2bmp.so";
+        iDCardDevice = new publicSecurityIDCardLib();
+        String id_number = "";
         try {
-            mSerialPort = getSerialPort();
-        } catch (SecurityException se) {
-        } catch (IOException ioe) {
-        } catch (InvalidParameterException ipe) {
+            retval = iDCardDevice.readBaseMsg(port,pkName,bBmpFile, bname, bsex, bnation, bbirth, baddress, bIDNo, bDepartment,
+                    bEffectDate, bExpireDate,bpErrMsg);
+
+            if (retval < 0) {
+                Toast.makeText(getActivity(), "读卡错误，原因：" + new String(bpErrMsg, "Unicode"), Toast.LENGTH_SHORT);
+            } else {
+                id_number = new String(bIDNo, "Unicode");
+            }
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-        idcard = mSerialPort.getIDCard();
-        if (idcard != null) {
-            String id_number = idcard.getIDCardNo();
+
+        if (!"".equals(id_number)) {
             Cursor cur = helper.getVisitLogByIdNumber(id_number);
             register_sign.setVisibility(View.INVISIBLE);
 
@@ -237,6 +272,8 @@ public class VisitorLeaveFragment extends Fragment{
                 visited_dept.setText(cur.getString(cur.getColumnIndex("visited_dept_name")));
                 visited_name.setText(cur.getString(cur.getColumnIndex("visited_username")));
                 visit_time.setText(cur.getString(cur.getColumnIndex("visit_time")));
+                visit_take.setText(cur.getString(cur.getColumnIndex("visitor_take")));
+                visit_car_num.setText(cur.getString(cur.getColumnIndex("visitor_car_num")));
                 String status = cur.getString(cur.getColumnIndex("visit_status"));
                 visit_status.setText(status);
                 Log.v("YYX","-----"+status);
@@ -262,15 +299,6 @@ public class VisitorLeaveFragment extends Fragment{
             Toast.makeText(getActivity(),"请放入访客的身份证",Toast.LENGTH_SHORT).show();
         }
 
-    }
-
-    private SerialPort getSerialPort() throws SecurityException, IOException, InvalidParameterException {
-        if (mSerialPort == null) {
-            mSerialPort = new SerialPort(new File("/dev/ttySAC1"), 115200, 0);
-            mSerialPort.setMaxRFByte((byte) 0x50);
-        }
-
-        return mSerialPort;
     }
 
     private void connectDB(){
