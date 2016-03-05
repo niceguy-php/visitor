@@ -317,6 +317,10 @@ public class VisitorLeaveFragment extends Fragment{
             visited_dept.setText("");
             visited_name.setText("");
             visit_time.setText("");
+            visit_car_num.setText("");
+            visit_take.setText("");
+            visit_status.setText("");
+
             avatarImage.setImageResource(R.mipmap.photo);
         }
 

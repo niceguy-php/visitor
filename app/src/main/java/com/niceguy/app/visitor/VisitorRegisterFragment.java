@@ -216,6 +216,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         lock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, TAG);
 
         iDCardDevice = new publicSecurityIDCardLib();
+        /*HdxUtil.SetIDCARDPower(1);
+        HdxUtil.SwitchSerialFunction(HdxUtil.SERIAL_FUNCTION_IDCARD);*/
 
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
                 + STROE_IDCARD_AVATAR_PATH;// 配置文件文件夹
@@ -498,16 +500,18 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         Camera.Parameters param = mCamera.getParameters();
         param.setPictureFormat(ImageFormat.JPEG);
         param.setPreviewSize(800, 400);
-        param.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-        mCamera.autoFocus(new Camera.AutoFocusCallback() {
-            @Override
-            public void onAutoFocus(boolean success, Camera camera) {
-                if (success) {
+//        param.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
+//        mCamera.autoFocus(new Camera.AutoFocusCallback() {
+//            @Override
+//            public void onAutoFocus(boolean success, Camera camera) {
+//                if (success) {
                     mCamera.takePicture(null, null, new Camera.PictureCallback() {
                         @Override
                         public void onPictureTaken(byte[] data, Camera camera) {
 
                             String filename = UUID.randomUUID().toString() + ".jpg";
+                            Log.v("YYX",filename);
+                            Log.v("YYX","=================="+data.length);
                             String directory = Environment.getExternalStorageDirectory() + STORE_TAKE_PICTURE_PATH;
                             String path = directory + filename;
                             File dir = new File(directory);
@@ -522,15 +526,15 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                                 LayoutInflater factory = LayoutInflater.from(getActivity());
                                 dialog_layout = factory.inflate(R.layout.avatar_preview, null);
                                 Bitmap b = BitmapFactory.decodeFile(file.getAbsolutePath());
-                                Matrix matrix = new Matrix();
-                                matrix.setRotate(180);
-                                Bitmap bitmap = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), matrix, true);
+//                                Matrix matrix = new Matrix();
+//                                matrix.setRotate(180);
+//                                Bitmap bitmap = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), matrix, true);
                                 ImageView iv = (ImageView) dialog_layout.findViewById(R.id.mAvatar);
                                 fos1 = new FileOutputStream(file);
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos1);
+                                b.compress(Bitmap.CompressFormat.JPEG, 90, fos1);
                                 fos.flush();
                                 cameraTakeAvatarPath = path;
-                                iv.setImageBitmap(bitmap);
+                                iv.setImageBitmap(b);
                                 hideLoading();
                                 showCapturePreviewDialog(dialog_layout, path);
                                 /*Intent intent = new Intent();
@@ -549,9 +553,9 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                             }
                         }
                     });
-                }
-            }
-        });
+//                }
+//            }
+//        });
 
     }
 
@@ -627,7 +631,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 if(checkInput()==false)return;
                 if (    idCardAvatarPath != null
                         && idCardAvatarPic != null
-                        //&& cameraTakeAvatarPath!=null
+                        && cameraTakeAvatarPath!=null
                         ) {
                     if(barCodeString!=null){
                         print();
@@ -704,7 +708,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                     bEffectDate, bExpireDate,bpErrMsg);
 
             if (retval < 0) {
-                clear();
+//                clear();
                 avatar.setImageResource(R.mipmap.photo);
                 this.toast("读卡错误，原因：" + new String(bpErrMsg, "Unicode"));
             } else {
@@ -813,7 +817,6 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
     private void print() {
 
-        cameraTakeAvatarPath = "TEST";
         if(cameraTakeAvatarPath!= null && idCardAvatarPath!= null && barCodeString!=null){
             if(!addVisitorLog()){
                 toast("登记失败，请重试！");
@@ -861,7 +864,18 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                             e.printStackTrace();
                         }
                         new BmpThread(barCodePic).start();
-
+                    }
+                }.start();
+                new Thread() {
+                    public void run() {
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        sendCommand(0x0a);
+                        sendCommand(0x0a);
+                        sendCommand(0x0a);
                     }
                 }.start();
             } else {
