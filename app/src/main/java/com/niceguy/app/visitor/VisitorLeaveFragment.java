@@ -40,6 +40,8 @@ import java.security.InvalidParameterException;
 import java.util.Date;
 import java.util.UUID;
 
+import hdx.HdxUtil;
+
 /**
  * Created by qiumeilin on 2016/1/9.
  */
@@ -243,6 +245,8 @@ public class VisitorLeaveFragment extends Fragment{
         pkName=getActivity().getPackageName();
         pkName="/data/data/"+pkName+"/libs/armeabi/libwlt2bmp.so";
         iDCardDevice = new publicSecurityIDCardLib();
+        HdxUtil.SetIDCARDPower(1);
+        HdxUtil.SwitchSerialFunction(HdxUtil.SERIAL_FUNCTION_IDCARD);
         String id_number = "";
         try {
             retval = iDCardDevice.readBaseMsg(port,pkName,bBmpFile, bname, bsex, bnation, bbirth, baddress, bIDNo, bDepartment,

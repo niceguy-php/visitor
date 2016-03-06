@@ -53,6 +53,8 @@ import com.synjones.bluetooth.DecodeWlt;
 import com.synjones.sdt.IDCard;
 //import com.synjones.sdt.SerialPort;
 import android_serialport_api.SerialPort;
+import hdx.HdxUtil;
+
 import com.zkc.helper.printer.PrintService;
 import com.zkc.helper.printer.PrinterClass;
 import com.zkc.pc700.helper.BarcodeCreater;
@@ -216,8 +218,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         lock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, TAG);
 
         iDCardDevice = new publicSecurityIDCardLib();
-        /*HdxUtil.SetIDCARDPower(1);
-        HdxUtil.SwitchSerialFunction(HdxUtil.SERIAL_FUNCTION_IDCARD);*/
+        HdxUtil.SetIDCARDPower(1);
+        HdxUtil.SwitchSerialFunction(HdxUtil.SERIAL_FUNCTION_IDCARD);
 
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
                 + STROE_IDCARD_AVATAR_PATH;// 配置文件文件夹
@@ -697,7 +699,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
          byte[] bEffectDate = new byte[18];
          byte[] bExpireDate = new byte[18];
          byte[] bpErrMsg = new byte[20];
-         byte[] bBmpFile = new byte[38556];
+         byte[] bBmpFile = new byte[65535];
 
         int retval;
         String pkName;
@@ -712,7 +714,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 avatar.setImageResource(R.mipmap.photo);
                 this.toast("读卡错误，原因：" + new String(bpErrMsg, "Unicode"));
             } else {
-                int[] colors = iDCardDevice.convertByteToColor(bBmpFile);
+                int []colors = iDCardDevice.convertByteToColor(bBmpFile);
                 Bitmap bm = Bitmap.createBitmap(colors, 102, 126, Config.ARGB_8888);
                 avatar.setScaleType(ImageView.ScaleType.MATRIX);
                 avatar.setImageBitmap(bm);
@@ -727,9 +729,9 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 valid_date.setText(new String(bEffectDate, "Unicode") + "-" + new String(bExpireDate, "Unicode"));
 
                 // Bitmap bm1=Bitmap.createScaledBitmap(bm, (int)(102*1),(int)(126*1), false); //这里你可以自定义它的大小
-                ImageView imageView = new ImageView(getActivity());
+                /*ImageView imageView = new ImageView(getActivity());
                 imageView.setScaleType(ImageView.ScaleType.MATRIX);
-                imageView.setImageBitmap(bm);
+                imageView.setImageBitmap(bm);*/
                 File dir = new File(Environment.getExternalStorageDirectory() + STROE_IDCARD_AVATAR_PATH);
                 if (!dir.exists()) {
                     dir.mkdirs();
