@@ -499,6 +499,9 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     public void capture() {
 //        if(dialog != null) dialog.dismiss();
         loading(getString(R.string.capturing));
+        if (mCamera == null) {
+            mCamera = getCamera();
+        }
         Camera.Parameters param = mCamera.getParameters();
         param.setPictureFormat(ImageFormat.JPEG);
         param.setPreviewSize(800, 400);
@@ -705,7 +708,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         String pkName="",soPath="";
         pkName=getActivity().getPackageName();
         soPath = "/data/app-lib/"+pkName+"-1/"+"libwlt2bmp.so";
-        File so = new File(pkName);
+        File so = new File(soPath);
         if(so.exists()){
             Log.v("YYX","---------so exist------");
         }else{

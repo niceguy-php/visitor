@@ -244,7 +244,7 @@ public class VisitorLeaveFragment extends Fragment{
         String pkName="",soPath="";
         pkName=getActivity().getPackageName();
         soPath = "/data/app-lib/"+pkName+"-1/"+"libwlt2bmp.so";
-        File so = new File(pkName);
+        File so = new File(soPath);
         if(so.exists()){
             Log.v("YYX","---------so exist------");
         }else{
