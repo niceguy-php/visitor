@@ -306,7 +306,7 @@ public class VisitorLeaveFragment extends Fragment{
 
 
         }else{
-            Toast.makeText(getActivity(),"请放入访客的身份证",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(),"未能成功识别，请重新放入身份证",Toast.LENGTH_SHORT).show();
         }
 
     }
