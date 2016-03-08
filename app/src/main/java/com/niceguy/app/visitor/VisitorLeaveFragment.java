@@ -259,7 +259,7 @@ public class VisitorLeaveFragment extends Fragment{
                     bEffectDate, bExpireDate,bpErrMsg);
 
             if (retval < 0) {
-                Toast.makeText(getActivity(), "读卡错误，原因：" + new String(bpErrMsg, "Unicode"), Toast.LENGTH_SHORT);
+                Toast.makeText(getActivity(), "未能成功识别，请重新放入身份证" + new String(bpErrMsg, "Unicode"), Toast.LENGTH_SHORT);
             } else {
                 id_number = new String(bIDNo, "Unicode");
             }

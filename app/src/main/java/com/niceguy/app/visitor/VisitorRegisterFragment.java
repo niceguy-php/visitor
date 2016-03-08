@@ -724,7 +724,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             if (retval < 0) {
 //                clear();
                 avatar.setImageResource(R.mipmap.photo);
-                this.toast("读卡错误，原因：" + new String(bpErrMsg, "Unicode"));
+                this.toast("未能成功识别，请重新放入身份证" + new String(bpErrMsg, "Unicode"));
             } else {
 
 //                -----------------------------
