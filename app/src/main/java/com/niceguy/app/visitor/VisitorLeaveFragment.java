@@ -241,15 +241,21 @@ public class VisitorLeaveFragment extends Fragment{
         byte[] bBmpFile = new byte[38556];
 
         int retval;
-        String pkName;
+        String pkName="",soPath="";
         pkName=getActivity().getPackageName();
-        pkName="/data/data/"+pkName+"/libs/armeabi/libwlt2bmp.so";
+        soPath = "/data/app-lib/"+pkName+"-1/"+"libwlt2bmp.so";
+        File so = new File(pkName);
+        if(so.exists()){
+            Log.v("YYX","---------so exist------");
+        }else{
+            soPath = "/data/app-lib/"+pkName+"-2/"+"libwlt2bmp.so";
+        }
         iDCardDevice = new publicSecurityIDCardLib();
         HdxUtil.SetIDCARDPower(1);
         HdxUtil.SwitchSerialFunction(HdxUtil.SERIAL_FUNCTION_IDCARD);
         String id_number = "";
         try {
-            retval = iDCardDevice.readBaseMsg(port,pkName,bBmpFile, bname, bsex, bnation, bbirth, baddress, bIDNo, bDepartment,
+            retval = iDCardDevice.readBaseMsg(port,soPath,bBmpFile, bname, bsex, bnation, bbirth, baddress, bIDNo, bDepartment,
                     bEffectDate, bExpireDate,bpErrMsg);
 
             if (retval < 0) {

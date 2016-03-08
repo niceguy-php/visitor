@@ -699,21 +699,57 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
          byte[] bEffectDate = new byte[18];
          byte[] bExpireDate = new byte[18];
          byte[] bpErrMsg = new byte[20];
-         byte[] bBmpFile = new byte[65535];
+         byte[] bBmpFile = new byte[38556];
 
         int retval;
-        String pkName;
+        String pkName="",soPath="";
         pkName=getActivity().getPackageName();
-        pkName="/data/data/"+pkName+"/libs/armeabi/libwlt2bmp.so";
+        soPath = "/data/app-lib/"+pkName+"-1/"+"libwlt2bmp.so";
+        File so = new File(pkName);
+        if(so.exists()){
+            Log.v("YYX","---------so exist------");
+        }else{
+            soPath = "/data/app-lib/"+pkName+"-2/"+"libwlt2bmp.so";
+        }
+//        pkName="/data/data/"+pkName+"/libs/armeabi/libwlt2bmp.so";
         try {
-            retval = iDCardDevice.readBaseMsg(port,pkName,bBmpFile, bname, bsex, bnation, bbirth, baddress, bIDNo, bDepartment,
+            retval = iDCardDevice.readBaseMsg(port,soPath,bBmpFile, bname, bsex, bnation, bbirth, baddress, bIDNo, bDepartment,
                     bEffectDate, bExpireDate,bpErrMsg);
 
+
+            Log.v("YYX",pkName);
             if (retval < 0) {
 //                clear();
                 avatar.setImageResource(R.mipmap.photo);
                 this.toast("读卡错误，原因：" + new String(bpErrMsg, "Unicode"));
             } else {
+
+//                -----------------------------
+                /*if (bBmpFile ==null){
+                    return;
+                }
+                try {
+                    Log.v("YYX","k-----"+wltPath);
+                    Log.v("YYX","k1-----"+bmpPath);
+                    File wltFile = new File(wltPath);
+                    FileOutputStream fos = new FileOutputStream(wltFile);
+                    fos.write(bBmpFile);
+                    fos.close();
+                    DecodeWlt dw = new DecodeWlt();
+                    int result = dw.Wlt2Bmp(wltPath, bmpPath);
+
+                    if (result==1) {
+                        File f = new File(bmpPath);
+                        if (f.exists())
+                            avatar.setImageBitmap(BitmapFactory.decodeFile(bmpPath));
+
+                    } else {
+                    }
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }*/
+                //end test 2016-3-7 ------------------------------
+
                 int []colors = iDCardDevice.convertByteToColor(bBmpFile);
                 Bitmap bm = Bitmap.createBitmap(colors, 102, 126, Config.ARGB_8888);
                 avatar.setScaleType(ImageView.ScaleType.MATRIX);
@@ -1384,6 +1420,51 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 		});*/
     }
 
+
+    public int[] convertByteToColor(byte[] data){
+        int size = data.length;
+        if (size == 0){
+            return null;
+        }
+
+        int arg = 0;
+        if (size % 3 != 0){
+            arg = 1;
+        }
+
+        int []color = new int[size / 3 + arg];
+        int red, green, blue;
+
+        if (arg == 0){
+            for(int i = 0; i < color.length; ++i){
+                red = convertByteToInt(data[i * 3]);
+                green = convertByteToInt(data[i * 3 + 1]);
+                blue = convertByteToInt(data[i * 3 + 2]);
+
+                color[i] = (red << 16) | (green << 8) | blue | 0xFF000000;
+            }
+        }else{
+            for(int i = 0; i < color.length - 1; ++i){
+                red = convertByteToInt(data[i * 3]);
+                green = convertByteToInt(data[i * 3 + 1]);
+                blue = convertByteToInt(data[i * 3 + 2]);
+                color[i] = (red << 16) | (green << 8) | blue | 0xFF000000;
+            }
+
+            color[color.length - 1] = 0xFF000000;
+        }
+
+        return color;
+    }
+
+
+    public int convertByteToInt(byte data){
+
+        int heightBit = (int) ((data>>4) & 0x0F);
+        int lowBit = (int) (0x0F & data);
+
+        return heightBit * 16 + lowBit;
+    }
 
 
 
