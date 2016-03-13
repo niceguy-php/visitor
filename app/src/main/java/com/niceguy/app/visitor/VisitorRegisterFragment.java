@@ -11,9 +11,13 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -776,6 +780,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                     dir.mkdirs();
                 }
                 idCardAvatarPath = Environment.getExternalStorageDirectory() + STROE_IDCARD_AVATAR_PATH + UUID.randomUUID() + ".jpg";
+                idCardAvatarPic = bm;
                 try {
                     FileOutputStream writeIdCardAvatar = null;
                     writeIdCardAvatar = new FileOutputStream(new File(idCardAvatarPath));
@@ -785,9 +790,11 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                         writeIdCardAvatar.close();
                     }
                 } catch (FileNotFoundException e) {
+                    Log.v("YYX","write err1");
                     idCardAvatarPath = null;
                     e.printStackTrace();
                 } catch (IOException e) {
+                    Log.v("YYX","write err1");
                     idCardAvatarPath = null;
                     e.printStackTrace();
                 }
@@ -872,23 +879,42 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             return;
         }
         initPrinter();
+        ArrayList<String> head = new ArrayList<String>();
+        try {
+            mOutputStream.write("           ".getBytes("cp936"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        head.add("访客单");
+        sendCommand(0x1b, 0x21, 0x10);
+        sendCommand(0x1b, 0x21, 0x20); //double width
+        sendCharacterDemo(head);
+        sendCommand(0x1b,0x21,0x00); //cancel double height
+        sendCommand(0x1D,0x21,0x00); //cancel double width
         if (mSerialPort != null) {
-            toast(getPrintText());
+//            toast(getPrintText());
 //            if (idCardAvatarPic != null) {
-//                new Thread() {
-//                    public void run() {
-//                        new BmpThread(idCardAvatarPic).start();
-//                    }
-//                }.start();
-//
-//            } else {
-//                toast("未找到需要打印的访客身份证头像");
-//            }
+                /*new Thread() {
+
+                    public void run() {
+                        File f = new File(idCardAvatarPath);
+                        if(f.exists()){*/
+                            Log.v("YYX","-------------test==="+idCardAvatarPath);
+                            /*idCardAvatarPic = BitmapFactory.decodeFile(idCardAvatarPath);
+                            Bitmap b = this.changeImage(idCardAvatarPic);
+                            new BmpThread(b,20).start();*/
+//                            new BmpThread(barCodePic).start();
+                        /*}
+                    }
+                }.start();*/
+            /*} else {
+                toast("未找到需要打印的访客身份证头像");
+            }*/
 
             new Thread() {
                 public void run() {
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -900,17 +926,17 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 new Thread() {
                     public void run() {
                         try {
-                            Thread.sleep(1500);
+                            Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                         new BmpThread(barCodePic).start();
                     }
                 }.start();
-                new Thread() {
+                /*new Thread() {
                     public void run() {
                         try {
-                            Thread.sleep(2000);
+                            Thread.sleep(2200);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -918,7 +944,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                         sendCommand(0x0a);
                         sendCommand(0x0a);
                     }
-                }.start();
+                }.start();*/
             } else {
                 toast("生成条码失败，请进入打印预览进行打印");
             }
@@ -1005,7 +1031,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         barCodeString = String.valueOf(new Date().getTime());
         barCodePic = BarcodeCreater.creatBarcode(getActivity(),
                 barCodeString, 386, 84, true, 1);// 最后一位参数是条码格式
-        if (idCardAvatarPath != null) {
+        if (idCardAvatarPic!=null) {
             idCardAvatarPic = BitmapFactory.decodeFile(idCardAvatarPath);
             VisitorLeaveFragment.avatarBitmap = idCardAvatarPic;
         } else {
@@ -1282,8 +1308,9 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         byte xH = (byte) (tmp / 256);
         start2[4]=xL;
         start2[5]=xH;
-        start2[6]=(byte) (height % 256);;
-        start2[7]=(byte) (height / 256);;
+        start2[6]=(byte) (height % 256);
+        start2[7]=(byte) (height / 256);
+        Log.v("YYX","width="+width+",height="+height+",height="+height);
         mOutputStream.write(start2);
         for (int i = 0; i < height; i++) {
 
@@ -1346,9 +1373,16 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private class BmpThread extends Thread
     {
         private Bitmap bm=null;
+        private int alignLeft = 10;
         public BmpThread(Bitmap bm)
         {
             this.bm = bm;
+        }
+
+        public BmpThread(Bitmap bm,int align)
+        {
+            this.bm = bm;
+            this.alignLeft = align;
         }
 
 
@@ -1359,7 +1393,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             lock.acquire();
             try {
                 if(bm!=null){
-                    PrintBmp(10,bm);
+                    PrintBmp(alignLeft,bm);
                     sendCommand(0x0a);
                 }
             } catch (Exception e) {
@@ -1468,6 +1502,25 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
         return heightBit * 16 + lowBit;
     }
+
+    private Bitmap changeImage(Bitmap mBitmap) {
+
+        int width = mBitmap.getWidth();
+        int height = mBitmap.getHeight();
+
+        Bitmap grayImg = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(grayImg);
+        Paint paint = new Paint();
+        ColorMatrix colorMatrix = new ColorMatrix();
+        colorMatrix.setSaturation(0);
+        ColorMatrixColorFilter colorMatrixFilter = new ColorMatrixColorFilter( colorMatrix);
+        paint.setColorFilter(colorMatrixFilter);
+        canvas.drawBitmap(mBitmap, 0, 0, paint);
+        return grayImg;
+    }
+
+
 
 
 
