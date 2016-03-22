@@ -207,21 +207,26 @@ public class VisitorLeaveFragment extends Fragment{
                     visit_status.setTextColor(Color.GREEN);
                 }
             }
-        }
-        if(bitmapRec !=null ){
-            mImageView.setImageBitmap(bitmapRec);
-        }
-        Bitmap barCodePic = null;
-        barCodePic = BarcodeCreater.creatBarcode(activity,
-                barCode, 380, 70, true, 1);// 最后一位参数是条码格式
 
-        if(barCodePic != null){
-            barCodeImage.setImageBitmap(barCodePic);
+            if(bitmapRec !=null ){
+                mImageView.setImageBitmap(bitmapRec);
+            }
+            Bitmap barCodePic = null;
+            barCodePic = BarcodeCreater.creatBarcode(activity,
+                    barCode, 380, 70, true, 1);// 最后一位参数是条码格式
+
+            if(barCodePic != null){
+                barCodeImage.setImageBitmap(barCodePic);
+            }
+
+            if(avatarBitmap != null){
+                avatarImage.setImageBitmap(avatarBitmap);
+            }
+        }else {
+            Toast.makeText(activity, "识别条码失败，请重试", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        if(avatarBitmap != null){
-            avatarImage.setImageBitmap(avatarBitmap);
-        }
         barCode = null;
         bitmapRec = null;
     }

@@ -20,3 +20,6 @@
 -keep class org.apache.commons.io.** {*;}
 -keep class android.support.v4.** {*;}
 -keep class android.support.v7.** {*;}
+-keep class android_serialport_api.** {*;}
+-keep class com.hdos.idCardUartDevice.** {*;}
+-keep class hdx.** {*;}
