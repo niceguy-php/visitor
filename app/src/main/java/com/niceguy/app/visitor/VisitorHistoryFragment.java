@@ -183,6 +183,9 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
                 TextView detail_visited_sex = (TextView) v.findViewById(R.id.detail_visited_sex);
                 detail_visited_sex.setText(c.getString(c.getColumnIndex("visited_sex")));
 
+                TextView detail_visitor_sex = (TextView) v.findViewById(R.id.detail_visitor_sex);
+                detail_visitor_sex.setText(c.getString(c.getColumnIndex("visitor_sex")));
+
                 TextView detail_visited_pos = (TextView) v.findViewById(R.id.detail_visited_pos);
                 detail_visited_pos.setText(c.getString(c.getColumnIndex("visited_user_position")));
 
@@ -199,7 +202,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
                 detail_visitor_address.setText(c.getString(c.getColumnIndex("visitor_address")));
 
                 TextView detail_visitor_idno = (TextView) v.findViewById(R.id.detail_visitor_idno);
-                detail_visitor_idno.setText(c.getString(c.getColumnIndex("visitor_idno")));
+                detail_visitor_idno.setText(c.getString(c.getColumnIndex("visitor_idno_str")));
 
                 TextView detail_visitor_count = (TextView) v.findViewById(R.id.detail_visitor_count);
                 detail_visitor_count.setText(c.getString(c.getColumnIndex("visitor_count")));

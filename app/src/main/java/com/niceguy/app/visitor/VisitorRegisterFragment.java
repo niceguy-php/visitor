@@ -1164,8 +1164,13 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         cv.put("visitor_ethnic", ethnic.getText().toString());
         cv.put("visitor_phone", visitorPhone.getText().toString());
         cv.put("idcard_avatar", idCardAvatarPath);
-        cv.put("visitor_avatar",cameraTakeAvatarPath);
-        cv.put("visitor_sex", sex.getSelectedItem().toString());
+        cv.put("visitor_avatar", cameraTakeAvatarPath);
+
+        if(sex.getSelectedItemPosition() == 0) {
+            cv.put("visitor_sex", 1);
+        }else{
+            cv.put("visitor_sex", 2);
+        }
         cv.put("visitor_name", name.getText().toString());
         cv.put("visited_user_phone", visitedPhone.getText().toString());
         cv.put("visited_user_position", visitedPos.getText().toString());

@@ -105,7 +105,7 @@
             <TextView
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="身份证号：" />
+                android:text="证件号：" />
 
             <TextView
                 android:id="@+id/detail_visitor_idno"

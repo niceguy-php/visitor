@@ -37,7 +37,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
     private static final int ACTION_UPDATE = 2;
     private Activity activity = null;
     private TextView curpage,page,total,page1;
-    private Button add,first,next,pre,last;
+    private Button add,first,next,pre,last,import_insert;
     private AlertDialog detailDialog;
     private DBHelper helper = null;
     private SQLiteDatabase db = null;
@@ -100,6 +100,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
         next = (Button) view.findViewById(R.id.dept_next_page);
         pre = (Button) view.findViewById(R.id.dept_pre_page);
         add = (Button) view.findViewById(R.id.dept_add);
+        import_insert = (Button) view.findViewById(R.id.dept_import);
 
     }
 
@@ -109,6 +110,7 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
         next.setOnClickListener(this);
         pre.setOnClickListener(this);
         add.setOnClickListener(this);
+        import_insert.setOnClickListener(this);
     }
 
     @Override
@@ -143,6 +145,8 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                 View detailView = inflater.inflate(R.layout.dept_detail, null);
                 detailView.findViewById(R.id.dept_id_block).setVisibility(View.INVISIBLE);
                 showDetailDialog(detailView,ACTION_ADD);
+                break;
+            case R.id.dept_import:
                 break;
         }
     }

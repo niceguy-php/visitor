@@ -46,13 +46,27 @@
             android:text="页"/>
 
     </LinearLayout>
-    <Button
-        android:id="@+id/user_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        style="@style/btn_blue"
-        android:text="新建"/>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/user_import"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                style="@style/btn_blue"
+                android:text="导入"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/user_add"
+                android:background="@color/btnBlue"
+                android:textColor="@color/textWhite"
+                android:text="新建"/>
+        </LinearLayout>
     </RelativeLayout>
 
     <LinearLayout
