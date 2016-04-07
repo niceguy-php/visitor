@@ -99,10 +99,12 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private publicSecurityIDCardLib iDCardDevice;
     private IDCard idcard = null;
     private Spinner visit_reason;
-    private Spinner be_visited_dept, duty_person;
+    private Spinner be_visited_dept, duty_person, certificate_type;
     private Button read_id_card, capture, clear_register, print_preview, visitor_register;
     private ArrayAdapter<String> adapter;
-    private TextView name, sex, address, birthday, birthplace, police, valid_date, id_number, ethnic;
+    private TextView birthday, birthplace, police, valid_date;
+    private EditText name,address,id_number,ethnic;
+    Spinner sex;
     private ImageView avatar;
     private String wltPath, bmpPath;
     private View dialog_layout;
@@ -217,13 +219,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         initViews(view);
         initEvents();
 
-        handler = new MyHandler();
-        PowerManager pm = (PowerManager)getActivity().getApplicationContext().getSystemService(Context.POWER_SERVICE);
-        lock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, TAG);
-
-        iDCardDevice = new publicSecurityIDCardLib();
-        HdxUtil.SetIDCARDPower(1);
-        HdxUtil.SwitchSerialFunction(HdxUtil.SERIAL_FUNCTION_IDCARD);
+//        initNewPrinter();
 
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
                 + STROE_IDCARD_AVATAR_PATH;// 配置文件文件夹
@@ -244,6 +240,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         visit_reason = (Spinner) view.findViewById(R.id.visit_reason);
         be_visited_dept = (Spinner) view.findViewById(R.id.be_visited_dept);
         duty_person = (Spinner) view.findViewById(R.id.duty_person);
+        certificate_type = (Spinner) view.findViewById(R.id.certificate_type);
         read_id_card = (Button) view.findViewById(R.id.read_id_card);
         capture = (Button) view.findViewById(R.id.btn_capture);
         mHolder.addCallback(this);
@@ -266,15 +263,25 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         duty_person.setSelection(0,true);
 
         avatar = (ImageView) view.findViewById(R.id.avatar_on_id_card);
-        name = (TextView) view.findViewById(R.id.name_on_id_card);
-        sex = (TextView) view.findViewById(R.id.sex_on_id_card);
+        name = (EditText) view.findViewById(R.id.name_on_id_card);
+        sex = (Spinner) view.findViewById(R.id.sex_on_id_card);
+        String[] sex_list = {"男","女"};
+        adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, sex_list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sex.setAdapter(adapter);
+
+        String[] certificate_list = {"身份证","警官证","学生证","教师证","驾驶证","其他"};
+        adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, certificate_list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        certificate_type.setAdapter(adapter);
+
         birthday = (TextView) view.findViewById(R.id.birthday_on_id_card);
 //        birthplace = (TextView) view.findViewById(R.id.birthplace_on_id_card);
-        address = (TextView) view.findViewById(R.id.address_on_id_card);
+        address = (EditText) view.findViewById(R.id.address_on_id_card);
         police = (TextView) view.findViewById(R.id.police_on_id_card);
         valid_date = (TextView) view.findViewById(R.id.valid_date_on_id_card);
-        id_number = (TextView) view.findViewById(R.id.number_on_id_card);
-        ethnic = (TextView) view.findViewById(R.id.ethnic_on_id_card);
+        id_number = (EditText) view.findViewById(R.id.number_on_id_card);
+        ethnic = (EditText) view.findViewById(R.id.ethnic_on_id_card);
 
         clear_register = (Button) view.findViewById(R.id.clear_register_btn);
         print_preview = (Button) view.findViewById(R.id.print_preview_btn);
@@ -638,9 +645,11 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             case R.id.visitor_register_btn:
                 this.createBarCodeAndSetAvatar();
                 if(checkInput()==false)return;
-                if (    idCardAvatarPath != null
+                Log.v("YYX",valid_date.getText().toString().trim()+"--"+isManualInput());
+                if (    (idCardAvatarPath != null
                         && idCardAvatarPic != null
-                        && cameraTakeAvatarPath!=null
+                        && cameraTakeAvatarPath!=null)
+                        || isManualInput()//以是否有证件有效期为手动填写的依据
                         ) {
                     if(barCodeString!=null){
                         print();
@@ -648,6 +657,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                         this.toast(getString(R.string.barcode_not_exits));
                     }
                 }else{
+                    Log.v("YYX","in toast");
                     this.toast(getString(R.string.please_put_card));
                 }
                 break;
@@ -685,7 +695,11 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                     print_avatar.setImageBitmap(idCardAvatarPic);
                     showPrintPreviewDialog(print_preview_view);
                 }else{
-                    this.toast(getString(R.string.please_put_card));
+                    if(isManualInput()){
+
+                    }else{
+                        this.toast(getString(R.string.please_put_card));
+                    }
                 }
                 break;
 
@@ -763,7 +777,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 avatar.setImageBitmap(bm);
 
                 this.name.setText(new String(bname, "Unicode"));
-                this.sex.setText(new String(bsex, "Unicode"));
+                this.setSex(new String(bsex, "Unicode"));
+//                this.sex.setText(new String(bsex, "Unicode"));
                 ethnic.setText(new String(bnation, "Unicode"));
                 birthday.setText(new String(bbirth, "Unicode"));
                 this.address.setText(new String(baddress, "Unicode"));
@@ -862,6 +877,16 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         }
     }
 
+    private void initNewPrinter(){
+        handler = new MyHandler();
+        PowerManager pm = (PowerManager)getActivity().getApplicationContext().getSystemService(Context.POWER_SERVICE);
+        lock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, TAG);
+
+        iDCardDevice = new publicSecurityIDCardLib();
+        HdxUtil.SetIDCARDPower(1);
+        HdxUtil.SwitchSerialFunction(HdxUtil.SERIAL_FUNCTION_IDCARD);
+    }
+
 
     private void print() {
 
@@ -871,7 +896,18 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 return;
             }
         }else{
-            toast(getString(R.string.please_put_card));
+            if(isManualInput()){
+                if(address.getText().toString().trim().equals("")){
+                    toast("请输入访客住址");
+                    return;
+                }
+                if(!addVisitorLog()){
+                    toast("登记失败，请重试！");
+                    return;
+                }
+            }else{
+                toast(getString(R.string.please_put_card));
+            }
         }
 
         if(be_visited_name.getText().toString().trim().equals("")){
@@ -889,8 +925,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         sendCommand(0x1b, 0x21, 0x10);
         sendCommand(0x1b, 0x21, 0x20); //double width
         sendCharacterDemo(head);
-        sendCommand(0x1b,0x21,0x00); //cancel double height
-        sendCommand(0x1D,0x21,0x00); //cancel double width
+        sendCommand(0x1b, 0x21, 0x00); //cancel double height
+        sendCommand(0x1D, 0x21, 0x00); //cancel double width
         if (mSerialPort != null) {
 //            toast(getPrintText());
 //            if (idCardAvatarPic != null) {
@@ -1035,8 +1071,12 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             idCardAvatarPic = BitmapFactory.decodeFile(idCardAvatarPath);
             VisitorLeaveFragment.avatarBitmap = idCardAvatarPic;
         } else {
-            this.toast(getString(R.string.please_put_card));
-            readCard();
+            if(isManualInput()){
+
+            }else{
+                this.toast(getString(R.string.please_put_card));
+                readCard();
+            }
         }
     }
 
@@ -1054,7 +1094,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         visitedPos.setText("");
 
         name.setText("");
-        sex.setText("");
+        setSex("");
         ethnic.setText("");
         birthday.setText("");
         address.setText("");
@@ -1125,12 +1165,13 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         cv.put("visitor_phone", visitorPhone.getText().toString());
         cv.put("idcard_avatar", idCardAvatarPath);
         cv.put("visitor_avatar",cameraTakeAvatarPath);
-        cv.put("visitor_sex", sex.getText().toString());
+        cv.put("visitor_sex", sex.getSelectedItem().toString());
         cv.put("visitor_name", name.getText().toString());
         cv.put("visited_user_phone", visitedPhone.getText().toString());
         cv.put("visited_user_position", visitedPos.getText().toString());
         cv.put("visitor_car_num",visitorCarNum.getText().toString());
         cv.put("visitor_take",visitorTake.getText().toString());
+        cv.put("certificate_type", certificate_type.getSelectedItem().toString());
         if(visitedFemale.isChecked()){
             cv.put("visited_sex", 2);
         }else{
@@ -1257,10 +1298,18 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             flag = false;
         }*/
 
-        if(idCardAvatarPath == null){
-            msg += "请放入访客的身份证进行识别" + nextline;
-            flag = false;
+        if(isManualInput()){
+            if("".equals(address.getText().toString().trim())){
+                msg += "请输入来访人住址" + nextline;
+                flag = false;
+            }
+        }else{
+            if(idCardAvatarPath == null){
+                msg += getString(R.string.please_put_card) + nextline;
+                flag = false;
+            }
         }
+
 
         if(barCodeString==null){
             msg += "生成条码失败，请重试"+nextline;
@@ -1520,6 +1569,20 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         return grayImg;
     }
 
+
+    private void setSex(String sex){
+
+        if("男".equals(sex)){
+            this.sex.setSelection(0);
+        }else{
+            this.sex.setSelection(1);
+        }
+
+    }
+
+    private boolean isManualInput(){
+        return "".equals(valid_date.getText().toString().trim());
+    }
 
 
 

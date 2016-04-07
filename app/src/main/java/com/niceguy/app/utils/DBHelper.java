@@ -63,7 +63,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "visitor_phone TEXT,visitor_ethnic TEXT,visitor_birthday TEXT,"+
                 "visitor_address TEXT,visitor_idno TEXT,visitor_count INTEGER,"+
                 "idcard_police TEXT,idcard_deadline TEXT,duty_user_id INTEGER,"+
-                "visitor_car_num TEXT,visitor_take TEXT,"+
+                "visitor_car_num TEXT,visitor_take TEXT,certificate_type TEXT,"+
                 "duty_username TEXT,duty_username_leave TEXT,visit_time INTEGER,leave_time INTEGER,visit_status INTEGER,barcode TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS department" +
                 "(_id INTEGER PRIMARY KEY AUTOINCREMENT, dept_name TEXT, code_num TEXT, desc TEXT)");
