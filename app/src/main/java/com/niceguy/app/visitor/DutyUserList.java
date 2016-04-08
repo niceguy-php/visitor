@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 
 import com.niceguy.app.utils.DBHelper;
 
+import java.io.File;
 import java.sql.SQLException;
 
 /**
@@ -37,6 +39,7 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
     private ListView listView = null;
     private static final String TABLE = "user";
     private static final String TABLE_USER_DEPARTMENT = "user_department";
+    public static final String USER_IMPORT_DIR= Environment.getExternalStorageDirectory().getPath()+"/sicheng/user_import/";
     private static final int ACTION_ADD = 1;
     private static final int ACTION_UPDATE = 2;
     private static final int USER_TYPE_EMPLOYEE = 1;//员工
@@ -58,6 +61,11 @@ public class DutyUserList extends Fragment implements View.OnClickListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.user_list, container, false);
+
+        File import_dir = new File(USER_IMPORT_DIR);
+        if(!import_dir.exists()){
+            import_dir.mkdirs();
+        }
 
         connectDB();
 

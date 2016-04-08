@@ -55,7 +55,7 @@ import com.hdos.idCardUartDevice.publicSecurityIDCardLib;
 import com.niceguy.app.utils.DBHelper;
 import com.synjones.bluetooth.DecodeWlt;
 import com.synjones.sdt.IDCard;
-//import com.synjones.sdt.SerialPort;
+//import_view com.synjones.sdt.SerialPort;
 import android_serialport_api.SerialPort;
 import hdx.HdxUtil;
 

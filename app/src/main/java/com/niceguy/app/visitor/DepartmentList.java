@@ -8,23 +8,35 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.niceguy.app.utils.DBHelper;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by qiumeilin on 2016/1/9.
@@ -33,12 +45,13 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
 
     private ListView listView = null;
     private static final String TABLE = "department";
+    public static final String DEPT_IMPORT_DIR= Environment.getExternalStorageDirectory().getPath()+"/sicheng/department_import";
     private static final int ACTION_ADD = 1;
     private static final int ACTION_UPDATE = 2;
     private Activity activity = null;
     private TextView curpage,page,total,page1;
     private Button add,first,next,pre,last,import_insert;
-    private AlertDialog detailDialog;
+    private AlertDialog detailDialog,importDialog;
     private DBHelper helper = null;
     private SQLiteDatabase db = null;
     private int pagesize = 7,total_page = 0,curpage_num=1;
@@ -51,6 +64,10 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
         View view = inflater.inflate(R.layout.department_list, container, false);
 
         connectDB();
+        File import_dir = new File(DEPT_IMPORT_DIR);
+        if(!import_dir.exists()){
+            import_dir.mkdirs();
+        }
 
         initViews(view);
 
@@ -147,6 +164,21 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                 showDetailDialog(detailView,ACTION_ADD);
                 break;
             case R.id.dept_import:
+                LayoutInflater inflater1 = getActivity().getLayoutInflater();
+                View importView = inflater1.inflate(R.layout.import_view, null);
+                String[] import_file_list = null;
+                File  f = new File(DEPT_IMPORT_DIR);
+                import_file_list = f.list();
+                if (import_file_list !=null && import_file_list.length >0){
+                    Spinner importSpinner = (Spinner) importView.findViewById(R.id.import_file);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, import_file_list);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    importSpinner.setAdapter(adapter);
+                    importView.findViewById(R.id.import_file_create_time).setVisibility(View.INVISIBLE);
+                    showImportDialog(importView);
+                }else{
+                    Toast.makeText(getActivity(), "未发现需要导入的文件", Toast.LENGTH_LONG).show();
+                }
                 break;
         }
     }
@@ -179,6 +211,73 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
             listView.setAdapter(adapter);
         }
         releaseDB();
+    }
+
+    private void showImportDialog(final View view){
+        importDialog = new AlertDialog.Builder(getActivity())
+                .setTitle("导入部门").setView(view)
+                .setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("开始导入", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        Spinner import_spinner = (Spinner) view.findViewById(R.id.import_file);
+
+                        String file_name = import_spinner.getSelectedItem().toString().trim();
+
+                        File import_file = new File(DEPT_IMPORT_DIR + '/' + file_name);
+                        if (import_file.exists()) {
+
+                            ArrayList<String> lines = new ArrayList<String>();
+                            try {
+                                lines = (ArrayList<String>) FileUtils.readLines(import_file,"utf-8");
+
+                                checkImport(lines);
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            /*ContentValues cv = new ContentValues();
+                            if ("".equals(name.trim())) {
+                                Toast.makeText(getActivity(), "请填写部门名称", Toast.LENGTH_LONG).show();
+                                detailDialog.show();
+                                return;
+                            }
+
+                            connectDB();
+                            try {
+                                if (!name.equals(old_dept_name)) {
+                                    Cursor c = helper.fetchDepartmentByName(name);
+                                    if (c.getCount() > 0) {
+                                        Toast.makeText(getActivity(), "部门名称已经存在", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                    c.close();
+                                }
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+
+                            cv.put("dept_name", name);
+                            cv.put("code_num", code);
+
+                            helper.update(TABLE, cv, Long.parseLong(v.getText().toString()));
+                            releaseDB();
+                            updateList(1);
+                            Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();*/
+                        } else {
+                            Toast.makeText(getActivity(), "选择的文件不存在", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                }).create();
+        importDialog.show();
     }
 
     private void showDetailDialog(final View view,int action) {
@@ -321,5 +420,14 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
         /*if(helper!=null){
             helper.close();
         }*/
+    }
+
+    private boolean checkImport(ArrayList<String> lines){
+        int len = lines.size();
+        for (int i=0 ; i<len;i++ ){
+            Log.v("YYX",lines.get(i));
+        }
+
+        return true;
     }
 }

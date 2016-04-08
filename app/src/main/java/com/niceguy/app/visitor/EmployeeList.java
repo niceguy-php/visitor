@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.niceguy.app.utils.DBHelper;
 
+import java.io.File;
 import java.sql.SQLException;
 
 /**
@@ -59,6 +60,10 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
         View view = inflater.inflate(R.layout.user_list, container, false);
 
         connectDB();
+        File import_dir = new File(DutyUserList.USER_IMPORT_DIR);
+        if(!import_dir.exists()){
+            import_dir.mkdirs();
+        }
 
         initViews(view);
 

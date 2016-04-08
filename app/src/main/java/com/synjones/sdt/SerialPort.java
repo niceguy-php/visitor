@@ -29,7 +29,7 @@ import java.io.UnsupportedEncodingException;
 
 import android.util.Log;
 
-//import android.util.Log;
+//import_view android.util.Log;
 
 public class SerialPort {
 
