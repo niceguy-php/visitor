@@ -28,14 +28,20 @@ import android.widget.Toast;
 
 import com.niceguy.app.utils.DBHelper;
 
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -235,42 +241,36 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
 
                             ArrayList<String> lines = new ArrayList<String>();
                             try {
-                                lines = (ArrayList<String>) FileUtils.readLines(import_file,"utf-8");
+                                lines = (ArrayList<String>) FileUtils.readLines(import_file, "gb2312");
 
-                                checkImport(lines);
+                                if (checkImport(lines)) {
+                                    connectDB();
+                                    int len = lines.size();
+                                    for (int i = 0; i < len; i++) {
+                                        String info = lines.get(i);
+                                        String[] info_arr = info.split("|");
+                                        ContentValues cv = new ContentValues();
+                                        Log.v("YYX",info_arr[0]);
+                                        String name = new String(info_arr[0].getBytes("gb2312"),"utf-8");
+                                        Log.v("YYX",name);
+                                        String code = new String(info_arr[1].getBytes("gb2312"),"utf-8");
+                                        String desc = new String(info_arr[2].getBytes("gb2312"),"utf-8");
+                                        cv.put("dept_name", name);
+                                        cv.put("code_num", code);
+                                        cv.put("desc", desc);
+                                        helper.insert(TABLE, cv);
+                                    }
+                                    updateList(1);
+                                    Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
+                                } else {
+                                    return;
+                                }
 
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
 
-                            /*ContentValues cv = new ContentValues();
-                            if ("".equals(name.trim())) {
-                                Toast.makeText(getActivity(), "请填写部门名称", Toast.LENGTH_LONG).show();
-                                detailDialog.show();
-                                return;
-                            }
 
-                            connectDB();
-                            try {
-                                if (!name.equals(old_dept_name)) {
-                                    Cursor c = helper.fetchDepartmentByName(name);
-                                    if (c.getCount() > 0) {
-                                        Toast.makeText(getActivity(), "部门名称已经存在", Toast.LENGTH_LONG).show();
-                                        return;
-                                    }
-                                    c.close();
-                                }
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-
-                            cv.put("dept_name", name);
-                            cv.put("code_num", code);
-
-                            helper.update(TABLE, cv, Long.parseLong(v.getText().toString()));
-                            releaseDB();
-                            updateList(1);
-                            Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();*/
                         } else {
                             Toast.makeText(getActivity(), "选择的文件不存在", Toast.LENGTH_LONG).show();
                             return;
@@ -424,10 +424,49 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
 
     private boolean checkImport(ArrayList<String> lines){
         int len = lines.size();
+        String errMsg = "";
+        String nextline = "\r\n";
+        List<String> dept_names_list = null;
         for (int i=0 ; i<len;i++ ){
-            Log.v("YYX",lines.get(i));
+            String str = lines.get(i).toString().trim();
+            if("".equals(str)&&str!=null){
+                String[] tmp = str.split("|");
+                if(tmp.length != 3){
+                    errMsg += "第"+i+"行："+str+"。格式不正确" + nextline;
+                }else {
+                    if(tmp[0].trim().length() == 0){
+                        errMsg += "第"+i+"行："+str+"。请填写部门名称" + nextline;
+                    }else{
+                        connectDB();
+                        String[] names = helper.getDeptNames();
+                        if(names.length > 0){
+                            dept_names_list = Arrays.asList(names);
+                            String utf8name = null;
+
+                            try {
+                                utf8name = new String(tmp[0].getBytes("gb2312"), "utf-8");
+//                                Log.v("YYX",utf8name);
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                            if(dept_names_list.contains(utf8name)){
+                                errMsg += "第"+i+"行："+str+"。该部门名称已经存在，请更换新名称" + nextline;
+                            }
+                        }
+                    }
+                }
+//                Log.v("YYX", lines.get(i));
+            }
+            if("".equals(errMsg)){
+                return true;
+            }else {
+                Toast.makeText(getActivity(),errMsg,Toast.LENGTH_LONG);
+                return false;
+            }
+
         }
 
         return true;
     }
+
 }
