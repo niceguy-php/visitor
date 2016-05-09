@@ -219,7 +219,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         initViews(view);
         initEvents();
 
-//        initNewPrinter();
+        initNewPrinter();
 
         String companyFolder = Environment.getExternalStorageDirectory().getPath()
                 + STROE_IDCARD_AVATAR_PATH;// 配置文件文件夹
