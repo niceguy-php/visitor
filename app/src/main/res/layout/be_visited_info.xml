@@ -49,6 +49,7 @@
 
         <AutoCompleteTextView
             android:hint="被访人姓名"
+            android:textSize="14sp"
             android:completionThreshold="1"
             android:id="@+id/be_visited_name"
             android:layout_width="wrap_content"
@@ -109,6 +110,7 @@
         <EditText
             android:textColorHint="@color/hint"
             android:hint="被访人电话"
+            android:textSize="14sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/be_visited_tel"
@@ -131,6 +133,7 @@
         <EditText
             android:textColorHint="@color/hint"
             android:hint="被访人职位"
+            android:textSize="14sp"
             android:imeOptions="flagNoExtractUi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

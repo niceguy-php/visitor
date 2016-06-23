@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -26,8 +27,17 @@ import android.widget.Toast;
 
 import com.niceguy.app.utils.DBHelper;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by qiumeilin on 2016/1/9.
@@ -37,17 +47,18 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
     private ListView listView = null;
     private static final String TABLE = "user";
     private static final String TABLE_USER_DEPARTMENT = "user_department";
+    public static final String USER_IMPORT_DIR= Environment.getExternalStorageDirectory().getPath()+"/sicheng/user_import/";
     private static final int ACTION_ADD = 1;
     private static final int ACTION_UPDATE = 2;
     public static final int USER_TYPE_EMPLOYEE = 1;//员工
     public static final int USER_TYPE_DUTY = 2;//值班用户
-    private static final int SEX_MALE = 1;//值班用户
-    private static final int SEX_FEMALE = 2;//值班用户
+    private static final int SEX_MALE = 1;//男
+    private static final int SEX_FEMALE = 2;//女
 
     private Activity activity = null;
     private TextView curpage,page,total,page1;
-    private Button add,first,next,pre,last;
-    private AlertDialog detailDialog;
+    private Button add,first,next,pre,last,import_insert;
+    private AlertDialog detailDialog,importDialog;
     private DBHelper helper = null;
     private int pagesize = 7,total_page = 0,curpage_num=1;
     private long count = 0;
@@ -172,6 +183,8 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
         next = (Button) view.findViewById(R.id.user_next_page);
         pre = (Button) view.findViewById(R.id.user_pre_page);
         add = (Button) view.findViewById(R.id.user_add);
+        import_insert = (Button) view.findViewById(R.id.user_import);
+
 
     }
 
@@ -181,6 +194,7 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
         next.setOnClickListener(this);
         pre.setOnClickListener(this);
         add.setOnClickListener(this);
+        import_insert.setOnClickListener(this);
     }
 
     @Override
@@ -239,6 +253,23 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
                 }
                 showDetailDialog(detailView, ACTION_ADD);
                 break;
+            case R.id.user_import:
+                LayoutInflater inflater1 = getActivity().getLayoutInflater();
+                View importView = inflater1.inflate(R.layout.import_view, null);
+                String[] import_file_list = null;
+                File  f = new File(USER_IMPORT_DIR);
+                import_file_list = f.list();
+                if (import_file_list !=null && import_file_list.length >0){
+                    Spinner importSpinner = (Spinner) importView.findViewById(R.id.import_file);
+                    ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, import_file_list);
+                    adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    importSpinner.setAdapter(adapter1);
+                    importView.findViewById(R.id.import_file_create_time).setVisibility(View.INVISIBLE);
+                    showImportDialog(importView);
+                }else{
+                    Toast.makeText(getActivity(), "未发现需要导入的文件", Toast.LENGTH_LONG).show();
+                }
+                break;
         }
     }
 
@@ -271,6 +302,144 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
         }
 
         releaseDB();
+    }
+
+    private void showImportDialog(final View view){
+        importDialog = new AlertDialog.Builder(getActivity())
+                .setTitle("导入部门成员").setView(view)
+                .setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("开始导入", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        Spinner import_spinner = (Spinner) view.findViewById(R.id.import_file);
+
+                        String file_name = import_spinner.getSelectedItem().toString().trim();
+
+                        File import_file = new File(USER_IMPORT_DIR + '/' + file_name);
+                        if (import_file.exists()) {
+
+                            ArrayList<String> lines = new ArrayList<String>();
+                            BufferedReader reader;
+                            try {
+                                //lines = (ArrayList<String>) FileUtils.readLines(import_file, "gb2312");
+                                FileInputStream fis = new FileInputStream(import_file);
+                                BufferedInputStream in = new BufferedInputStream(fis);
+                                in.mark(4);
+                                byte[] first3bytes = new byte[3];
+                                in.read(first3bytes);//找到文档的前三个字节并自动判断文档类型。
+                                in.reset();
+                                if (first3bytes[0] == (byte) 0xEF && first3bytes[1] == (byte) 0xBB && first3bytes[2] == (byte) 0xBF) {
+                                    reader = new BufferedReader(new InputStreamReader(in, "utf-8"));
+                                } else if (first3bytes[0] == (byte) 0xFF && first3bytes[1] == (byte) 0xFE) {
+                                    reader = new BufferedReader(new InputStreamReader(in, "unicode"));
+                                } else if (first3bytes[0] == (byte) 0xFE && first3bytes[1] == (byte) 0xFF) {
+                                    reader = new BufferedReader(new InputStreamReader(in, "utf-16be"));
+                                } else if (first3bytes[0] == (byte) 0xFF && first3bytes[1] == (byte) 0xFF) {
+                                    reader = new BufferedReader(new InputStreamReader(in, "utf-16le"));
+                                } else {
+                                    reader = new BufferedReader(new InputStreamReader(in, "GBK"));
+                                }
+
+                                //InputStreamReader isr = new InputStreamReader(new FileInputStream(import_file), "gb2312");//UTF-8
+                                //BufferedReader br = new BufferedReader(isr);
+
+                                String mimeTypeLine = null;
+                                while ((mimeTypeLine = reader.readLine()) != null) {
+                                    lines.add(mimeTypeLine);
+                                }
+
+                                reader.close();
+                                in.close();
+                                fis.close();
+
+                                //if (checkImport(lines)) {
+                                connectDB();
+                                int len = lines.size();
+                                for (int i = 0; i < len; i++) {
+                                    String info = (String) lines.get(i);
+                                    String[] info_arr = info.split(",");
+                                    if (info_arr.length > 2) {
+                                        ContentValues cv = new ContentValues();
+
+                                        String deptname = info_arr[0];//new String(info_arr[0].getBytes("gb2312"),"utf-8");
+                                        Log.v("YYX", deptname);
+                                        //校验部门名称是否存在？
+                                        int deptId = 0;
+                                        try {
+                                            Cursor c = helper.fetchDepartmentByName(deptname);
+                                            if (c.getCount() == 0) {
+                                                Log.v("YYX", deptname + "部门名称不存在");
+                                                continue;
+                                            } else
+                                                deptId = c.getInt(c.getColumnIndex("_id"));
+                                            c.close();
+                                        } catch (SQLException e) {
+                                            //e.printStackTrace();
+                                        }
+                                        String username = info_arr[1];//new String(info_arr[0].getBytes("gb2312"),"utf-8");
+                                        Log.v("YYX", username);
+
+                                        String strsex = "男";
+                                        int sex = 1;
+                                        if (info_arr.length >= 3) {
+                                            strsex = info_arr[2];//new String(info_arr[1].getBytes("gb2312"),"utf-8");
+                                            if ("男".equals(strsex.trim()) ) sex = 1;
+                                            else sex = 2;
+
+                                        }
+
+                                        String code = "";
+                                        if (info_arr.length >= 4) {
+                                            code = info_arr[3];//new String(info_arr[1].getBytes("gb2312"),"utf-8");
+                                        }
+                                        String position = "";
+                                        if (info_arr.length >= 5) {
+                                            position = info_arr[4];//new String(info_arr[1].getBytes("gb2312"),"utf-8");
+                                        }
+                                        String phone = "";
+                                        if (info_arr.length >= 6) {
+                                            phone = info_arr[5];//new String(info_arr[1].getBytes("gb2312"),"utf-8");
+                                        }
+
+                                        cv.put("username", username);
+                                        cv.put("sex", sex);  //1 男  2女
+                                        cv.put("code_num", code);
+                                        cv.put("position", position);
+                                        cv.put("phone", phone);
+                                        cv.put("user_type", 1);//1 是员工， 2 是值班人员
+
+                                        long userId = helper.insert(TABLE, cv);
+                                        if (deptId > 0 && userId > 0) {
+                                            ContentValues cv1 = new ContentValues();
+                                            cv1.put("dept_id", deptId);
+                                            cv1.put("user_id", userId);
+                                            helper.insert(TABLE_USER_DEPARTMENT, cv1);
+                                        }
+
+                                    }
+                                    updateList(1);
+                                    Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
+                                }
+                                //} else {
+                                //    return;
+                                //}
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Toast.makeText(getActivity(), "选择的文件不存在", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                }).create();
+        importDialog.show();
     }
 
     private void showDetailDialog(final View view,int action) {
@@ -482,5 +651,6 @@ public class EmployeeList extends Fragment implements View.OnClickListener{
             helper.close();
         }*/
     }
+
 
 }

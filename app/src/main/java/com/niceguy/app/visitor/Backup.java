@@ -186,7 +186,7 @@ public class Backup extends Fragment implements View.OnClickListener{
                         String tmp = fname.substring(0,fname.length()-3);
                         String[] name_arr = org.apache.commons.lang3.StringUtils.split(tmp, '_');
 //                        String backup_time = String.format("%s-%s-%s %s:%s:%s",name_arr[0],name_arr[1],name_arr[2],name_arr[3],name_arr[4],name_arr[5]);
-                        String backup_time = String.format("%s-%s-%s %s:%s:%s",name_arr);
+                        String backup_time = String.format("%s-%s-%s %s:%s:%s",(Object[])name_arr);
                         hashMap.put("backup_time",backup_time);
                     }else{
                         hashMap.put("backup_time","");

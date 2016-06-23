@@ -43,7 +43,7 @@ import java.util.UUID;
 import hdx.HdxUtil;
 
 /**
- * Created by qiumeilin on 2016/1/9.
+ * Created by qiumeilin on 2016/1/9
  */
 public class VisitorLeaveFragment extends Fragment{
 
@@ -89,8 +89,11 @@ public class VisitorLeaveFragment extends Fragment{
         activity = getActivity();
 //        mTextView = (TextView) view.findViewById(R.id.result);
         mImageView = (ImageView) view.findViewById(R.id.qrcode_bitmap);
+        mImageView.setImageBitmap(null);
         barCodeImage = (ImageView) view.findViewById(R.id.bar_code);
+        barCodeImage.setImageBitmap(null);
         avatarImage = (ImageView) view.findViewById(R.id.print_avatar);
+        avatarImage.setImageBitmap(null);
         duty_person_in_leave = (Spinner) view.findViewById(R.id.duty_person_in_leave);
 
         visit_reason  = (TextView) view.findViewById(R.id.preview_visit_reason);
@@ -206,23 +209,48 @@ public class VisitorLeaveFragment extends Fragment{
                 }else{
                     visit_status.setTextColor(Color.GREEN);
                 }
+
+                Bitmap barCodePic = null;
+                barCodePic = BarcodeCreater.creatBarcode(activity,
+                        barCode, 380, 70, true, 1);// 最后一位参数是条码格式
+
+                if(barCodePic != null){
+                    barCodeImage.setImageBitmap(barCodePic);
+                }
+            }else{
+                visit_reason.setText("");
+                visitor_name.setText("");
+                visitor_count.setText("");
+                visited_dept.setText("");
+                visited_name.setText("");
+                visit_time.setText("");
+                visit_car_num.setText("");
+                visit_take.setText("");
+                visit_status.setText("");
+                barCodeImage.setImageBitmap(null);
+                mImageView.setImageBitmap(null);
+                avatarImage.setImageResource(R.mipmap.photo);
             }
 
-            if(bitmapRec !=null ){
-                mImageView.setImageBitmap(bitmapRec);
-            }
-            Bitmap barCodePic = null;
-            barCodePic = BarcodeCreater.creatBarcode(activity,
-                    barCode, 380, 70, true, 1);// 最后一位参数是条码格式
+            //if(bitmapRec !=null ){
+            //    mImageView.setImageBitmap(bitmapRec);
+            //}
 
-            if(barCodePic != null){
-                barCodeImage.setImageBitmap(barCodePic);
-            }
-
-            if(avatarBitmap != null){
-                avatarImage.setImageBitmap(avatarBitmap);
-            }
+            //if(avatarBitmap != null){
+            //    avatarImage.setImageBitmap(avatarBitmap);
+            //}
         }else {
+            visit_reason.setText("");
+            visitor_name.setText("");
+            visitor_count.setText("");
+            visited_dept.setText("");
+            visited_name.setText("");
+            visit_time.setText("");
+            visit_car_num.setText("");
+            visit_take.setText("");
+            visit_status.setText("");
+            barCodeImage.setImageBitmap(null);
+            avatarImage.setImageResource(R.mipmap.photo);
             Toast.makeText(activity, "识别条码失败，请重试", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -304,13 +332,18 @@ public class VisitorLeaveFragment extends Fragment{
 
                 if(barCodePic != null){
                     barCodeImage.setImageBitmap(barCodePic);
+                }else{
+                    barCodeImage.setImageBitmap(null);
                 }
 
+            }else{
+                clearBox();
             }
             cur.close();
 
 
         }else{
+            clearBox();
             Toast.makeText(getActivity(),"未能成功识别，请重新放入身份证",Toast.LENGTH_SHORT).show();
         }
 
@@ -320,6 +353,23 @@ public class VisitorLeaveFragment extends Fragment{
         if(helper==null){
             helper = DBHelper.getInstance(getActivity());
         }
+    }
+
+    private void clearBox(){
+        visit_reason.setText("");
+        visitor_name.setText("");
+        visitor_count.setText("");
+        visited_dept.setText("");
+        visited_name.setText("");
+        visit_time.setText("");
+        visit_car_num.setText("");
+        visit_take.setText("");
+        visit_status.setText("");
+
+        barCodeImage.setImageBitmap(null);
+        mImageView.setImageBitmap(null);
+        avatarImage.setImageBitmap(null);
+        //avatarImage.setImageResource(R.mipmap.photo);
     }
 
     @Override
@@ -335,8 +385,10 @@ public class VisitorLeaveFragment extends Fragment{
             visit_car_num.setText("");
             visit_take.setText("");
             visit_status.setText("");
-
-            avatarImage.setImageResource(R.mipmap.photo);
+            barCodeImage.setImageBitmap(null);
+            mImageView.setImageBitmap(null);
+            avatarImage.setImageBitmap(null);
+            //avatarImage.setImageResource(R.mipmap.photo);
         }
 
     }

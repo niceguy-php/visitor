@@ -42,9 +42,9 @@ public final class CameraManager {
 
   private static final String TAG = CameraManager.class.getSimpleName();
 
-  private static final int MIN_FRAME_WIDTH = 240;
+  private static final int MIN_FRAME_WIDTH = 160;
   private static final int MIN_FRAME_HEIGHT = 240;
-  private static final int MAX_FRAME_WIDTH = 480;
+  private static final int MAX_FRAME_WIDTH = 560;
   private static final int MAX_FRAME_HEIGHT = 360;
 
   private static CameraManager cameraManager;
@@ -123,6 +123,31 @@ public final class CameraManager {
     if (camera == null) {
 
       camera = Camera.open();
+      ////////camera.setDisplayOrientation(180);
+      if (camera == null) {
+        throw new IOException();
+      }
+      camera.setPreviewDisplay(holder);
+
+      if (!initialized) {
+        initialized = true;
+        configManager.initFromCameraParameters(camera);
+      }
+      configManager.setDesiredCameraParameters(camera);
+
+      //     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+      //是否使用前灯
+//      if (prefs.getBoolean(PreferencesActivity.KEY_FRONT_LIGHT, false)) {
+//        FlashlightManager.enableFlashlight();
+//      }
+      FlashlightManager.enableFlashlight();
+    }
+  }
+
+  public void openDriver(SurfaceHolder holder,int cameraPosition) throws IOException {
+    if (camera == null) {
+
+      camera = Camera.open(cameraPosition);//0代表前置摄像头(扫描用)，1代表后置摄像头（拍照用）
       ////////camera.setDisplayOrientation(180);
       if (camera == null) {
         throw new IOException();

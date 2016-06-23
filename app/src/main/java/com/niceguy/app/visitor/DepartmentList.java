@@ -33,10 +33,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
@@ -240,32 +243,82 @@ public class DepartmentList extends Fragment implements View.OnClickListener{
                         if (import_file.exists()) {
 
                             ArrayList<String> lines = new ArrayList<String>();
+                            BufferedReader reader;
                             try {
-                                lines = (ArrayList<String>) FileUtils.readLines(import_file, "gb2312");
+                                //lines = (ArrayList<String>) FileUtils.readLines(import_file, "gb2312");
+                                FileInputStream fis = new FileInputStream(import_file);
+                                BufferedInputStream in = new BufferedInputStream(fis);
+                                in.mark(4);
+                                byte[] first3bytes = new byte[3];
+                                in.read(first3bytes);//找到文档的前三个字节并自动判断文档类型。
+                                in.reset();
+                                if (first3bytes[0] == (byte) 0xEF && first3bytes[1] == (byte) 0xBB && first3bytes[2] == (byte) 0xBF) {
+                                    reader = new BufferedReader(new InputStreamReader(in, "utf-8"));
+                                } else if (first3bytes[0] == (byte) 0xFF && first3bytes[1] == (byte) 0xFE) {
+                                    reader = new BufferedReader(new InputStreamReader(in, "unicode"));
+                                } else if (first3bytes[0] == (byte) 0xFE && first3bytes[1] == (byte) 0xFF) {
+                                    reader = new BufferedReader(new InputStreamReader(in, "utf-16be"));
+                                } else if (first3bytes[0] == (byte) 0xFF && first3bytes[1] == (byte) 0xFF) {
+                                    reader = new BufferedReader(new InputStreamReader(in, "utf-16le"));
+                                } else {
+                                    reader = new BufferedReader(new InputStreamReader(in, "GBK"));
+                                }
 
-                                if (checkImport(lines)) {
-                                    connectDB();
-                                    int len = lines.size();
-                                    for (int i = 0; i < len; i++) {
-                                        String info = lines.get(i);
-                                        String[] info_arr = info.split("|");
+                                //InputStreamReader isr = new InputStreamReader(new FileInputStream(import_file), "gb2312");//UTF-8
+                                //BufferedReader br = new BufferedReader(isr);
+
+                                String mimeTypeLine = null;
+                                while ((mimeTypeLine = reader.readLine()) != null) {
+                                    lines.add(mimeTypeLine);
+                                }
+
+                                reader.close();
+                                in.close();
+                                fis.close();
+
+                                //if (checkImport(lines)) {
+                                connectDB();
+                                int len = lines.size();
+                                for (int i = 0; i < len; i++) {
+                                    String info = (String) lines.get(i);
+                                    String[] info_arr = info.split(",");
+                                    if (info_arr.length > 0) {
                                         ContentValues cv = new ContentValues();
-                                        Log.v("YYX",info_arr[0]);
-                                        String name = new String(info_arr[0].getBytes("gb2312"),"utf-8");
-                                        Log.v("YYX",name);
-                                        String code = new String(info_arr[1].getBytes("gb2312"),"utf-8");
-                                        String desc = new String(info_arr[2].getBytes("gb2312"),"utf-8");
-                                        cv.put("dept_name", name);
-                                        cv.put("code_num", code);
+                                        Log.v("YYX", info_arr[0]);
+                                        String deptname = info_arr[0];//new String(info_arr[0].getBytes("gb2312"),"utf-8");
+                                        Log.v("YYX", deptname);
+
+                                        //校验部门名称是否存在？
+                                        try {
+                                            Cursor c = helper.fetchDepartmentByName(deptname);
+                                            if (c.getCount() > 0) {
+                                                Log.v("YYX", deptname + "部门名称已存在");
+                                                continue;
+                                            }
+                                            c.close();
+                                        } catch (SQLException e) {
+                                            //e.printStackTrace();
+                                        }
+
+                                        String codenum = "";
+                                        if (info_arr.length >= 2) {
+                                            codenum = info_arr[1];//new String(info_arr[1].getBytes("gb2312"),"utf-8");
+                                        }
+                                        String desc = "";
+                                        if (info_arr.length >= 3) {
+                                            desc = info_arr[2];//new String(info_arr[2].getBytes("gb2312"),"utf-8");
+                                        }
+                                        cv.put("dept_name", deptname);
+                                        cv.put("code_num", codenum);
                                         cv.put("desc", desc);
                                         helper.insert(TABLE, cv);
                                     }
                                     updateList(1);
                                     Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
-                                } else {
-                                    return;
+                                    //} else {
+                                    //    return;
+                                    //}
                                 }
-
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

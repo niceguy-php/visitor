@@ -14,7 +14,7 @@ android:layout_height="match_parent"
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         >
 
         <TextView
@@ -22,12 +22,14 @@ android:layout_height="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:textColor="@color/black"
+            android:textColor="@color/textWhite"
             android:textSize="16sp"
             android:text="来访人信息"
+            android:background="@color/title"
             />
 
     </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -35,11 +37,31 @@ android:layout_height="match_parent"
         android:layout_weight="4"
         android:orientation="horizontal">
 
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1.5"
             android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="证件类型："/>
+
+                <Spinner
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/certificate_type"
+                    android:layout_weight="1"
+                    android:spinnerMode="dialog" />
+            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -52,6 +74,7 @@ android:layout_height="match_parent"
                 <EditText
                     android:textColorHint="@color/hint"
                     android:hint=""
+                    android:textSize="14sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/name_on_id_card"
@@ -69,6 +92,7 @@ android:layout_height="match_parent"
                 <EditText
                     android:textColorHint="@color/hint"
                     android:hint=""
+                    android:textSize="14sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/ethnic_on_id_card"
@@ -139,7 +163,7 @@ android:layout_height="match_parent"
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1.1">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -147,6 +171,7 @@ android:layout_height="match_parent"
         <EditText
             android:textColorHint="@color/hint"
             android:hint=""
+            android:textSize="14sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/address_on_id_card"
@@ -163,6 +188,7 @@ android:layout_height="match_parent"
         <EditText
             android:textColorHint="@color/hint"
             android:hint=""
+            android:textSize="14sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/number_on_id_card"
@@ -171,7 +197,7 @@ android:layout_height="match_parent"
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="0.9">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -185,7 +211,7 @@ android:layout_height="match_parent"
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="0.8">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

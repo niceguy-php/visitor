@@ -134,7 +134,7 @@ public class CaptureActivity extends Activity implements Callback {
 	
 	private void initCamera(SurfaceHolder surfaceHolder) {
 		try {
-			CameraManager.get().openDriver(surfaceHolder);
+			CameraManager.get().openDriver(surfaceHolder,0);
 		} catch (IOException ioe) {
 			return;
 		} catch (RuntimeException e) {
