@@ -26,6 +26,7 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +59,8 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
     private Activity inActivity;
     private String initStartDateTime = "2016年1月1日 14:44"; // 初始化开始时间
     private String initEndDateTime = "2016年1月1日 17:44"; // 初始化结束时间
+    private Spinner certificate_type;
+    private ArrayAdapter<String> adapter;
 
 
     private Activity activity = null;
@@ -65,7 +68,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
     private Button add,first,next,pre,last;
     private AlertDialog detailDialog;
     private DBHelper helper = null;
-    private int pagesize = 5,total_page = 0,curpage_num=1;
+    private int pagesize = 10,total_page = 0,curpage_num=1;
     private long count = 0;
 
     private ListView listView = null;
@@ -115,6 +118,12 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
     private void initViews(View view){
         activity = getActivity();
         listView = (ListView) view.findViewById(R.id.visit_log_listview);
+
+        certificate_type = (Spinner) view.findViewById(R.id.visitor_certificate);
+        String[] certificate_list = {"全部证件类型","身份证","警官证","学生证","教师证","驾驶证","其他"};
+        adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, certificate_list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        certificate_type.setAdapter(adapter);
 
         curpage = (TextView) view.findViewById(R.id.log_curpage);
         total = (TextView) view.findViewById(R.id.log_total);
@@ -372,6 +381,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
         String idno = visitor_id_num.getText().toString().trim();
         String address = visitor_address.getText().toString().trim();
         String name = visitor_name.getText().toString().trim();
+        String visitor_certificate = certificate_type.getSelectedItem().toString();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日 HH:mm");
         try {
             leave_time_long = sdf.parse(leave_time.getText().toString()).getTime();
@@ -380,7 +390,7 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        String s1="",s2="",s3="",s4="",s5="";
+        String s1="",s2="",s3="",s4="",s5="",s6="";
         if(leave_time_long>0){
             s1 = " leave_time < "+leave_time_long;
             list.add(s1);
@@ -402,6 +412,11 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
         if(!"".equals(name)){
             s5 = " visitor_name LIKE '%"+name+"%'";
             list.add(s5);
+        }
+
+        if(!"".equals(visitor_certificate) && !"全部证件类型".equals(visitor_certificate)){
+            s6 = " certificate_type LIKE '%"+visitor_certificate+"%'";
+            list.add(s6);
         }
 
 
@@ -437,8 +452,8 @@ public class VisitorHistoryFragment extends Fragment implements View.OnClickList
 
         if(cur!=null && cur.getCount()>=0){
             SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.visit_log_item, cur,
-                    new String[]{"_id", "visitor_name","visit_reason","visited_dept_name","visited_username","visit_time","leave_time","visit_status"},
-                    new int[]{R.id.item_log_id,R.id.item_visitor_name, R.id.item_visit_reason,R.id.item_visited_dept,R.id.item_visited_name,R.id.item_visit_time,R.id.item_leave_time,R.id.item_visit_status});
+                    new String[]{"_id", "visitor_name","visitor_idno_str","visit_reason","visited_dept_name","visited_username","visit_time","leave_time","visit_status"},
+                    new int[]{R.id.item_log_id,R.id.item_visitor_name,R.id.item_visitor_idno_str, R.id.item_visit_reason,R.id.item_visited_dept,R.id.item_visited_name,R.id.item_visit_time,R.id.item_leave_time,R.id.item_visit_status});
             //实现列表的显示
             Log.v("YYX", "in setAdapter");
             listView.setAdapter(adapter);

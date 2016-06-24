@@ -18,6 +18,12 @@
                 android:layout_weight="1"
                 android:text=""/>
             <TextView
+                android:id="@+id/item_visitor_idno_str"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""/>
+            <TextView
                 android:id="@+id/item_visit_reason"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

@@ -28,12 +28,12 @@
             <TextView
                 android:layout_width="90dp"
                 android:layout_height="wrap_content"
-                android:text="身份证头像：" />
+                android:text="证件图片：" />
 
             <ImageView
                 android:id="@+id/detail_idcard_avatar"
-                android:layout_width="50dp"
-                android:layout_height="60dp" />
+                android:layout_width="300dp"
+                android:layout_height="250dp" />
 
             <TextView
                 android:layout_width="80dp"
@@ -42,8 +42,8 @@
 
             <ImageView
                 android:id="@+id/detail_cameraTake_avatar"
-                android:layout_width="100dp"
-                android:layout_height="60dp" />
+                android:layout_width="300dp"
+                android:layout_height="250dp" />
 
 
             <TextView

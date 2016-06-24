@@ -78,6 +78,7 @@ android:layout_height="match_parent"
                 android:text="拍头像"
                 android:textSize="16sp"
                 android:layout_marginBottom="3dp"
+                android:layout_marginRight="3dp"
                 style="@style/btn_blue"
                 android:id="@+id/btn_capture" />
             <Button

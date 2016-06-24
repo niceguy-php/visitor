@@ -91,8 +91,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private static final String TAG = "PRINT";
     private static final String STROE_IDCARD_AVATAR_PATH = "/sicheng/idcard_avatar/";
     private static final String STORE_TAKE_PICTURE_PATH = "/sicheng/take_avatar/";
-    private static final int AVATAR_CAMERA = 0;//拍头像的
-    private static final int CARD_CAMEAR = 1;//拍证件身份证等卡片的
+    private static final int AVATAR_CAMERA = 1;//拍头像的
+    private static final int CARD_CAMEAR = 0;//拍证件身份证等卡片的
     private int cameraId = AVATAR_CAMERA;
     private PrinterClassSerialPort printerClass = null;
     private Camera mCamera,mCamera1,tmpCamera;
@@ -252,6 +252,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         capture = (Button) view.findViewById(R.id.btn_capture);
         cardCapture = (Button) view.findViewById(R.id.btn_card_capture);
         mHolder.addCallback(this);
+        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
         String[] visit_reasons = helper.getVisitReasons();
         adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, visit_reasons);
@@ -480,10 +481,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     public void onResume() {
         super.onResume();
         if (mCamera == null) {
-            chooseCamera(AVATAR_CAMERA);
+            chooseCamera(cameraId);
             mCamera = getCamera();
-
-
             if (mHolder != null) {
                 setStartPreview(mCamera, mHolder);
             }
@@ -525,19 +524,17 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     public void capture() {
 //        if(dialog != null) dialog.dismiss();
         loading(getString(R.string.capturing));
-        releaseCamera1();
+        releaseCamera();
         if (mCamera == null) {
-            chooseCamera(AVATAR_CAMERA);
             mCamera = getCamera();
         }
-        setStartPreview(mCamera,mHolder);
         Camera.Parameters param = mCamera.getParameters();
         param.setPictureFormat(ImageFormat.JPEG);
         param.setPreviewSize(800, 400);
-//        param.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
-//        mCamera.autoFocus(new Camera.AutoFocusCallback() {
-//            @Override
-//            public void onAutoFocus(boolean success, Camera camera) {
+        param.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
+        mCamera.autoFocus(new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean success, Camera camera) {
 //                if (success) {
                     mCamera.takePicture(null, null, new Camera.PictureCallback() {
                         @Override
@@ -591,91 +588,26 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                             }
                         }
                     });
-//                }
-//            }
-//        });
+//                }//end 1
+            }//end2
+        });//end3
 
     }
 
-    public void card_capture() {
-//        if(dialog != null) dialog.dismiss();
-        loading(getString(R.string.capturing));
-        releaseCamera();
-        if (mCamera1 == null) {
-            chooseCamera(CARD_CAMEAR);
-            mCamera1 = getCamera();
-        }
-        this.toast("mCamera1 not null");
-        Camera.Parameters param = mCamera1.getParameters();
-        param.setPictureFormat(ImageFormat.JPEG);
-        param.setPreviewSize(800, 400);
-//        param.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
-//        mCamera.autoFocus(new Camera.AutoFocusCallback() {
-//            @Override
-//            public void onAutoFocus(boolean success, Camera camera) {
-//                if (success) {
-        mCamera1.takePicture(null, null, new Camera.PictureCallback() {
-            @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-
-                String filename = UUID.randomUUID().toString() + ".jpg";
-                Log.v("YYX",filename);
-                Log.v("YYX","=================="+data.length);
-                String directory = Environment.getExternalStorageDirectory() + STORE_TAKE_PICTURE_PATH;
-                String path = directory + filename;
-                File dir = new File(directory);
-                File file = new File(path);
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-                FileOutputStream fos = null, fos1 = null;
-                try {
-                    fos = new FileOutputStream(file);
-                    fos.write(data);
-                    LayoutInflater factory = LayoutInflater.from(getActivity());
-                    dialog_layout = factory.inflate(R.layout.avatar_preview, null);
-                    Bitmap b = BitmapFactory.decodeFile(file.getAbsolutePath());
-//                                Matrix matrix = new Matrix();
-//                                matrix.setRotate(180);
-//                                Bitmap bitmap = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), matrix, true);
-                    ImageView iv = (ImageView) dialog_layout.findViewById(R.id.mAvatar);
-                    fos1 = new FileOutputStream(file);
-                    b.compress(Bitmap.CompressFormat.JPEG, 90, fos1);
-                    fos.flush();
-                    if(cameraId == AVATAR_CAMERA){
-                        cameraTakeAvatarPath = path;
-                    }else{
-                        idCardAvatarPath = path;
-                    }
-                    iv.setImageBitmap(b);
-                    hideLoading();
-                    showCapturePreviewDialog(dialog_layout, path);
-                                /*Intent intent = new Intent();
-                                intent.putExtra("path", file.getAbsolutePath());
-                                intent.setClass(getActivity(), PreviewActivity.class);
-                                getActivity().startActivity(intent);*/
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        if (fos != null) fos.close();
-                        if (fos1 != null) fos1.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-//                }
-//            }
-//        });
-
-    }
 
     public Camera getCamera() {
-        Camera camera;
+        Camera camera = null;
+        //切换前后摄像头
+        int cameraCount = 0;
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        cameraCount = Camera.getNumberOfCameras();//得到摄像头的个数
+
+        Log.v("YYX","cameraCount="+cameraCount);
+
         try {
-            camera = Camera.open(this.cameraId);//0代表前置摄像头(扫描用)，1代表后置摄像头（拍照用）
+            releaseCamera();
+            camera = Camera.open(this.cameraId);//1代表前置摄像头(扫描用)，0代表后置摄像头（拍照用）
+            setStartPreview(camera,mHolder);
         } catch (Exception e) {
             camera = null;
             Log.v("YYX","open camera1 fail");
@@ -745,7 +677,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 break;
             case R.id.btn_card_capture:
                 this.chooseCamera(CARD_CAMEAR);
-                this.card_capture();
+                this.capture();
+//                this.card_capture();
                 break;
             case R.id.clear_register_btn:
 //                addVisitorLog();
@@ -948,9 +881,9 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         String title = "拍照头像预览" ;
         if(cameraId == CARD_CAMEAR){
             title = "证件图像预览";
-            tmpCamera = mCamera1;
+//            tmpCamera = mCamera1;
         }else{
-            tmpCamera = mCamera;
+//            tmpCamera = mCamera;
         }
         capturePreviewDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(title).setView(view)
@@ -958,7 +891,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Toast.makeText(getActivity(), "保存成功", Toast.LENGTH_LONG).show();
-                        setStartPreview(tmpCamera,mHolder);
+                        setStartPreview(mCamera,mHolder);
                     }
                 }).setNegativeButton("重拍", new DialogInterface.OnClickListener() {
 
@@ -970,11 +903,13 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                         if (file.exists() && file.isFile()) file.delete();
                         dialog.dismiss();
 
-                        if(cameraId == CARD_CAMEAR){
+                        chooseCamera(cameraId);
+                        capture();
+                        /*if(cameraId == CARD_CAMEAR){
                             card_capture();
                         }else{
                             capture();
-                        }
+                        }*/
 
                     }
                 }).create();
