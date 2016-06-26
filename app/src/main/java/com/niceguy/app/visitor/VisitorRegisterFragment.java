@@ -29,7 +29,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.LayoutInflaterFactory;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -103,7 +106,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private IDCard idcard = null;
     private Spinner visit_reason;
     private Spinner be_visited_dept, duty_person, certificate_type;
-    private Button read_id_card, capture,cardCapture, clear_register, print_preview, visitor_register;
+    private Button read_id_card, capture,cardCapture, clear_register, print_preview, visitor_register, change_camera;
     private ArrayAdapter<String> adapter;
     private TextView birthday, birthplace, police, valid_date;
     private EditText name,address,id_number,ethnic;
@@ -250,7 +253,8 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         certificate_type = (Spinner) view.findViewById(R.id.certificate_type);
         read_id_card = (Button) view.findViewById(R.id.read_id_card);
         capture = (Button) view.findViewById(R.id.btn_capture);
-        cardCapture = (Button) view.findViewById(R.id.btn_card_capture);
+        change_camera = (Button) view.findViewById(R.id.change_camera);
+//        cardCapture = (Button) view.findViewById(R.id.btn_card_capture);
         mHolder.addCallback(this);
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
@@ -317,10 +321,30 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     private void initEvents() {
         read_id_card.setOnClickListener(this);
         capture.setOnClickListener(this);
-        cardCapture.setOnClickListener(this);
+        change_camera.setOnClickListener(this);
+//        cardCapture.setOnClickListener(this);
         visitor_register.setOnClickListener(this);
         print_preview.setOnClickListener(this);
         clear_register.setOnClickListener(this);
+
+        certificate_type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+           @Override
+           public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+               String certificate_selected = certificate_type.getSelectedItem().toString();
+               if ("身份证".equals(certificate_selected)) {
+                   read_id_card.setVisibility(View.VISIBLE);
+               } else {
+                   read_id_card.setVisibility(View.INVISIBLE);
+               }
+           }
+
+           @Override
+           public void onNothingSelected(AdapterView<?> parent) {
+
+           }
+       }
+        );
 
         be_visited_dept.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -328,7 +352,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 String name = be_visited_dept.getSelectedItem().toString();
                 connectDB();
                 String[] deptUsers = helper.getUserNamesByDeptName(EmployeeList.USER_TYPE_EMPLOYEE, name);
-                Log.v("YYX", StringUtils.join(deptUsers,','));
+                Log.v("YYX", StringUtils.join(deptUsers, ','));
                 releaseDB();
                 ArrayAdapter<String> av = new ArrayAdapter<String>(getActivity(),
                         android.R.layout.simple_dropdown_item_1line, deptUsers);
@@ -375,6 +399,23 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
             }
         });
 
+
+        id_number.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                showRecentVisitLog();
+            }
+        });
         be_visited_dept.setSelection(0, true);
 
         recent_visit_log_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -524,7 +565,6 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     public void capture() {
 //        if(dialog != null) dialog.dismiss();
         loading(getString(R.string.capturing));
-        releaseCamera();
         if (mCamera == null) {
             mCamera = getCamera();
         }
@@ -607,7 +647,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         try {
             releaseCamera();
             camera = Camera.open(this.cameraId);//1代表前置摄像头(扫描用)，0代表后置摄像头（拍照用）
-            setStartPreview(camera,mHolder);
+            setStartPreview(camera, mHolder);
         } catch (Exception e) {
             camera = null;
             Log.v("YYX","open camera1 fail");
@@ -638,13 +678,6 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         }
     }
 
-    public void releaseCamera1(){
-        if (mCamera1 != null) {
-            mCamera1.release();
-            mCamera1 = null;
-        }
-    }
-
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         setStartPreview(mCamera, mHolder);
@@ -672,13 +705,25 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 readCard();
                 break;
             case R.id.btn_capture:
-                this.chooseCamera(AVATAR_CAMERA);
+//                this.chooseCamera(AVATAR_CAMERA);
                 this.capture();
                 break;
-            case R.id.btn_card_capture:
+            /*case R.id.btn_card_capture:
                 this.chooseCamera(CARD_CAMEAR);
                 this.capture();
-//                this.card_capture();
+                break;*/
+            case R.id.change_camera:
+                loading("正在切换摄像头");
+                Log.v("YYX","start");
+                if(cameraId == 0){
+                    chooseCamera(1);
+                    mCamera = getCamera();
+                }else{
+                    chooseCamera(0);
+                    mCamera = getCamera();
+                }
+                hideLoading();
+                Log.v("YYX", "end");
                 break;
             case R.id.clear_register_btn:
 //                addVisitorLog();
@@ -888,12 +933,13 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
         capturePreviewDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(title).setView(view)
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getActivity(), "保存成功", Toast.LENGTH_LONG).show();
-                        setStartPreview(mCamera,mHolder);
-                    }
-                }).setNegativeButton("重拍", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(getActivity(), "保存成功", Toast.LENGTH_LONG).show();
+                                setStartPreview(mCamera, mHolder);
+                            }
+                        }
+                )/*.setNegativeButton("重拍", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -905,14 +951,14 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
                         chooseCamera(cameraId);
                         capture();
-                        /*if(cameraId == CARD_CAMEAR){
+                        *//*if(cameraId == CARD_CAMEAR){
                             card_capture();
                         }else{
                             capture();
-                        }*/
+                        }*//*
 
                     }
-                }).create();
+                })*/.create();
         capturePreviewDialog.show();
     }
 

@@ -71,17 +71,8 @@ android:layout_height="match_parent"
                 android:id="@+id/visitor_num"
                 android:background="@android:drawable/edit_text"
                 android:layout_weight="1" />
-            <Button
-                android:layout_width="80dp"
-                android:layout_height="40dp"
-                android:layout_alignParentRight="true"
-                android:text="拍头像"
-                android:textSize="16sp"
-                android:layout_marginBottom="3dp"
-                android:layout_marginRight="3dp"
-                style="@style/btn_blue"
-                android:id="@+id/btn_capture" />
-            <Button
+
+           <!-- <Button
                 android:layout_width="80dp"
                 android:layout_height="40dp"
                 android:layout_alignParentRight="true"
@@ -90,6 +81,30 @@ android:layout_height="match_parent"
                 android:layout_marginBottom="3dp"
                 style="@style/btn_blue"
                 android:id="@+id/btn_card_capture" />
+                -->
+
+            <Button
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:text="切换摄像头"
+                android:textSize="16sp"
+                android:layout_marginBottom="3dp"
+                android:layout_marginRight="3dp"
+                style="@style/btn_blue"
+                android:id="@+id/change_camera" />
+
+            <Button
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:text="拍照"
+                android:textSize="16sp"
+                android:layout_marginBottom="3dp"
+                android:layout_marginRight="3dp"
+                style="@style/btn_blue"
+                android:id="@+id/btn_capture" />
+
 
         </LinearLayout>
                 <LinearLayout
