@@ -334,7 +334,13 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                String certificate_selected = certificate_type.getSelectedItem().toString();
                if ("身份证".equals(certificate_selected)) {
                    read_id_card.setVisibility(View.VISIBLE);
+                   change_camera.setBackgroundColor(Color.LTGRAY);
+                   if(cameraId != AVATAR_CAMERA){
+                       chooseCamera(AVATAR_CAMERA);
+                       getCamera();
+                   }
                } else {
+                   change_camera.setBackgroundColor(Color.parseColor("#3F51B5"));
                    read_id_card.setVisibility(View.INVISIBLE);
                }
            }
@@ -638,15 +644,24 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
     public Camera getCamera() {
         Camera camera = null;
         //切换前后摄像头
-        int cameraCount = 0;
+        /*int cameraCount = 0;
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         cameraCount = Camera.getNumberOfCameras();//得到摄像头的个数
 
-        Log.v("YYX","cameraCount="+cameraCount);
+        Log.v("YYX","cameraCount="+cameraCount);*/
+
 
         try {
             releaseCamera();
             camera = Camera.open(this.cameraId);//1代表前置摄像头(扫描用)，0代表后置摄像头（拍照用）
+            Camera.Parameters param = camera.getParameters();
+            param.setAutoWhiteBalanceLock(false);
+            param.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            param.setSceneMode(Camera.Parameters.SCENE_MODE_AUTO);
+            param.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+            param.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+            camera.setParameters(param);
+            mCamera = camera;
             setStartPreview(camera, mHolder);
         } catch (Exception e) {
             camera = null;
@@ -713,17 +728,21 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                 this.capture();
                 break;*/
             case R.id.change_camera:
-                loading("正在切换摄像头");
-                Log.v("YYX","start");
-                if(cameraId == 0){
-                    chooseCamera(1);
-                    mCamera = getCamera();
+                if("身份证".equals(certificate_type.getSelectedItem().toString())){
+                    toast("证件类型为非“身份证”情况才能使用");
                 }else{
-                    chooseCamera(0);
-                    mCamera = getCamera();
+                    loading("正在切换摄像头");
+                    Log.v("YYX","start");
+                    if(cameraId == 0){
+                        chooseCamera(1);
+                        mCamera = getCamera();
+                    }else{
+                        chooseCamera(0);
+                        mCamera = getCamera();
+                    }
+                    hideLoading();
+                    Log.v("YYX", "end");
                 }
-                hideLoading();
-                Log.v("YYX", "end");
                 break;
             case R.id.clear_register_btn:
 //                addVisitorLog();
