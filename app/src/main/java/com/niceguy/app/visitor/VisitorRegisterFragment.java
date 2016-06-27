@@ -334,6 +334,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                String certificate_selected = certificate_type.getSelectedItem().toString();
                if ("身份证".equals(certificate_selected)) {
                    read_id_card.setVisibility(View.VISIBLE);
+                   print_preview.setVisibility(View.VISIBLE);
                    change_camera.setBackgroundColor(Color.LTGRAY);
                    if(cameraId != AVATAR_CAMERA){
                        chooseCamera(AVATAR_CAMERA);
@@ -342,7 +343,9 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                } else {
                    change_camera.setBackgroundColor(Color.parseColor("#3F51B5"));
                    read_id_card.setVisibility(View.INVISIBLE);
+                   print_preview.setVisibility(View.INVISIBLE);
                }
+               clear();
            }
 
            @Override
@@ -650,16 +653,21 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
 
         Log.v("YYX","cameraCount="+cameraCount);*/
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         try {
             releaseCamera();
             camera = Camera.open(this.cameraId);//1代表前置摄像头(扫描用)，0代表后置摄像头（拍照用）
             Camera.Parameters param = camera.getParameters();
             param.setAutoWhiteBalanceLock(false);
-            param.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-            param.setSceneMode(Camera.Parameters.SCENE_MODE_AUTO);
-            param.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
-            param.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+//            param.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+//            param.setSceneMode(Camera.Parameters.SCENE_MODE_AUTO);
+//            param.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+//            param.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
             camera.setParameters(param);
             mCamera = camera;
             setStartPreview(camera, mHolder);
@@ -732,6 +740,7 @@ public class VisitorRegisterFragment extends Fragment implements SurfaceHolder.C
                     toast("证件类型为非“身份证”情况才能使用");
                 }else{
                     loading("正在切换摄像头");
+                    toast("正在切换摄像头");
                     Log.v("YYX","start");
                     if(cameraId == 0){
                         chooseCamera(1);
